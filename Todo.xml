@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="http://www.omegahat.org/Todo.xsl" ?> 
+<?xml-stylesheet type="text/xsl" href="../../org/omegahat/Docs/XSL/Todo.xsl" ?> 
+
+<topics xmlns:r="http://www.r-project.org">
+<title>CodeDepends</title>
+
+<items>
+<title>Bugs</title>
+
+<item>
+When an assignment is not a simple name, take the name
+of the first variable mentioned and use that as an input.
+<br/>
+Test to see if it is working. Changed the is.name(e[[2]][[2]]) condition.
+Need to be more general.
+</item>
+
+<item status="done">
+Computing inputs is not getting covs in 
+sitepairs.R, specifically the 28th expression.
+<r:code>
+s = readScript("inst/samples/sitepairs.R")
+getInputs(s[[28]])
+</r:code>
+<br/>
+For some silly reason, I was excluding variables that were also in the outputs.
+</item>
+
+<item>
+Names of assignment functions not being added to functions in
+getInputs. E.g. in 
+<r:code><![CDATA[
+getInputs(quote(colnames(covs) <- paste(xcolnames(covs), "c", sep = ".")))
+]]></r:code>
+should be catching the colnames
+</item>
+
+<item>
+Get the graphs working properly.
+<r:code>
+sc = readScript("inst/samples/parallel.R")
+g = makeVariableGraph(,sc)
+library(Rgraphviz)
+plot(g)
+</r:code>
+</item>
+
+<item status="check">
+Don't include in the variables the right hand side of a $ call,
+i.e. x$foo should only reference x.
+See getInputs.language in codeDepends.
+See
+<r:code>
+sc = readScript("inst/samples/dollar.R")
+i = getInputs(sc)
+</r:code>
+or more simply
+<r:code><![CDATA[
+getInputs(expression(x$a <- 1))
+]]></r:code>
+The assignment includes the rhs, i.e. i[[3]]
+<br/>
+We may want to introduce a new class of "inputs" and "outputs"
+named, e.g., "modified" to reflect inline modifications
+via x$foo and x[i] and x[i, j]
+</item>
+
+<item>
+Draw the tasks as a flow.
+<br/>
+Think about alternatives at this point, but of course they don't really belong here
+necessarily.
+</item>
+
+<item>
+Document the undocumented functions.
+<r:code>
+library(tools)
+undoc("CodeDepends", ".")
+</r:code>
+</item>
+
+<item status="check">
+Handle complex assignments (i.e. left hand sides that are not simple names)
+where we add them to the outputs.
+</item>
+
+<item>
+getExpressionThread() and redefined variables and infinite loops.
+</item>
+</items>
+
+<items>
+<item>
+Follow load() and source() commands to identify variables they provide.
+Recursively process source() commands.
+Get the table of contents for a load() file.
+</item>
+
+
+<item>
+Determine parallel/non-dependent blocks.
+</item>
+
+<item status="done">
+Determine the point at which a variable is no longer needed
+and be able to add code to remove it, e.g. a cleanup section
+for each code block.
+<br/>
+This is as simple as looking at the info for later code blocks
+and see if a variable is in the inputs of any of these.
+<br/>
+See addRemoveIntermediates.
+</item>
+
+<item status="done">
+Create a graph connecting the expressions with edges going
+from an expression block that is an  input to another task.
+<br/>
+makeGraph
+</item>
+
+
+<item>
+Add support for going to individual expressions and not just blocks.
+i.e. so that we can extract subsets of a block when updating.
+<br/>
+The existing code will do all of the hard work. The issue
+is to arrange the results within a code block/expression
+based on the individual calls.
+This is not hard, just a change to our setup.
+So we will want to introduce new  classes to preserve the
+existing material while introducing new approaches.
+</item>
+
+<item status="done">
+getInputs() on an R function (e.g. arima0) seems
+to have a lot of redefinitions.
+<r:code>
+info = getInputs(arima0)
+dtm = getDetailedTimelines(, ff)
+plot(dtm)
+</r:code>
+<br/>
+Problem was I was reusing the same collector() for
+all expressions in case the caller gave us a collector.
+As a result, we were accumulating results across expressions.
+</item>
+
+<item status="low">
+Plot of the timeline of variables.
+<br/>
+See getDetailedTimelines() and its plot method.
+<br/>
+We should make this more polished (fix up lines that go to the end), 
+and think about what else we should really be plotting.
+</item>
+
+<item status="done">
+Find rm() commands.
+</item>
+</items>
+
+</topics>

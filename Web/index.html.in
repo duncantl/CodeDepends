@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>@PKG_NAME@</title>
+<link rel="stylesheet" href="http://www.omegahat.org/OmegaTech.css"/>
+</head>
+
+<body>
+<h1>@PKG_NAME@</h1>
+<p align="right"><a href="@TAR_FILE@">@TAR_FILE@</a> (@DATE@)</p>
+
+The @PKG_NAME@ provides tools for processing
+R code (functions and scripts) and
+<ul>
+  <li> calculating dependencies between the different expressions,
+       to facilitate
+      <ul>
+	<li> caching results and avoiding recomputation
+	<li> running code up to a particular expression or variable
+      </ul>
+  <li> providing general overview of code,
+  <li> providing a brief vocabulary for high-level annotation of code,
+  <li> identify and displaying high-level tasks,
+  <li> creating call graphs between sets of functions
+  <li> thinking about scripts as higher-level objects
+      and facilitating thinking about aspects such as alternative
+      approaches or branches where , and generally capturing the thought process of an
+      analysis/computation with its code.
+</ul>
+
+The primary motivation of this package is to provide a central
+location for potentially sophisticated dependency analysis between
+expressions that can be used for caching of intermediate results.  See
+the <a href="http://cran.r-project.org/package=cacher">cacher</a> and
+<a
+href="http://www.bioconductor.org/packages/devel/bioc/html/weaver.html">weaver</a>
+packages for use with Sweave.  We are using this in <a href="../XDynDocs">XDynDocs</a>, an
+XML-based dynamic document system that works for Docbook and Word.
+
+<p> We also use this to provide a higher-level view of code.  The idea
+is that somebody viewing an R script would look at a figure
+representing the flow of variables or a graph of the relationships
+between the high-level tasks and what they are doing (e.g. data input,
+data cleaning, exploratory data analysis, modeling, and so on).  These
+tools attempt to provide ways to look at code in more intuitive,
+high-level ways than detail-oriented code statements intended for an
+interpreter.
+
+<p>
+We also expect to use this package to identify potential
+<ul>
+  <li> refactoring
+  <li> redundancy
+  <li> parallelism
+</ul>
+
+<p>
+We also want to use this to create much richer documents
+that capture the entire thought process and activities
+during an analysis or simulation.
+We want the author to be able to reproduce not only
+the final results they present to the reader, but
+the additional activities that
+<ul>
+  <li> confirmed their approaches
+  <li> alternative avenue that they tried
+  <li> dead-ends that did not come to fruition
+  <li> ideas for other things to pursue
+</ul>
+
+This is the sense of reproducability that we want to get to, not just
+being able to repeat the computations but the analysis process.  For
+this, we need a richer document and richer relationships between code
+blocks representing higher-level tasks.  We want to be able say that
+these, for example, three code blocks relate to fitting a classifier.
+The inputs are the data and the output is a a classifier function and
+residuals, say.  If one wanted to try a different statistical method
+one would add a parallel task which would have the same inputs (or a
+superset) and produce a classifier function.
+
+
+
+
+<h2>Documentation</h2>
+<dl>
+  <dt>
+  <li><a href="design.pdf">preliminary overview</a>
+  <dd>
+  <dt>
+  <li><a href="@PKG_NAME@.pdf">R function documentation</a>
+  <dd>
+</dl>
+
+
+<hr>
+<address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
+<a href=mailto:duncan@wald.ucdavis.edu>&lt;duncan@wald.ucdavis.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Mon Mar 30 11:56:49 PDT 2009
+<!-- hhmts end -->
+</body> </html>

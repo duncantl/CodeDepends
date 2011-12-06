@@ -1,0 +1,49 @@
+\name{readScript}
+\alias{readScript}
+\alias{readScript,character-method}
+\alias{readScript,connection-method}
+\alias{readAnnotatedScript}
+\title{Read the code blocks/chunks from a document}
+\description{
+  This is a general function that determines the type of the
+  document and then extracts the code from it.
+
+  This is an S4 generic  and so can be extended by other packages
+  for document types that have a class, e.g. Word or OpenOffice
+  documents.
+
+  \code{readAnnotatedScript} is for reading scripts that use
+  a vocabulary to label code blocks with high-level task identifiers
+  to indicate what the code does in descriptive terms.
+  
+}
+\usage{
+readScript(doc, type = NA, txt = readLines(doc))
+readAnnotatedScript(doc, txt = readLines(doc)) 
+}
+
+\arguments{
+  \item{doc}{the document, typically a string giving the file name. This
+              can also be a connection, e.g. created via \code{\link[base]{url}}.}
+  \item{type}{a string indicating the type of the document. If this is
+    missing, the function calls \code{getDocType} to attempt to
+  determine this based on the "common" types of documents.}
+  \item{txt}{the lines of text of the document.}
+}
+\value{
+ A list of the R expressions that constitute the code blocks.
+}
+
+\author{Duncan Temple Lang }
+
+\seealso{
+\code{\link[base]{parse}}
+}
+\examples{
+  e = readScript( system.file ("samples", "dual.R", package = "CodeDepends") )
+
+  readScript(url("http://penguin.biostat.jhsph.edu/cpkg/49c0/90223e7b16d72240a928f69bccd72a0a164c/src/timeseries.R"))
+}
+\keyword{IO}
+\keyword{programming}
+

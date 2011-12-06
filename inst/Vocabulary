@@ -1,0 +1,19 @@
+initialization 
+
+data input
+     (or creation via, e.g., data.frame)
+
+simulation
+
+exploratory data analysis
+
+modeling
+   estimation
+   classification
+   model selection
+
+diagnostics
+
+graphical summary
+
+data output

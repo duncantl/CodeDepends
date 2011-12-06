@@ -1,0 +1,27 @@
+Package: CodeDepends
+Version: 0.2-0
+Title: Analysis of R code for reproducible research and code view
+Description: This package provides some code for analyzing R expressions
+  or blocks of code and determining the dependencies between them.
+  It focuses on R scripts, but can be used on the bodies of functions.
+  There are many facilities including the ability to summarize  or get a high-level
+  view of code, determining dependencies betwen variables,  code improvement
+  suggestions.
+Author: Duncan Temple Lang, Roger Peng, Deborah Nolan
+Maintainer: Duncan Temple Lang <duncan@wald.ucdavis.edu>
+License: GPL
+Depends: methods
+Imports: codetools, XML
+Suggests: graph, Rgraphviz
+Collate: classes.R codeDepends.R sectionDepends.R sweave.R xml.R 
+         frags.R codeTypes.R gc.R graph.R parallel.R 
+         deps.R separateBlocks.R callGraph.R
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,10 @@
+0.2-0
+
+  *  Added parameers inputs and free to getVariables() and makeVariableGraph() to allow 
+     free/global variables in the graph.
+
+  *  Introduced the notion of update variables for a task/expression as an extension
+     of inputs and outputs. These are variables whose contents are assigned values
+     via expressions such as names(x) = ..., x$foo = ... and so on.
+
+  *  Documented runUpToSection() and changed the default value for all to TRUE.

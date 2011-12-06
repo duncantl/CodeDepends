@@ -1,0 +1,121 @@
+<article>
+
+<section>
+<title>Identifying Types of High-level Tasks</title>
+<para>
+Terms/keywords
+</para>
+<para>
+Reading data
+filter
+</para>
+</section>
+<section>
+<title>Reproducabilit</title>
+<para>
+For a reviewer, provide a high-level view of the
+tasks in the analysis. This  is like a flow chart
+but automatically produced via tools but also
+annotated by the athor. 
+</para>
+<para>
+Similarly, allow the viewer to click on a section or
+to identify the figure/table of interest via number/id
+and then move the R session to evaluate the code all
+the way up to that and allow the reader to work 
+with the variables after that to create their
+own plots, fits, etc.
+</para>
+<para>
+We need to present a summary of the objects that are available
+to the  reader when they reach a certain point.
+This might be just an object browser, but also may illustrate
+the provenance of the objects based on earlier computations, etc.
+Perhaps subset of the expressions involved in the computations.
+</para>
+</section>
+<section>
+<title>Alternative view of code</title>
+<para>
+Instead of low-level computational details, present
+the code as a high-level summary for readers to comprehend
+in  "forest from the trees" view.
+</para>
+<para>
+Allow advisors, students, readers to see the code at the right
+level, allowing drill down later to see explicit details
+</para>
+</section>
+<section>
+<title>Tools to help author annotate a script</title>
+<para>
+Code analysis to identify sub-tasks that 
+are sequential, parallel and alternatives/branches
+</para>
+<para>
+Determine dependencies
+</para>
+<para>
+Automate/identify  intermediate variables after they are no longer used so they can be removed,
+i.e. top-level garbage collection.
+</para>
+<para>
+Cached results for avoiding recomputation
+</para>
+<para>
+Script as structured list of expressions/computations.
+</para>
+<para>
+identifying parallelism of expression-blocks.
+</para>
+<para>
+Summarizing code to identify
+ <itemizedlist>
+   <listitem>tree shaking (minimal set of dependent package and functions)</listitem>
+   <listitem>which packages are actually used (not just loaded) </listitem>
+   <listitem>showing call graphs</listitem>
+ </itemizedlist>
+</para>
+</section>
+<section>
+<title>Move to high-level annotation of analysis process and though process</title>
+<para>
+Tasks
+</para>
+<section>
+<title>Branches/Alternatives/Dead-ends/Potential Avenues</title>
+<para>
+Non-linear structure of documents
+</para>
+<para>
+Threads within a document that identify related sub-alternatives.
+</para>
+<para>
+Allow others to provide alternatives in separate documents
+via XInclude or absorbing them back into the original
+or allowing them copy the document and provide their own "unofficial" alternatives
+(a fork).
+This becomes a discussion document with others discussing details.
+</para>
+<para>
+Single place to collect/record/archive thoughts
+</para>
+</section>
+</section>
+<section>
+<title>Investigate</title>
+<para>Compare Data analysis and simulation.</para>
+<para>
+Look at MATLAB and SciPy/NumPy scripts to see commonality/differences.
+</para>
+</section>
+<section>
+<title>Computational Pedagogy</title>
+<para>
+How to use these to illustrate good programming
+practices and specifically decomposing 
+computational problems in to high-level sub-tasks
+and recursively decomposing these.
+</para>
+</section>
+</article>

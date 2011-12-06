@@ -1,0 +1,53 @@
+import(XML)
+import(codetools)
+
+# getVariableInputs
+export(getVariableDepends, getPropogateChanges)
+export(getSectionDepends, getExpressionThread)
+
+#export(getDocFragmentsByVar)
+
+# For reading fragments from different types of documents
+export(readScript) # getTangledFrags, getXMLFrags, getRExpressions
+exportMethods(readScript)
+
+
+export(runUpToSection, sourceVariable)
+
+export(getInputs)
+exportMethods(getInputs)
+
+export(getVariables)
+exportMethods(getVariables)
+
+export(findWhenUnneeded, addRemoveIntermediates)
+
+exportMethods(coerce)
+
+export(guessTaskType)
+
+exportClass("Script", "AnnotatedScript", "ScriptNode")
+exportClass("ScriptInfo", "ScriptNodeInfo")
+#export(ScriptNode)
+export(readAnnotatedScript)
+
+export(makeVariableGraph)
+export(makeTaskGraph)
+
+export(getDetailedTimelines) # getTimelines
+S3method(plot, DetailedVariableTimeline)
+
+
+export(getDependsThread)
+
+export(makeCallGraph)
+exportMethods(makeCallGraph)
+
+export(separateExpressionBlocks,
+       splitRedefinitions)
+
+# For Developers
+# export(parseFrags, inputCollector)
+
+exportMethods("[")
+
