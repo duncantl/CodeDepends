@@ -9,7 +9,8 @@
 }
 \usage{
 getDetailedTimelines(doc, info = getInputs(doc), vars = getVariables(info))
-\method{plot}{DetailedVariableTimeline}(x, var.srt = 0, var.mar = 5, var.cex = 1, ...)
+\method{plot}{DetailedVariableTimeline}(x, var.srt = 0,
+                                         var.mar = round(max(4, .5*max(nchar(levels(x$var))))), var.cex = 1, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

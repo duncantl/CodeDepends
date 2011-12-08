@@ -1,6 +1,9 @@
 0.2-1
 
- *   Computing the time-line avoids duplicate variables.
+  *   Computing the time-line avoids duplicate variables.
+
+  *   Time-line plot has better default for the margins so that variable names appear
+      more completely.
 
 0.2-0
 
