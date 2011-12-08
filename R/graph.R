@@ -25,7 +25,8 @@ makeVariableGraph =
   #
 function(doc, frags = readScript(doc), info = getInputs(frags), vars = getVariables(info, inputs = free), free = TRUE)
 {
-  require(graph)
+  if(!require(graph))
+      stop("you need to install the graph package to create the variable graph")
   vars = unique(vars)
   edges = structure(lapply(vars, getDependsOn, info = info, vars = vars), names = vars)
   
@@ -183,8 +184,9 @@ function(x, ...)
 getDetailedTimelines =
 function(doc, info = getInputs(doc), vars = getVariables(info))
 {
-  ans = lapply(vars, getDetailedTimeline, info = info)
+  ans = lapply(unique(vars), getDetailedTimeline, info = info)
   ans = do.call("rbind", ans)
+  ans$var = factor(ans$var, levels = unique(ans$var))
   rownames(ans) = NULL
   structure(ans, class = c("DetailedVariableTimeline", "data.frame"), range = c(1, length(info)))
 }
@@ -198,7 +200,7 @@ function(var, info)
 {
   used = sapply(info, function(x) var %in% x@inputs)
   defined = sapply(info, function(x) var %in% getVariables(x))
-  data.frame(used = used, defined = defined, var = rep(var, length(defined)))
+  data.frame(step = 1:length(info), used = used, defined = defined, var = rep(var, length(defined)), stringsAsFactors = FALSE)
 }
 
 if(FALSE) {
@@ -209,7 +211,7 @@ table(dtm$var)
 }
 
 plot.DetailedVariableTimeline =
-function(x, var.srt = 0, var.mar = 5, var.cex = 1, ...)
+function(x, var.srt = 0, var.mar = round(max(4, .5*max(nchar(levels(x$var))))), var.cex = 1, ...)
 {
   old = par(no.readonly = TRUE)
   on.exit(par(old))

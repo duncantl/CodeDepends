@@ -130,6 +130,8 @@ plot(g)
   \caption{Relationship between variables in \texttt{results-multi.R}}
 \end{figure}
 
+(Note that if you have previously computed the script, you can pass this
+as the second argument to \Rfunc{makeVariableGraph}.)
 
 \section{Visualizing Relationships between Tasks}
 In addition to looking at individual variables, we
@@ -246,7 +248,7 @@ table(getVariables(info))
 \end{verbatim}
 and also create a graph
 \begin{verbatim}
-makeVariableGraph(info = info)
+g = makeVariableGraph(info = info)
 plot(g)
 \end{verbatim}
 Since we cannot use the annotation scheme for functions, 

@@ -1,6 +1,10 @@
+0.2-1
+
+ *   Computing the time-line avoids duplicate variables.
+
 0.2-0
 
-  *  Added parameers inputs and free to getVariables() and makeVariableGraph() to allow 
+  *  Added parameters inputs and free to getVariables() and makeVariableGraph() to allow 
      free/global variables in the graph.
 
   *  Introduced the notion of update variables for a task/expression as an extension
