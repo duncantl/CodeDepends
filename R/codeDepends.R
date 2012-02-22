@@ -9,6 +9,12 @@ function(x)
  as.character(x)
 }
 
+
+#
+isFile =
+function(val, basedir = ".")
+  file.exists(val) || file.exists(paste(basedir, val, sep = .Platform$file.sep))  
+
 #########################################################################################
 
 BuiltinFunctions =
@@ -29,8 +35,12 @@ function()
   
   Set = function(name) set <<- c(set, name)  
   list(library = function(name) libraries <<- c(libraries, name),
-       file = function(name) files <<- c(files, name),
-       string = function(name) strings <<- c(strings, name),       
+       string = function(name, basedir = NA)
+                if(isFile(name, basedir))
+                    files <<- c(files, name)
+                else
+                    strings <<- c(strings, name),
+#       string = function(name) strings <<- c(strings, name),       
        update = function(name) {
                    if(!length(name))
                       return()
@@ -168,11 +178,12 @@ function(e, collector = inputCollector(), basedir = ".", input = TRUE, ...)
       # literal so ignore.
     
   }  else if(is.character(e)) {
-
-     if(file.exists(e) || file.exists(paste(basedir, e, sep = .Platform$file.sep)))
-       collector$file(e)
-     else
-       collector$string(e)
+     collector$string(e, basedir = basedir)
+     
+#    if(file.exists(e) || file.exists(paste(basedir, e, sep = .Platform$file.sep)))
+#      collector$file(e)
+#    else
+#      collector$string(e)
 
    } else if(is.pairlist(e)) {
 
