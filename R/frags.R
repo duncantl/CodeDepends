@@ -34,8 +34,13 @@ function(doc, type = NA, txt = readLines(doc))
                                            summary(doc)$description
                                         else doc)
 
+  if(any(duplicated(names(ans)))) 
+    names(ans) = makeDuplicatedNames(names(ans))
+
+
   ans
 }
+
 
 setMethod("readScript", "character", tmp)
 setOldClass("connection")
@@ -106,9 +111,34 @@ frag.readers =
   # list of functions indexed by a document type string
   # so that we can determine the type of the document
   # and then figure out how to get the fragments.
-  list( xml = function(doc, txt = readLines(doc)) xmlSource(txt, asText = TRUE, eval = FALSE),
+  list( xml = function(doc, txt = readLines(doc)) {
+                  val = xmlSource(txt, asText = TRUE, eval = FALSE, setNodeNames = TRUE)
+                  i = grep("^r:(code|plot|function|init)", names(val))
+                  if(length(i)) {
+                    names(val)[i] = sprintf("step %d", i)
+                  }
+                  val
+              },
         Stangled = getTangledFrags,
         R = readRExpressions,
         labeled = readAnnotatedScript)
 
 
+
+# Functions to get unique names for the tasks.
+makeDuplicatedNames =
+function(x)
+{
+ tmp = structure(1:length(x) , names = x)
+ vals = tapply(tmp, x, makeTaskNames)
+ x[unlist(vals)] = unlist(lapply(vals, names))
+ x
+}
+
+makeTaskNames =
+function(x)
+{
+  if(length(x) > 1)
+     names(x) = sprintf("%s %d", names(x)[1], seq(along = x))
+  x
+}

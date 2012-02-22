@@ -18,7 +18,9 @@ inputCollector =
 function()
 {
   libraries = character()
-  files = character()  
+  files = character()
+  strings = character()
+  # What about collecting numbers, or all literals.
   vars = character()
   set = character()
   functions = character()
@@ -28,6 +30,7 @@ function()
   Set = function(name) set <<- c(set, name)  
   list(library = function(name) libraries <<- c(libraries, name),
        file = function(name) files <<- c(files, name),
+       string = function(name) strings <<- c(strings, name),       
        update = function(name) {
                    if(!length(name))
                       return()
@@ -45,7 +48,9 @@ function()
        calls = function(name) functions <<- c(functions, name),
        removes = function(name) removes <<- c(removes, name),       
        results = function() new("ScriptNodeInfo",
-                                 libraries = unique(libraries), files = unique(files),
+                                 libraries = unique(libraries),
+                                 files = unique(files),
+                                 strings = unique(strings),         
                                  inputs = unique(vars),
                                  outputs = unique(set),
                                  updates = unique(updates),
@@ -166,6 +171,8 @@ function(e, collector = inputCollector(), basedir = ".", input = TRUE, ...)
 
      if(file.exists(e) || file.exists(paste(basedir, e, sep = .Platform$file.sep)))
        collector$file(e)
+     else
+       collector$string(e)
 
    } else if(is.pairlist(e)) {
 

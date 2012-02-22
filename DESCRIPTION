@@ -15,13 +15,4 @@ Imports: codetools, XML
 Suggests: graph, Rgraphviz
 Collate: classes.R codeDepends.R sectionDepends.R sweave.R xml.R 
          frags.R codeTypes.R gc.R graph.R parallel.R 
-         deps.R separateBlocks.R callGraph.R
-
-
-
-
-
-
-
-
-
+         deps.R separateBlocks.R callGraph.R isPlot.R isOutput.R 

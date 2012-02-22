@@ -1,0 +1,11 @@
+<article xmlns:r="http://www.r-project.org">
+
+<r:code id="start">
+n = 100
+x = runif(n)
+</r:code>
+
+<r:code id="y">
+y = 10 + 3 * x + rnorm(n)
+</r:code>
+</article>

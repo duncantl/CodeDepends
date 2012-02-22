@@ -1,0 +1,5 @@
+library(CodeDepends)
+sc = readScript("simpleWireless.Rdb")
+info = getInputs(sc)
+dtm = getDetailedTimelines(sc, info)
+plot(dtm)

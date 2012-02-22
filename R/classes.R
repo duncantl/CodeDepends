@@ -7,12 +7,15 @@ setClass("AnnotatedScript", contains = "Script")
 setClass("ScriptInfo", contains = "list")
 setClass("ScriptNodeInfo",
           representation(files = 'character',
+                         strings = 'character',
                          libraries = 'character',
                          inputs = 'character',
                          outputs = 'character',
                          updates = 'character',
                          functions = 'character',
                          removes = 'character'))
+
+setOldClass(c("DetailedVariableTimeline", "data.frame"))
 
 setAs("ScriptNode", "ScriptNodeInfo",
       function(from)

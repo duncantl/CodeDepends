@@ -210,6 +210,11 @@ plot(dtm)
 table(dtm$var)
 }
 
+setAs("DetailedVariableTime", "matrix",
+      function(from) {
+         matrix()
+      })
+
 plot.DetailedVariableTimeline =
 function(x, var.srt = 0, var.mar = round(max(4, .5*max(nchar(levels(x$var))))), var.cex = 1, ...)
 {
