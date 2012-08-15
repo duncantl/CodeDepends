@@ -2,6 +2,7 @@
 \alias{readScript}
 \alias{readScript,character-method}
 \alias{readScript,connection-method}
+\alias{readScript,XMLInternalDocument-method}
 \alias{readAnnotatedScript}
 \title{Read the code blocks/chunks from a document}
 \description{

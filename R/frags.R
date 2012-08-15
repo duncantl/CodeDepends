@@ -43,6 +43,12 @@ function(doc, type = NA, txt = readLines(doc))
 
 
 setMethod("readScript", "character", tmp)
+
+setMethod("readScript", "XMLInternalDocument",
+           function(doc, type = NA, txt = readLines(doc)) {
+             readXMLScript(doc)
+           })
+
 setOldClass("connection")
 setOldClass(c("url", "connection"))
 setOldClass(c("file", "connection"))
@@ -107,17 +113,27 @@ function(expr)
 }
 
 
+readXMLScript =
+function(doc, txt = readLines(doc))
+{
+  if(is.character(doc))
+    doc = xmlParse(doc)
+  
+#  val = xmlSource(txt, asText = TRUE, eval = FALSE, setNodeNames = TRUE)
+  val = xmlSource(doc, eval = FALSE, setNodeNames = TRUE)  
+  i = grep("^r:(code|plot|function|init)", names(val))
+  if(length(i)) {
+    names(val)[i] = sprintf("step %d", i)
+  }
+  val  
+}
+
 frag.readers =
   # list of functions indexed by a document type string
   # so that we can determine the type of the document
   # and then figure out how to get the fragments.
   list( xml = function(doc, txt = readLines(doc)) {
-                  val = xmlSource(txt, asText = TRUE, eval = FALSE, setNodeNames = TRUE)
-                  i = grep("^r:(code|plot|function|init)", names(val))
-                  if(length(i)) {
-                    names(val)[i] = sprintf("step %d", i)
-                  }
-                  val
+                  readXMLScript(xmlParse(txt, asText = TRUE))
               },
         Stangled = getTangledFrags,
         R = readRExpressions,
