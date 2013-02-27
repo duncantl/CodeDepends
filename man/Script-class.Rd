@@ -78,7 +78,16 @@ Class \code{"\linkS4class{vector}"}, by class "list", distance 2.
 \examples{
  f = system.file("samples", "results-multi.R", package = "CodeDepends")
  sc = readScript(f)
- as(sc, "ScriptInfo")
+ info = as(sc, "ScriptInfo")
+ info = getInputs(sc, basedir = dirname(f))
+
+   # Providing our own handler for calls to source()
+ sourceHandler = function(e, collector = NULL, basedir = ".") {
+     collector$string(e[[2]], , TRUE)
+     collector$calls(as.character(e[[1]]))
+ }
+ h = CodeDepends:::inputCollector(source = sourceHandler)
+ info = getInputs(sc, h, basedir = dirname(f))
 
  u = url("http://penguin.biostat.jhsph.edu/cpkg/49c0/90223e7b16d72240a928f69bccd72a0a164c/src/timeseries.R")
  sc = readScript(u)

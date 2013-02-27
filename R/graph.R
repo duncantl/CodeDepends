@@ -210,7 +210,7 @@ plot(dtm)
 table(dtm$var)
 }
 
-setAs("DetailedVariableTime", "matrix",
+setAs("DetailedVariableTimeline", "matrix",  #??? Was this really DetailedVariableTime
       function(from) {
          matrix()
       })

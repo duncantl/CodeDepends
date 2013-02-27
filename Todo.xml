@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="http://www.omegahat.org/Todo.xsl" ?> 
-<?xml-stylesheet type="text/xsl" href="../../org/omegahat/Docs/XSL/Todo.xsl" ?> 
+<?xml-stylesheet type="text/xsl" href="XSL/Todo.xsl" ?> 
 
 <topics xmlns:r="http://www.r-project.org">
 <title>CodeDepends</title>
 
 <items>
 <title>Bugs</title>
-
+<item>
+Introduce a SourceNodeInfo that extends ScriptNodeInfo and
+indicates this is a source command.
+Then introduce other important concepts that are not generic.
+</item>
+<item>
+<r:code><![CDATA[
+getInputs(quote(x[i] <- x[i] + 2))
+]]></r:code>
+says that i is an output!  It is on the 
+LHS, but it is not an output. Need to be more precise.
+</item>
+<item>
+Handle dget, .readRDS, etc. as potentially reading  files.
+</item>
 <item>
 When an assignment is not a simple name, take the name
 of the first variable mentioned and use that as an input.

@@ -20,23 +20,40 @@ function(val, basedir = ".")
 BuiltinFunctions =
   c("[", "[[", "$") 
 
-inputCollector = 
-function()
+inputCollector =
+  #
+  #  Want to be able to collect file names being source()'d and so on.
+  #  Would like them to be relative to the  location of the script.
+  #  Need to call isFile() with basedir correctly
+  #
+function(..., functionHandlers = list(...))
 {
   libraries = character()
   files = character()
   strings = character()
-  # What about collecting numbers, or all literals.
+      # What about collecting numbers, or all literals.
   vars = character()
   set = character()
   functions = character()
   removes = character()
   updates = character()
   
-  Set = function(name) set <<- c(set, name)  
+  Set = function(name) set <<- c(set, name)
+
+  reset = function() {
+    libraries <<- character()
+    files <<- character()
+    strings <<- character()
+    vars <<- character()
+    set <<- character()
+    functions <<- character()
+    removes <<- character()
+    updates <<- character()
+  }
+  
   list(library = function(name) libraries <<- c(libraries, name),
-       string = function(name, basedir = NA)
-                if(isFile(name, basedir))
+       string = function(name, basedir = NA, filep = isFile(name, basedir))
+                if(filep)
                     files <<- c(files, name)
                 else
                     strings <<- c(strings, name),
@@ -56,8 +73,11 @@ function()
               },
        set = Set,
        calls = function(name) functions <<- c(functions, name),
-       removes = function(name) removes <<- c(removes, name),       
-       results = function() new("ScriptNodeInfo",
+       removes = function(name) removes <<- c(removes, name),
+       functionHandlers = functionHandlers,
+       reset = reset,
+       results = function(resetState = FALSE) {
+                      ans = new("ScriptNodeInfo",
                                  libraries = unique(libraries),
                                  files = unique(files),
                                  strings = unique(strings),         
@@ -65,23 +85,28 @@ function()
                                  outputs = unique(set),
                                  updates = unique(updates),
                                  removes = removes,
-                                 functions = unique(functions)))
+                                 functions = unique(functions))
+                             if(resetState) 
+                                reset()
+                              ans
+                            })
 }  
 
 
 setGeneric("getInputs",
-           function(e, collector = inputCollector(), basedir = ".", ...)
-             standardGeneric("getInputs"))
+           function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...) {
+             standardGeneric("getInputs")
+           })
 
 getInputs.language =          
-function(e, collector = inputCollector(), basedir = ".", input = TRUE, ...)
+function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = TRUE, ...)
 {
   ans = character()
   update = FALSE
 
   if(inherits(e, "expression")) {
 
-     ans = lapply(e, getInputs, collector, basedir = basedir)
+     ans = lapply(e, getInputs, collector = collector, basedir = basedir)
 
   } else if(is.function(e)) {
 
@@ -111,6 +136,8 @@ function(e, collector = inputCollector(), basedir = ".", input = TRUE, ...)
 
      } else if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% c("$")) {
         collector$vars(as.character(e[[2]]), input = input)
+     } else if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% names(collector$functionHandlers)) {
+       collector$functionHandlers[[ as.character(e[[1]]) ]](e, collector, basedir)
      } else {
 
             # an assignment.
@@ -187,7 +214,7 @@ function(e, collector = inputCollector(), basedir = ".", input = TRUE, ...)
 
    } else if(is.pairlist(e)) {
 
-     lapply(e, getInputs, collector, basedir = basedir, input = input)
+     lapply(e, getInputs, collector = collector, basedir = basedir, input = input)
 
    } else {
 
@@ -195,7 +222,7 @@ function(e, collector = inputCollector(), basedir = ".", input = TRUE, ...)
 
    }
   
- collector$results()
+ collector$results(reset = reset)
 }
 
 #setMethod("getInputs", "expression", getInputs.language)
@@ -205,21 +232,21 @@ function(e, collector = inputCollector(), basedir = ".", input = TRUE, ...)
 setMethod("getInputs", "ANY", getInputs.language)
 
 setMethod("getInputs", "Script",
-function(e, collector = inputCollector(), basedir = ".", ...)
+function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
 {
-  ans = lapply(e, getInputs)
+  ans = lapply(e, getInputs, collector = collector,  basedir = basedir, reset = TRUE, ...)
   new("ScriptInfo", ans)
 })
 
 setMethod("getInputs", "ScriptNode",
-function(e, collector = inputCollector(), basedir = ".", ...)
+function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
 {
-  getInputs(e@code)
+  getInputs(e@code, collector, basedir, ...)
 })
 
 
 setMethod("getInputs", "ScriptNodeInfo",
-function(e, collector = inputCollector(), basedir = ".", ...)
+function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
 {
   e
 })
@@ -227,12 +254,12 @@ function(e, collector = inputCollector(), basedir = ".", ...)
 
 
 setMethod("getInputs", "function",
-            function(e, collector = inputCollector(), basedir = ".", ...) {
+            function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...) {
               expr = body(e)
               if(as.character(expr[[1]]) == "{")
                  expr = expr[-1]
               vars = new("ScriptNodeInfo", outputs = names(formals(e)))
-              new("ScriptInfo", c(vars, lapply(expr, getInputs, basedir = basedir)))
+              new("ScriptInfo", c(vars, lapply(expr, getInputs, collector = collector, basedir = basedir)))
             })
 
 
