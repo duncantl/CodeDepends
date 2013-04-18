@@ -67,7 +67,9 @@ function(..., functionHandlers = list(...))
                 if(!length(name))
                   return()
                 if(input) 
-                   vars <<- c(vars, name[ !( name %in% BuiltinFunctions ) ])  # || name %in% set
+#                   vars <<- c(vars, name[ !( name %in% BuiltinFunctions ) ])  # || name %in% set
+                  ##Variables can't be an input if they are already an output ~GB
+                  vars <<- c(vars, name[ !( name %in% BuiltinFunctions ) || name %in% set ])  # || name %in% set
                 else
                    Set(name)
               },
