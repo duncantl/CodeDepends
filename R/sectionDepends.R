@@ -16,8 +16,13 @@ sourceVariable =
   # evaluate all the relevant code blocks in order to 
   # define the specified variable.
   #
-function(vars, doc, frags = readScript(doc), eval = TRUE, env = globalenv(), nestedEnvironments = FALSE, verbose = FALSE)
+function(vars, doc, frags = readScript(doc), eval = TRUE, env = globalenv(),
+          nestedEnvironments = FALSE, verbose = FALSE,
+         first = FALSE)  # first is intended  to allow running up to the first instance of the variable, not all of them.
 {
+  if(is(doc, "Script") && missing(frags))
+    frags = doc
+  
   els = getVariableDepends(vars, frags)
   if(eval)
     invisible(evalFrags(els, env, nestedEnvironments, verbose))
@@ -119,7 +124,7 @@ function(vars, frags, info = lapply(frags, getInputs))
 {
   defs = sapply(info, function(v) any(vars %in% getVariables(v)))
   
-  ans = sapply(which(defs), getSectionDepends, frags, info, TRUE)
+  ans = lapply(which(defs), getSectionDepends, frags, info, TRUE)
   frags[sort(unique(unlist(ans)))]
 }  
 
