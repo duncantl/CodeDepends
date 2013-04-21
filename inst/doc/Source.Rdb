@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+We can use the <omg:pkg>CodeDepends</omg:pkg> package
+to source parts of a document.
+This can be useful when debugging code.
+Suppose we have a script that is made up of various separate tasks.
+We don't necessarily want run each line of code or source the entire script.
+Instead,  we might know which variable we want to create.
+<r:code>
+sc = readScript("file.R")
+sourceVariable("enums", sc)
+</r:code>
+
+</para>
+<para>
+See tu1.R in RCUDA/TU/ for an example
+</para>
+
+</section>
+</article>

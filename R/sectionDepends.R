@@ -18,12 +18,14 @@ sourceVariable =
   #
 function(vars, doc, frags = readScript(doc), eval = TRUE, env = globalenv(),
           nestedEnvironments = FALSE, verbose = FALSE,
+         checkLibraries = eval,
          first = FALSE)  # first is intended  to allow running up to the first instance of the variable, not all of them.
 {
-  if(is(doc, "Script") && missing(frags))
+  if(!missing(doc) && is(doc, "Script") && missing(frags))
     frags = doc
   
-  els = getVariableDepends(vars, frags)
+  els = getVariableDepends(vars, frags, checkLibraries = checkLibraries)
+
   if(eval)
     invisible(evalFrags(els, env, nestedEnvironments, verbose))
   else
@@ -120,12 +122,23 @@ getVariableDepends =
   # Return the code fragments needed to define the variable(s) in vars
   # including the one that actually defines the variable.
   #
-function(vars, frags, info = lapply(frags, getInputs))
+function(vars, frags, info = lapply(frags, getInputs), checkLibraries = FALSE)
 {
   defs = sapply(info, function(v) any(vars %in% getVariables(v)))
   
   ans = lapply(which(defs), getSectionDepends, frags, info, TRUE)
-  frags[sort(unique(unlist(ans)))]
+  idx = sort(unique(unlist(ans)))
+  if(checkLibraries) {
+    # heuristic for now.
+    fns = unlist(lapply(info[idx], slot, "functions"))
+    miss = !sapply(fns, exists, mode = "function")
+    if(any(miss)) {
+       w = which(sapply(info[1:max(idx)], function(x) length(x@libraries) > 0))
+       idx = sort(unique(c(idx, w)))
+    }
+  }
+
+  frags[idx]
 }  
 
 # What variables does one variable depend on, i.e. the chain

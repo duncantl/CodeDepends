@@ -6,6 +6,26 @@
 
 <items>
 <title>Bugs</title>
+
+<item>
+sourceVariable() should load packages.
+Ideally determine which functions/variables/symbols come from
+which packages.
+If the functions don't exist when we go to evaluate the call,
+then load the packages in earlier.
+</item>
+
+<item status="done">
+Make sourceVariable recognize if it is given a script as the second argument.
+</item>
+<item status="done">
+sourceVariable is repeating the same commands. Need
+to ensure getVariableDepends() returns unique expressions.
+<br/>
+<r:func>sapply</r:func> rather than <r:func>lapply</r:func>
+led to sort on columns.
+</item>
+
 <item>
 Introduce a SourceNodeInfo that extends ScriptNodeInfo and
 indicates this is a source command.
