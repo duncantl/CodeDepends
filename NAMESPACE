@@ -51,3 +51,4 @@ export(separateExpressionBlocks,
 
 exportMethods("[")
 
+export(updatingScript)

@@ -33,5 +33,27 @@ sourceVariable("enums", sc)
 See tu1.R in RCUDA/TU/ for an example
 </para>
 
+
+<para>
+This is more convenient and robust than
+cutting and pasting from a file or 
+adding <r:expr>if(FALSE)</r:expr> conditions to stop
+code being evaluated.
+If we are debugging, cutting and pasting can cause
+commands to be interpreted by the error handling or debug functions
+(because we cut and pasted many lines  some of which are used as commands
+at the debug prompt).
+Adding <r:expr>if(FALSE)</r:expr> to the script means that it no longer
+runs as one single unit.
+</para>
+<para>
+Another approach we use is to have the document
+in XML. Then we can use <r:expr>xmlSource</r:expr>
+to evaluate specific chunks. This could be done for Sweave and knitr
+also. We can use identifiers/labels for the code chunks.
+However, it is still better to do this semantically based on the content of the code.
+</para>
+
+
 </section>
 </article>

@@ -8,6 +8,26 @@
 <title>Bugs</title>
 
 <item>
+Make the Script object something we can do something like
+<r:expr>  sc[["foo"]] </r:expr>
+to run the code to get foo and the return foo.
+This is just syntax for sourceVariable.
+</item>
+<item>
+Allow sourceVariable()  to check what variables
+already exist and just run the code for those that don't.
+This may not always be what we want, but it can be useful
+when we have different tasks some of which share the same inputs.
+When we run one task and then another, we don't want to necessarily run
+the shared code again.
+</item>
+
+<item>
+Make a reference Script object that checks to see if the file has been updated
+and changes its information when it has.
+</item>
+
+<item status="extend">
 sourceVariable() should load packages.
 Ideally determine which functions/variables/symbols come from
 which packages.
