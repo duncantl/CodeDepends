@@ -15,16 +15,27 @@ sourceVariable =
   #
   # evaluate all the relevant code blocks in order to 
   # define the specified variable.
+  #' @param force logical value that controls whether to run a command to create a variable
+  #      in one of the dependent expressions even if it already exists
+  #      This allows us to skip expensive steps that have already been performed
+  #' @param first is intended  to allow running up to the first instance of the variable, not all of them.  
   #
 function(vars, doc, frags = readScript(doc), eval = TRUE, env = globalenv(),
-          nestedEnvironments = FALSE, verbose = FALSE,
-         checkLibraries = eval,
-         first = FALSE)  # first is intended  to allow running up to the first instance of the variable, not all of them.
+         nestedEnvironments = FALSE, verbose = FALSE,
+         checkLibraries = eval, force = FALSE,
+         first = FALSE, info = lapply(frags, getInputs) )
 {
   if(!missing(doc) && is(doc, "Script") && missing(frags))
     frags = doc
   
-  els = getVariableDepends(vars, frags, checkLibraries = checkLibraries)
+  idx = getVariableDepends(vars, frags, checkLibraries = checkLibraries, asIndex = TRUE)
+  els = frags[idx]
+  
+  if(!force) {
+    info = info[idx]
+    done = sapply(info, function(w) length(w@outputs) > 0 && all(sapply(w@outputs, exists, envir = env)))
+    els = els[!done]
+  }
 
   if(eval)
     invisible(evalFrags(els, env, nestedEnvironments, verbose))
@@ -122,14 +133,15 @@ getVariableDepends =
   # Return the code fragments needed to define the variable(s) in vars
   # including the one that actually defines the variable.
   #
-function(vars, frags, info = lapply(frags, getInputs), checkLibraries = FALSE)
+function(vars, frags, info = lapply(frags, getInputs), checkLibraries = FALSE, asIndex = FALSE)
 {
   defs = sapply(info, function(v) any(vars %in% getVariables(v)))
   
   ans = lapply(which(defs), getSectionDepends, frags, info, TRUE)
   idx = sort(unique(unlist(ans)))
+  
   if(checkLibraries) {
-    # heuristic for now.
+         # heuristic for now.
     fns = unlist(lapply(info[idx], slot, "functions"))
     miss = !sapply(fns, exists, mode = "function")
     if(any(miss)) {
@@ -138,7 +150,10 @@ function(vars, frags, info = lapply(frags, getInputs), checkLibraries = FALSE)
     }
   }
 
-  frags[idx]
+  if(asIndex)
+    idx
+  else
+    frags[idx]
 }  
 
 # What variables does one variable depend on, i.e. the chain
@@ -294,7 +309,7 @@ setMethod("getVariables", "ScriptInfo",
 
 ########################################
          
-getPropogateChanges =
+getPropagateChanges =
   #
   # Get the expressions which directly depend on the specified variable
   #
@@ -304,9 +319,11 @@ getPropogateChanges =
   # dependent expressions.
   #
   #  e = parse("../inst/examples/sim.R")
-  #  getPropogateChanges("n", e, recursive = TRUE)
+  #  getPropagateChanges("n", e, recursive = TRUE)
   #
-function(var, expressions, info = lapply(expressions, getInputs), recursive = FALSE, index = FALSE)
+function(var, expressions, info = lapply(expressions, getInputs), recursive = FALSE, index = FALSE,
+         env = globalenv(), eval = !missing(env), verbose = FALSE)
+
 {
   w = sapply(info, function(x) any(var %in% x@inputs))
   if(!recursive) {
@@ -326,7 +343,7 @@ function(var, expressions, info = lapply(expressions, getInputs), recursive = FA
                  if(i == length(info))
                    return(integer())
 
-                  x = unlist(lapply(getVariables(info[[i]]), getPropogateChanges,
+                  x = unlist(lapply(getVariables(info[[i]]), getPropagateChanges,
                               info = info[-(1:i)], recursive = FALSE, index = TRUE))
                  if(length(x))
                    i + x
@@ -344,10 +361,20 @@ function(var, expressions, info = lapply(expressions, getInputs), recursive = FA
    ans = c(ans, tmp)
  }
 
+  ans = unique(ans)
+  if(eval)
+    return(lapply(expressions[unique(ans)],
+                   function(x) {
+                     if(verbose)
+                       cat(x, "\n")
+                     eval(x, envir)
+                   }))
+                       
+                       
   if(index)
-    unique(ans)
+    ans
   else
-    expressions[unique(ans)]
+    expressions[ans]
 }  
 
 

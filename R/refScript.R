@@ -26,6 +26,10 @@ setRefClass("DynScript",
                    timestamp <<- Sys.time()
                    codeFrags <<- readScript(location)
                  }
+               },
+               get = function(var, ...) {
+                 .self$source(var, ...)
+                 base::get(var)
                }
               ))
 

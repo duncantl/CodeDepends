@@ -21,6 +21,8 @@ setAs("ScriptNode", "ScriptNodeInfo",
       function(from)
         getInputs(from))
 
+scriptInfo = function(sc) as(sc, "ScriptInfo")
+
 setAs("Script", "ScriptInfo",
       function(from)
         getInputs(from))

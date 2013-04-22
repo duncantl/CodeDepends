@@ -130,7 +130,7 @@ function(doc, frags = readScript(doc), info = as(frags, "ScriptInfo"))
   
   names(info) = nodeIds
   edges = lapply(info, function(x) {
-                  list(edges =  getPropogateChanges(getVariables(x), info, index = TRUE))
+                  list(edges =  getPropagateChanges(getVariables(x), info, index = TRUE))
                 })
 
   new("graphNEL", nodes = nodeIds, edgeL = edges, edgemode = "directed")

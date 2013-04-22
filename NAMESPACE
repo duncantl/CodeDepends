@@ -2,7 +2,7 @@ import(XML)
 import(codetools)
 
 # getVariableInputs
-export(getVariableDepends, getPropogateChanges)
+export(getVariableDepends, getPropagateChanges)
 export(getSectionDepends, getExpressionThread)
 
 #export(getDocFragmentsByVar)
@@ -10,6 +10,7 @@ export(getSectionDepends, getExpressionThread)
 # For reading fragments from different types of documents
 export(readScript) # getTangledFrags, getXMLFrags, getRExpressions
 exportMethods(readScript)
+export(scriptInfo)
 
 
 export(runUpToSection, sourceVariable)

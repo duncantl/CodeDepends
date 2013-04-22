@@ -52,6 +52,26 @@ in XML. Then we can use <r:expr>xmlSource</r:expr>
 to evaluate specific chunks. This could be done for Sweave and knitr
 also. We can use identifiers/labels for the code chunks.
 However, it is still better to do this semantically based on the content of the code.
+
+
+</para>
+<para>
+In addition to being able to compute only up to a particular point
+and ony the relevant subset of expressions,
+we also want to be able to modify a particular variable and propagate
+the changes in its value to update any of the other variables.
+We can use <r:func>getPropagateChanges</r:func> to do this.
+We specify the names of the variables that were changed and the script object.
+This the determines which expressions are directly affected, i.e. have 
+any of those variables as inputs.  This can also be done recursively 
+so that we get all the expressions that would be updated.
+</para>
+
+<para>
+We can use this package to help understand a script,
+when we can remove variables as they are no longer needed/used
+(see <r:func>findWhenUnneeded</r:func>, <r:func>getDetailedTimelines</r:func>),
+identifying clusters of related expressions.
 </para>
 
 
