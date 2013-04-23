@@ -30,7 +30,8 @@ function(vars, doc, frags = readScript(doc), eval = TRUE, env = globalenv(),
   
   idx = getVariableDepends(vars, frags, checkLibraries = checkLibraries, asIndex = TRUE)
   els = frags[idx]
-  
+
+    # XXX allow force to be the names of variables to force recomputation of.
   if(!force) {
     info = info[idx]
     done = sapply(info, function(w) length(w@outputs) > 0 && all(sapply(w@outputs, exists, envir = env)))
@@ -109,6 +110,7 @@ function(node, setOptions = TRUE)
 ################
 
 getSectionDepends =
+  #' @param sect number
 function(sect, frags, info = lapply(frags, getInputs), index = FALSE)
 {
   target = info[[sect]]
@@ -298,7 +300,7 @@ setMethod("getVariables", "ScriptNode",
 
 setMethod("getVariables", "ScriptNodeInfo",
             function(x, inputs = FALSE, ...)  {          
-              c(x@outputs, x@updates, if(inputs) x@inputs)
+              c(x@outputs, x@updates, x@sideEffects, if(inputs) x@inputs)
             })
 
 setMethod("getVariables", "ScriptInfo",
@@ -404,7 +406,6 @@ function(var, otherSections)
       # are actually also inputs.
      if(any(found)) {
        index = c(index, i)
-       var = var[!found]
        var = c(var[!found], src@inputs)
      }
      i = i-1

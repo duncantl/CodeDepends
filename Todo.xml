@@ -7,6 +7,26 @@
 <items>
 <title>Bugs</title>
 
+<item status="done">
+getSectionDepends does'nt seem to recognize need for hout in RClangSimple/inst/TU/routinese.R
+when source'ing <r:var>done</r:var>.
+</item>
+
+<item>
+Add more checks for sideEffects. See R/sideEffects.R
+Just <r:expr>cat(, file = sym)</r:expr> here.
+These pretty much need to be done manually.
+</item>
+
+<item status="done">
+In sourceVariable and getVariableDepends, recognize
+side effects such as <r:expr>cat(, file = var)</r:expr>.
+<br/>
+For an example, see routines.R and hout in RClangSimple/inst/TU (Apr 23 '13)
+<br/>
+Should we capture these as sideEffects or in the updates slot?
+</item>
+
 <item>
 Make the Script object something we can do something like
 <r:expr>  sc[["foo"]] </r:expr>

@@ -13,7 +13,8 @@ setClass("ScriptNodeInfo",
                          outputs = 'character',
                          updates = 'character',
                          functions = 'character',
-                         removes = 'character'))
+                         removes = 'character',
+                         sideEffects = 'character'))
 
 setOldClass(c("DetailedVariableTimeline", "data.frame"))
 

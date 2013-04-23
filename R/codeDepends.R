@@ -37,6 +37,7 @@ function(..., functionHandlers = list(...))
   functions = character()
   removes = character()
   updates = character()
+  sideEffects = character()
   
   Set = function(name) set <<- c(set, name)
 
@@ -49,6 +50,7 @@ function(..., functionHandlers = list(...))
     functions <<- character()
     removes <<- character()
     updates <<- character()
+    sideEffects <<- character()
   }
   
   list(library = function(name) libraries <<- c(libraries, name),
@@ -76,6 +78,7 @@ function(..., functionHandlers = list(...))
        set = Set,
        calls = function(name) functions <<- c(functions, name),
        removes = function(name) removes <<- c(removes, name),
+       sideEffects = function(name) sideEffects <<- c(sideEffects, name),       
        functionHandlers = functionHandlers,
        reset = reset,
        results = function(resetState = FALSE) {
@@ -87,11 +90,13 @@ function(..., functionHandlers = list(...))
                                  outputs = unique(set),
                                  updates = unique(updates),
                                  removes = removes,
-                                 functions = unique(functions))
-                             if(resetState) 
-                                reset()
-                              ans
-                            })
+                                 functions = unique(functions),
+                                 sideEffects = unique(sideEffects))
+                      
+                      if(resetState) 
+                        reset()
+                      ans
+                    })
 }  
 
 
@@ -118,6 +123,8 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
 
   } else if(is.call(e)) {
 
+     findSideEffects(e, collector)
+    
      if(is.symbol(e[[1]]) && as.character(e[[1]]) == "function") {
        tmp = eval(e)
        ans = codetools::findGlobals(tmp, FALSE)
