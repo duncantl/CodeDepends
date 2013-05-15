@@ -1,0 +1,8 @@
+test_exprblock = function()
+  {
+
+    scr = readScript("testcode/inputtest1.R")
+    res = getInputs(scr)
+    checkTrue(all(res@inputs == c("n", "c", "titletxt")))
+    checkTrue(all(res@outputs == c("a", "b")))
+  }

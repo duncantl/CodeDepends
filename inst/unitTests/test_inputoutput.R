@@ -28,6 +28,6 @@ test_altoutput = function()
     scr = readScript("testcode/inputtest3.R")
     res = getInputs(scr)[[1]]
     checkTrue("assigned" %in% res@outputs, "Detection of assign call as output failed.")
-    checkTrue("dblarrow" %in% res@outputs, "Detection of <<- as assignment (output) failed.)
+    checkTrue("dblarrow" %in% res@outputs, "Detection of <<- as assignment (output) failed.")
   }
   

@@ -26,7 +26,7 @@ inputCollector =
   #  Would like them to be relative to the  location of the script.
   #  Need to call isFile() with basedir correctly
   #
-function(..., functionHandlers = list(...))
+function(..., functionHandlers = list(...), inclPrevOutput = FALSE)
 {
   libraries = character()
   files = character()
@@ -68,10 +68,15 @@ function(..., functionHandlers = list(...))
        vars = function(name, input) {
                 if(!length(name))
                   return()
-                if(input) 
-#                   vars <<- c(vars, name[ !( name %in% BuiltinFunctions ) ])  # || name %in% set
+                if(input)
+                  {
+                    if(inclPrevOutput)
+                      vars <<- c(vars, name[ !( name %in% BuiltinFunctions ) ])  # || name %in% set
+                    else
                   ##Variables can't be an input if they are already an output ~GB
-                  vars <<- c(vars, name[ !( name %in% BuiltinFunctions ) || name %in% set ])  # || name %in% set
+                      vars <<- c(vars, name[ !( name %in% BuiltinFunctions  || name %in% set )])  # || name %in% set
+
+                  }
                 else
                    Set(name)
               },
@@ -106,7 +111,7 @@ setGeneric("getInputs",
            })
 
 getInputs.language =          
-function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = TRUE, ...)
+function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = TRUE, formulaInputs = FALSE, ...)
 {
   ans = character()
   update = FALSE
@@ -131,7 +136,17 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
        collector$vars(ans$variables, input = TRUE)
        collector$calls(ans$functions)
      }
-         # a call of the form library()
+     else if(is.symbol(e[[1]]) && as.character(e[[1]]) == "~") {
+         # a formula, eg a~b
+         # whether we count variables that appear in formulas as inputs for the expression is controlled by the formulaInputs paramter
+       #eventually we want to be able to handle the situation where we are calling
+       #lm(y~x + z, data=dat) where y and x are in dat but z is not, but that is HARD to detect so for now we allow users to specify whether CodeDepends counts all variables used by formulas (assuming they come from the global environment/current scope) or none (assuming the fomula will be used only within the scope of, eg, a data.frame). I think the second one is the most common use-case in practice...
+       collector$call(as.character(e[[1]]))
+       if(formulaInputs)
+         {
+           lapply(e[-1], getInputs, collector, basedir = basedir, input = input)          
+        }
+     }
      else if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% c("require", "library")) {
 
          # XXX Deal with case there are more arguments and also that the
