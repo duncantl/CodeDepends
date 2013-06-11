@@ -33,6 +33,8 @@ setRefClass("DynScript",
                }
               ))
 
+#XXX recompute one  expression to update/redefine a variable
+
 DynScriptFactory <- getRefClass("DynScript")
 #DynScriptFactory$accessors(names(DynScriptFactory$fields()))
 
@@ -41,3 +43,14 @@ function(doc, ...)
 {
   DynScriptFactory$new(doc, ...)
 }
+
+setAs("DynScript", "Script",
+      function(from) {
+         from$update()
+         from$codeFrags
+       })
+
+setMethod("getInputs", "DynScript",
+           function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...) {
+             getInputs(as(e, "Script"), collector, basedir, reset, ...)
+           })

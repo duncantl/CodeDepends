@@ -25,12 +25,11 @@ getExpressionThread(target, expressions, info = lapply(expressions, getInputs))
   \item{info}{a list of objects giving information about the inputs
      to each top-level expression in expressions.}
 }
-\details{
-}
 \value{
-
+  A \code{\link{Script-class}} object containing the subset of the
+  code chunks pertinent to the target variable(s).
 }
-\references{}
+%\references{}
 \author{Duncan Temple Lang}
 \seealso{
   \code{\link{getDependsThread}}

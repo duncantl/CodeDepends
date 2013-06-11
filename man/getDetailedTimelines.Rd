@@ -1,6 +1,8 @@
 \name{getDetailedTimelines}
 \alias{getDetailedTimelines}
 \alias{plot.DetailedVariableTimeline}
+\alias{coerce,DetailedVariableTimeline,matrix-method}
+
 \title{Compute and plot life cycle of variables in code}
 \description{
   These functions allow one to get and visualize information about
@@ -44,7 +46,7 @@ getDetailedTimelines(doc, info = getInputs(doc), vars = getVariables(info))
   that code block.
   \code{var} is used merely to identify the variable.
 }
-\references{}
+%\references{}
 \author{Duncan Temple Lang}
 \seealso{
   \code{\link{getInputs}}

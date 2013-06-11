@@ -1,22 +1,26 @@
+findWhenVarUnneeded =
+function(v, info, end = NA, redefined = FALSE) {
+  i = sapply(info, function(x) v %in% x@inputs)
+  ans = if(!any(i))
+    end
+  else
+    which.max(cumsum(i))
+  if(redefined) {
+    tmp = sapply(info, function(x) v %in% getVariables(x))
+    if(sum(tmp) > 1) 
+      ans = min(ans, which(tmp)[2], na.rm = TRUE)
+  }
+  
+  ans
+}  
+
 
 # This finds when a variable can be removed, i.e. when it is no longer needed.
 findWhenUnneeded =
 function(var, frags, info = lapply(frags, getInputs), simplify, index = TRUE, end = NA,
           redefined = FALSE)
 {
-  i = sapply(var, function(v) {
-                     i = sapply(info, function(x) var %in% x@inputs)
-                     ans = if(!any(i))
-                              end
-                           else
-                              which.max(cumsum(i))
-                     if(redefined) {
-                       tmp = sapply(info, function(x) var %in% getVariables(x))
-                       if(sum(tmp) > 1) 
-                         ans = min(ans, which(tmp)[2], na.rm = TRUE)
-                     }
-                       ans
-                   })
+  i = sapply(var, findWhenVarUnneeded, info = info, end = end, redefined = redefined)
   if(index)
     structure(i, names = var)
   else

@@ -1,3 +1,13 @@
+0.3-0 
+
+  *   Read Sweave files via knit() in knitr.
+
+  *   Processing of TeX's \inputs (and \endinput).
+
+  *   readJSS() and TeX generally more flexible.
+
+  *   historyAsScript().
+
 0.2-1
 
   *   Computing the time-line avoids duplicate variables.

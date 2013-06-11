@@ -1,5 +1,5 @@
-\name{getPropogateChanges}
-\alias{getPropogateChanges}
+\name{getPropagateChanges}
+\alias{getPropagateChanges}
 \title{Determine which expressions to update when a variable changes}
 \description{
   This function allows us to determine which subsequent expressions
@@ -10,7 +10,8 @@
   This is of use when propogating changes to dependent expressions.
 }
 \usage{
-getPropogateChanges(var, expressions, info = lapply(expressions, getInputs), recursive = FALSE, index = FALSE)
+getPropagateChanges(var, expressions, info = lapply(expressions, getInputs), recursive = FALSE,
+                    index = FALSE, envir = globalenv(), eval = !missing(envir), verbose = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -24,6 +25,11 @@ getPropogateChanges(var, expressions, info = lapply(expressions, getInputs), rec
   indices of the expressions that would need to be evaluated based on
   the change to the variable \code{var}, or if \code{index} is
   \code{FALSE}, we return the expressions themselves.}
+  \item{envir}{the environment in which to evaluate the expressions}
+  \item{eval}{a logical value controlling whether we evaluate the
+    expressions or just return them}
+  \item{verbose}{a logical value that controls whether we output
+    information about the expressions and their evaluation on the R console.}  
 }
 \value{
 This returns
@@ -37,6 +43,9 @@ This returns
   \code{\link{getDependsThread}}
 }
 \examples{
-
+sc = readScript(system.file("samples", "formula.R", package = "CodeDepends"))
+info = getInputs(sc)
+getPropagateChanges("x", sc, info = info)
+getPropagateChanges("y", sc, info = info)
 }
 \keyword{programming}

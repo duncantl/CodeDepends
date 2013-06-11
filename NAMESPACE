@@ -50,6 +50,8 @@ export(separateExpressionBlocks,
 # For Developers
 # export(parseFrags, inputCollector)
 
-exportMethods("[")
+exportMethods("[", "$")
 
 export(updatingScript)
+export(historyAsScript)
+

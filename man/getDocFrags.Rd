@@ -43,7 +43,7 @@ readAnnotatedScript(doc, txt = readLines(doc))
 \examples{
   e = readScript( system.file ("samples", "dual.R", package = "CodeDepends") )
 
-  readScript(url("http://penguin.biostat.jhsph.edu/cpkg/49c0/90223e7b16d72240a928f69bccd72a0a164c/src/timeseries.R"))
+  readScript(url("http://www.omegahat.org/CodeDepends/formula.R"))
 }
 \keyword{IO}
 \keyword{programming}

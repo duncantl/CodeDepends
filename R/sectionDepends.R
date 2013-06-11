@@ -21,7 +21,7 @@ sourceVariable =
   #' @param first is intended  to allow running up to the first instance of the variable, not all of them.  
   #
 function(vars, doc, frags = readScript(doc), eval = TRUE, env = globalenv(),
-         nestedEnvironments = FALSE, verbose = FALSE,
+         nestedEnvironments = FALSE, verbose = TRUE,
          checkLibraries = eval, force = FALSE,
          first = FALSE, info = lapply(frags, getInputs) )
 {
@@ -29,6 +29,10 @@ function(vars, doc, frags = readScript(doc), eval = TRUE, env = globalenv(),
     frags = doc
   
   idx = getVariableDepends(vars, frags, checkLibraries = checkLibraries, asIndex = TRUE)
+  if(length(idx) == 0) {
+    warning("no variable(s) named ", paste(vars, collapse = ", "), " in the script")
+    return(FALSE)
+  }
   els = frags[idx]
 
     # XXX allow force to be the names of variables to force recomputation of.
@@ -140,6 +144,9 @@ function(vars, frags, info = lapply(frags, getInputs), checkLibraries = FALSE, a
   defs = sapply(info, function(v) any(vars %in% getVariables(v)))
   
   ans = lapply(which(defs), getSectionDepends, frags, info, TRUE)
+  if(length(unlist(ans)) == 0)
+     return(NULL)
+  
   idx = sort(unique(unlist(ans)))
   
   if(checkLibraries) {
@@ -324,7 +331,7 @@ getPropagateChanges =
   #  getPropagateChanges("n", e, recursive = TRUE)
   #
 function(var, expressions, info = lapply(expressions, getInputs), recursive = FALSE, index = FALSE,
-         env = globalenv(), eval = !missing(env), verbose = FALSE)
+         envir = globalenv(), eval = !missing(envir), verbose = FALSE)
 
 {
   w = sapply(info, function(x) any(var %in% x@inputs))

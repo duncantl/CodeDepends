@@ -23,7 +23,7 @@ makeTaskGraph(doc, frags = readScript(doc), info = as(frags, "ScriptInfo"))
 \value{
  An object of class \code{\link[graph]{graphNEL-class}}.
 }
-\references{}
+%\references{}
 \author{Duncan Temple Lang}
 
 \seealso{

@@ -38,6 +38,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE)
   removes = character()
   updates = character()
   sideEffects = character()
+  formulaVariables = character()
   
   Set = function(name) set <<- c(set, name)
 
@@ -50,9 +51,15 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE)
     functions <<- character()
     removes <<- character()
     updates <<- character()
+    formulaVariables <<- character()
     sideEffects <<- character()
   }
-  
+
+  addInfo = function(funcNames = character(), modelVars = character()) {
+    formulaVariables <<- c(formulaVariables,  modelVars)
+    functions <<- c(functions, funcNames)
+  }
+    
   list(library = function(name) libraries <<- c(libraries, name),
        string = function(name, basedir = NA, filep = isFile(name, basedir))
                 if(filep)
@@ -86,6 +93,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE)
        sideEffects = function(name) sideEffects <<- c(sideEffects, name),       
        functionHandlers = functionHandlers,
        reset = reset,
+       addInfo = addInfo,
        results = function(resetState = FALSE) {
                       ans = new("ScriptNodeInfo",
                                  libraries = unique(libraries),
@@ -95,6 +103,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE)
                                  outputs = unique(set),
                                  updates = unique(updates),
                                  removes = removes,
+                                 formulaVariables = formulaVariables,
                                  functions = unique(functions),
                                  sideEffects = unique(sideEffects))
                       
@@ -118,7 +127,7 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
 
   if(inherits(e, "expression")) {
 
-     ans = lapply(e, getInputs, collector = collector, basedir = basedir)
+     ans = lapply(e, getInputs, collector = collector, basedir = basedir, formulaInputs = formulaInputs, ...)
 
   } else if(is.function(e)) {
 
@@ -143,11 +152,16 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
        #lm(y~x + z, data=dat) where y and x are in dat but z is not, but that is HARD to detect so for now we allow users to specify whether CodeDepends counts all variables used by formulas (assuming they come from the global environment/current scope) or none (assuming the fomula will be used only within the scope of, eg, a data.frame). I think the second one is the most common use-case in practice...
        collector$call(as.character(e[[1]]))
        if(formulaInputs)
-         {
-           lapply(e[-1], getInputs, collector, basedir = basedir, input = input)          
-        }
-     }
-     else if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% c("require", "library")) {
+           lapply(e[-1], getInputs, collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ...)
+       else {
+          # collect the variables and functions in the 
+         col = inputCollector()
+         lapply(e[-1], getInputs, col, basedir = basedir, input = input, formulaInputs = formulaInputs, ...)
+         vals = col$results()
+         collector$addInfo(modelVars = vals@inputs, funcNames = vals@functions)
+       }
+
+     } else if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% c("require", "library")) {
 
          # XXX Deal with case there are more arguments and also that the
          # first argument is not the name of the library and that it is a
@@ -187,11 +201,11 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
               }
 
               if(as.character(e[[2]][[1]]) != "$")
-                lapply(as.list(e[[2]][-c(1,2)]), getInputs, collector, basedir = basedir, input = FALSE)
+                lapply(as.list(e[[2]][-c(1,2)]), getInputs, collector, basedir = basedir, input = FALSE, formulaInputs = formulaInputs, ...)
            }
 
              # Do the right hand side
-           lapply(e[-c(1,2)], getInputs, collector, basedir = basedir, input = TRUE)
+           lapply(e[-c(1,2)], getInputs, collector, basedir = basedir, input = TRUE, formulaInputs = formulaInputs)
 
             if(is.name(e[[2]]))
                collector$set(asVarName(e[[2]]))
@@ -205,7 +219,7 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
                    if(!update)
                       collector$set(asVarName(e[[2]][[2]]))
                    if(as.character(e[[2]][[1]]) != "$")                   
-                     lapply(e[[2]][-c(1,2)], getInputs, collector, basedir = basedir, input = input)
+                     lapply(e[[2]][-c(1,2)], getInputs, collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ...)
                } else {
                    collector$set(asVarName(e[[2]][[2]]))
                }
@@ -213,10 +227,10 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
 
        } else if(!(is.symbol(e[[1]]) && as.character(e[[1]]) == "function")) {
            collector$call(as.character(e[[1]]))           
-           lapply(e[-1], getInputs, collector, basedir = basedir, input = input)
+           lapply(e[-1], getInputs, collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ...)
        } else if(is.symbol(e[[1]])) {
           collector$call(as.character(e[[1]]))
-          lapply(e[-1], getInputs, collector, basedir = basedir, input = input)          
+          lapply(e[-1], getInputs, collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ...)          
        }
      }
 
@@ -238,7 +252,7 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
 
    } else if(is.pairlist(e)) {
 
-     lapply(e, getInputs, collector = collector, basedir = basedir, input = input)
+     lapply(e, getInputs, collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ...)
 
    } else {
 
