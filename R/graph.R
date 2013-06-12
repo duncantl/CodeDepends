@@ -188,7 +188,7 @@ function(doc, info = getInputs(doc), vars = getVariables(info))
   ans = do.call("rbind", ans)
   ans$var = factor(ans$var, levels = unique(ans$var))
   rownames(ans) = NULL
-  structure(ans, class = c("DetailedVariableTimeline", "data.frame"), range = c(1, length(info)))
+  structure(ans, class = c("DetailedVariableTimeline", "data.frame"), range = c(1, length(info)),  scriptName = doc@location)
 }
 
 getDetailedTimeline =
@@ -216,14 +216,15 @@ setAs("DetailedVariableTimeline", "matrix",  #??? Was this really DetailedVariab
       })
 
 plot.DetailedVariableTimeline =
-function(x, var.srt = 0, var.mar = round(max(4, .5*max(nchar(levels(x$var))))), var.cex = 1, ...)
+function(x, var.srt = 0, var.mar = round(max(4, .5*max(nchar(levels(x$var))))), var.cex = 1,
+           main = attr(x, "scriptName"), ...)
 {
   old = par(no.readonly = TRUE)
   on.exit(par(old))
   par(mar = c(5, var.mar, 4, 1) + .1)
   numVars = length(levels(x$var))
   plot(1, type = "n", xlim = attr(x, "range"), ylim = c(1, numVars),
-         yaxt = "n",  xlab = "Step", ylab = "", ...)
+         yaxt = "n",  xlab = "Step", ylab = "", main = main, ...)
 
 
   text(par("usr")[1] - 0.25, 1:numVars, srt = var.srt, adj = 1,

@@ -6,6 +6,16 @@
 
 <items>
 <title>Issues</title>
+
+<item>
+Display code in HTML and have a plot
+of the task graph, or the detailed timeline 
+and link the two. 
+Allow highlighting a variable in the plot and
+then show the variables in the code.
+Two modes - where variables are assigned and when they are used.
+</item>
+
 <item>
 How are getExpressionThread and getVariableDepends different?
 </item>
