@@ -20,7 +20,9 @@ highlightCode(obj, out = NULL, addFunctionLinks = TRUE, inline = TRUE,
               jsCode = system.file("JavaScript", "highlightSymbols.js", package = "CodeDepends"))
 }
 \arguments{
-  \item{obj}{the name of a file containing R code or an R expression or function}
+  \item{obj}{the name of a file containing R code or an R expression or
+    function.
+    Currently, this needs to be a file.}
   \item{out}{the name of a file to which the HTML document is written,
   or \code{NULL} or \code{NA} to just return the in-memory document.}
   \item{addFunctionLinks}{how to generate the links for function
@@ -30,9 +32,7 @@ highlightCode(obj, out = NULL, addFunctionLinks = TRUE, inline = TRUE,
   If this is a function, it is called with a vector of  function names
   and should return a character vector with links for each of them.}
   \item{inline}{a logical value indicating whether to put the CSS and
-    JavaScript code directly into the HTML document or just refer to them.
-   Note that currently inlining the CSS is disabled. It is not
-  working for some strange reason.}
+    JavaScript code directly into the HTML document or just refer to them.}
   \item{h}{the renderer to create the HTML. See \code{\link[highlight]{highlight}}}
   \item{css}{the URL or local file name for the CSS content}
   \item{jsCode}{the URL or local file name for the JavaScript code for

@@ -95,15 +95,7 @@ function(obj, out = NULL, addFunctionLinks = TRUE, inline = TRUE, h = htmlRender
   removeNodes(node)
 
 
-  if(FALSE && inline)
-     newXMLNode("link", attrs = c(rel = "stylesheet", type = "text/css"),
-                paste(c("", readLines(css), ""), collapse = "\n"), parent = head)    
-  else
-     newXMLNode("link", attrs = c(rel = "stylesheet", type = "text/css", href = css),
-                parent = head)
 
-browser()
-  
 
   if(inline)
     newXMLNode("script", attrs = c(type = "text/javascript"),
@@ -121,6 +113,15 @@ browser()
    # clean up extra new lines.
   tt = getNodeSet(doc, "//body//pre/text()")
   sapply(tt, function(x) xmlValue(x) = gsub("\\\n{2}", "\\\n", xmlValue(x)))
+
+
+  if(inline)
+       # note the inline version is style (not link)!
+     newXMLNode("style", attrs = c(rel = "stylesheet", type = "text/css"),
+                paste(c("", readLines(css), ""), collapse = "\n"), parent = head)
+  else
+     newXMLNode("link", attrs = c(rel = "stylesheet", type = "text/css", href = css),
+                parent = head)  
 
 
   if(length(out) && !is.na(out))

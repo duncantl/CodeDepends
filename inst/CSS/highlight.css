@@ -1,6 +1,6 @@
-pre.Rcode {
+ pre.Rcode {
    background: lightgrey;
-}
+ }
 
  .number{
  	color: rgb(21,20,181) ;
@@ -64,8 +64,8 @@ pre.Rcode {
      color: gray ;   
  }
 
-.showSymbol {
+ .showSymbol {
   background: grey;
   color: red;
-}
+ }
 

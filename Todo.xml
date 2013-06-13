@@ -7,9 +7,12 @@
 <items>
 <title>Issues</title>
 
-<item>
+<item status="done">
 highlightCode( inline = TRUE)
 doesn't include the CSS and the JS doesn't work.
+<br/>
+Was using <xml:tag>link</xml:tag> for inline version when I
+should have been using <xml:tag>style</xml:tag>.
 </item>
 <item>
 Change the CSS for highlight.css to get better colors and fonts.
