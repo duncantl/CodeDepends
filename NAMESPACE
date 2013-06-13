@@ -55,3 +55,4 @@ exportMethods("[", "$")
 export(updatingScript)
 export(historyAsScript)
 
+export(highlightCode)

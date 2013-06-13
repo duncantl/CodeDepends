@@ -12,8 +12,9 @@ Maintainer: Duncan Temple Lang <duncan@r-project.org>
 License: GPL
 Depends: methods
 Imports: codetools, XML
-Suggests: graph, Rgraphviz, RUnit, knitr
+Suggests: graph, Rgraphviz, RUnit, knitr,  highlight, RJSONIO, RCurl
 Collate: classes.R codeDepends.R sectionDepends.R sweave.R xml.R 
          jss.R frags.R codeTypes.R gc.R graph.R parallel.R 
          deps.R separateBlocks.R callGraph.R isPlot.R isOutput.R 
          refScript.R sideEffects.R 
+         highlightCode.R

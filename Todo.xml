@@ -8,6 +8,14 @@
 <title>Issues</title>
 
 <item>
+highlightCode( inline = TRUE)
+doesn't include the CSS and the JS doesn't work.
+</item>
+<item>
+Change the CSS for highlight.css to get better colors and fonts.
+</item>
+
+<item>
 Display code in HTML and have a plot
 of the task graph, or the detailed timeline 
 and link the two. 

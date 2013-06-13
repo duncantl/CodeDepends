@@ -5,10 +5,13 @@
 # but then when we higlight a point in the plot, we see
 # the corresponding code hightlighted.
 # Do this for the variables as inputs and outputs, i.e. separate modes.
+
 library(CodeDepends)
 library(RD3Device)
+
 z = readScript("~/GitWorkingArea/RClangSimple/Paper/RClang.tex", "JSS")
 dtm = getDetailedTimelines(z)
+
 dev = d3Device()
 plot(dtm)
 dev.off()
