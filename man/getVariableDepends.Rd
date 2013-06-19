@@ -10,7 +10,7 @@
   \code{getSectionDepends}
 }
 \usage{
-getVariableDepends(vars, frags, info = lapply(frags, getInputs))
+getVariableDepends(vars, frags, info = lapply(frags, getInputs), checkLibraries = FALSE, asIndex = FALSE)
 getSectionDepends(sect, frags, info = lapply(frags, getInputs), index = FALSE)
 }
 \arguments{
@@ -23,16 +23,31 @@ getSectionDepends(sect, frags, info = lapply(frags, getInputs), index = FALSE)
   \item{index}{a logical value that controls whether we return the
     indices of the fragments of interest (\code{TRUE}) or return the
     fragments themselves (\code{FALSE})}
-    \item{sect}{the index of the section/fragment to be analyzed}  
+  \item{sect}{the index of the section/fragment to be analyzed}
+  \item{checkLibraries}{a logical value}
+  \item{asIndex}{a logical value that controls whether we return the
+    expressions/code blocks or their indices.}
 }
 \value{
-
+  \code{getVariableDepends} returns a \code{\link{Script-class}} object
+  consisting of the subset of code blocks relevant to the specified variables.
+  
+  If \code{asIndex} is \code{TRUE}, \code{getVariableDepends} returns the indices of the
+  code blocks in the original script.
 }
 \author{Duncan Temple Lang}
 \seealso{
-  % \code{\link{}}
+  \code{\link{getPropagateChanges}}
+  \code{\link{getExpressionThread}}   
 }
 \examples{
+e = readScript(system.file("samples", "dual.R", package = "CodeDepends"))
+
+getVariableDepends("fit", e)
+getVariableDepends("fit", e, asIndex = TRUE)
+
+getVariableDepends("y", e, asIndex = TRUE)
+getVariableDepends("y", e)
 
 }
 \keyword{programming}

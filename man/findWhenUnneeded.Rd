@@ -36,13 +36,12 @@ addRemoveIntermediates(doc, frags = readScript(doc), info = getInputs(frags), va
     not the variable.
   }
 }
-\details{
-
-}
+%\details{}
 \value{
-
+  A vector of indices indicating the last expression in which each of
+  the specified  variables is an input.
 }
-\references{}
+%\references{}
 \author{Duncan Temple Lang}
 
 \seealso{
@@ -52,10 +51,15 @@ addRemoveIntermediates(doc, frags = readScript(doc), info = getInputs(frags), va
 \examples{
 f = system.file("samples", "cleanVars.R", package = "CodeDepends")
 sc = readScript(f)
+findWhenUnneeded("x", sc)
+findWhenUnneeded(c("x", "y"), sc)  
+
+# z is never used
 findWhenUnneeded("z", sc)
+findWhenUnneeded("z", sc, end = 1L)  
 
 code = addRemoveIntermediates(f)
- # Note that rm(x, y) is added to the 5th code block
-code[[5]]
+ # Note that rm(x), rm(y) and rm(d) are added.
+code[c(4, 5, 6)]
 }
 \keyword{programming}

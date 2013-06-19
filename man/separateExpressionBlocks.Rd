@@ -25,7 +25,7 @@ separateExpressionBlocks(blocks)
 \value{
  A list of call or assignment expressions.
 }
-\references{}
+%\references{}
 \author{Duncan Temple Lang}
 
 \seealso{

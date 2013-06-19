@@ -26,7 +26,7 @@ function(doc, type = NA, txt = readLines(doc))
   if(is.na(type) ) 
     type = getDocType(doc, txt)
 
-  ans = frag.readers[[type]](txt = txt)
+  ans = frag.readers[[type]](doc, txt = txt)
   if(!is(ans, "Script"))
     ans = new("Script", ans, location = if(missing(doc))
                                            as.character(NA)
@@ -61,7 +61,7 @@ function(doc, txt = readLines(doc))
 
   if(length(grep("<([[:alpha:]]*:code|code)", txt)))
       "xml"
-  else if(length(grep("^### chunk number", txt)))
+  else if(any(grepl("^(### chunk number|<<[^>]*>>=)", txt)))
       "Stangled"
   else
       "R"
@@ -128,6 +128,9 @@ function(doc, txt = readLines(doc))
   val  
 }
 
+
+
+
 frag.readers =
   # list of functions indexed by a document type string
   # so that we can determine the type of the document
@@ -137,7 +140,10 @@ frag.readers =
               },
         Stangled = getTangledFrags,
         R = readRExpressions,
+        JSS = readJSSCode,
         labeled = readAnnotatedScript)
+
+
 
 
 
@@ -158,3 +164,18 @@ function(x)
      names(x) = sprintf("%s %d", names(x)[1], seq(along = x))
   x
 }
+
+
+historyAsScript =
+function()
+{
+  f = tempfile()
+  on.exit(unlink(f))
+  savehistory(f)
+  lines = readLines(f, encoding = "UTF-8")[-1]
+  lines = gsub("\\\\040", " ", lines)
+  expr = lapply(lines, function(ll) tryCatch(parse(text = ll), error = function(e) {NULL}))
+  new("Script",  .Data = expr[!sapply(expr, is.null)])
+}
+
+

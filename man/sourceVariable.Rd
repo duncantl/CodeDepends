@@ -10,7 +10,9 @@
 }
 \usage{
 sourceVariable(vars, doc, frags = readScript(doc), eval = TRUE, env = globalenv(), 
-                nestedEnvironments = FALSE, verbose = FALSE) 
+                nestedEnvironments = FALSE, verbose = TRUE,
+                 checkLibraries = eval, force = FALSE, first = FALSE,
+                  info = lapply(frags, getInputs)) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -27,6 +29,15 @@ sourceVariable(vars, doc, frags = readScript(doc), eval = TRUE, env = globalenv(
     environment that is chained to the previous one.}
     \item{verbose}{a logical value indicating whether to print the
       expression being evaluated before it is actually evaluated.}
+    \item{checkLibraries}{a logical value that controls whether we check
+    for functions that are not currently available and if there are any
+    whether we add calls to load libraries in \code{\link{getVariableDepends}}.}
+    \item{force}{a logical value that controls whether we evaluate the
+      expressions if they variables appear to exist.}
+    \item{first}{a logical value.
+    This is intended  to allow running up to the first instance of the variable, not all of them.}
+    \item{info}{the information about each expression.  This is computed
+    automatically, but the caller can specify it to avoid redundant computations.}
 }
 \value{
   If \code{eval} is \code{TRUE}, a list of the results
@@ -35,7 +46,7 @@ sourceVariable(vars, doc, frags = readScript(doc), eval = TRUE, env = globalenv(
   constituting the code blocks. In this case, the function is the same
   as \code{\link{getVariableDepends}}
 }
-\references{}
+%\references{}
 \author{Duncan Temple Lang}
 \note{
   We should add a \code{nestedEnvironments} parameter as in

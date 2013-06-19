@@ -6,6 +6,8 @@
 \alias{getInputs,ScriptNodeInfo-method}
 \alias{getInputs,function-method}
 
+\alias{scriptInfo}
+
 \title{Get input and output variables and literals from R expressions}
 \description{
   This function is used to analyze an R expression and
@@ -16,7 +18,7 @@
   with \code{getVariableInputs}.
 }
 \usage{
-getInputs(e, collector = inputCollector(), basedir = ".", ...)
+getInputs(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
 }
 \arguments{
   \item{e}{the expression whose code we are to process}
@@ -25,6 +27,9 @@ getInputs(e, collector = inputCollector(), basedir = ".", ...)
   \item{basedir}{the directory for the code relative to which we can
     resolve file names.}
   \item{\dots}{additional parameters for methods}
+  \item{reset}{a logical value that controls whether we call the
+  collector's reset method before starting to process the expressions in
+  the script.}
 }
 
 \value{
@@ -44,7 +49,7 @@ getInputs(e, collector = inputCollector(), basedir = ".", ...)
     i.e. does not find the functions called by the function calls in
     this section.}  
 }
-\references{}
+%\references{}
 \author{Duncan Temple Lang}
 
 \seealso{

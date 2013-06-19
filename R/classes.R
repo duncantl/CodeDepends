@@ -14,6 +14,7 @@ setClass("ScriptNodeInfo",
                          updates = 'character',
                          functions = 'character',
                          removes = 'character',
+                         formulaVariables = 'character',
                          sideEffects = 'character'))
 
 setOldClass(c("DetailedVariableTimeline", "data.frame"))
@@ -40,3 +41,7 @@ setMethod("[", signature(x = "Script", i = "vector", j = "missing"),
                   x@.Data <- x@.Data[i]
                   x
           })
+
+setMethod("$", "Script",
+          function(x, name)
+            invisible( sourceVariable(name, x)) )

@@ -10,6 +10,7 @@
 \alias{coerce,expression,ScriptNodeInfo-method}
 \alias{coerce,language,ScriptNodeInfo-method}
 \alias{[,Script,vector,missing-method}
+\alias{$,Script-method}
 
 \title{The Script class and elements}
 \description{
@@ -89,7 +90,7 @@ Class \code{"\linkS4class{vector}"}, by class "list", distance 2.
  h = CodeDepends:::inputCollector(source = sourceHandler)
  info = getInputs(sc, h, basedir = dirname(f))
 
- u = url("http://penguin.biostat.jhsph.edu/cpkg/49c0/90223e7b16d72240a928f69bccd72a0a164c/src/timeseries.R")
+ u = url("http://www.omegahat.org/CodeDepends/formula.R")
  sc = readScript(u)
  as(sc, "ScriptInfo")
 }

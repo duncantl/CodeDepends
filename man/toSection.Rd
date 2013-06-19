@@ -31,7 +31,9 @@ runUpToSection(section, doc, all = TRUE, env = globalenv(),
   Currently, \code{all = FALSE} is not implemented.
 }
 \author{Duncan Temple Lang}
-\seealso{}
+\seealso{
+  \code{\link{sourceVariable}}
+}
 \examples{
  frags = parse(system.file("samples", "dual.R", package = "CodeDepends"))  
  runUpToSection(3, frags = frags, verbose = TRUE, all = TRUE)

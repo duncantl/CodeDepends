@@ -5,7 +5,111 @@
 <title>CodeDepends</title>
 
 <items>
-<title>Bugs</title>
+<title>Issues</title>
+
+<item status="done">
+highlightCode( inline = TRUE)
+doesn't include the CSS and the JS doesn't work.
+<br/>
+Was using <xml:tag>link</xml:tag> for inline version when I
+should have been using <xml:tag>style</xml:tag>.
+</item>
+<item>
+Change the CSS for highlight.css to get better colors and fonts.
+</item>
+
+<item>
+Display code in HTML and have a plot
+of the task graph, or the detailed timeline 
+and link the two. 
+Allow highlighting a variable in the plot and
+then show the variables in the code.
+Two modes - where variables are assigned and when they are used.
+</item>
+
+<item>
+How are getExpressionThread and getVariableDepends different?
+</item>
+
+<item>
+findWhenUnneeded misses variables used in a formula. See example in Rd file for x.
+Use cleanVars1.R.
+Also, we remove the data frame which the fit object may reference.
+</item>
+
+<item>
+Update functions and methods to allow a DynScript where a regular Script can be.
+Just coerce. and/or method for getInputs()
+</item>
+
+<item>
+Add support for include formula variables in  analysis
+of getPropagateChanges(), etc.
+</item>
+
+<item>
+Determine when a code chunk redefines a variable. 
+This changes the dependencies 
+<r:code>
+p = foo()
+
+p  = 1
+bar(p)
+</r:code>
+
+
+</item>
+
+<item>
+Would like to be able to update the script, see what expressions have changed
+and then  use that information when using sourceVariable().
+See if Gabe has done something on this.
+</item>
+
+<item>
+If a variable is named missing, we don't count it in the dependencies.
+</item>
+
+<item>
+Identify as a dependency a variable that is used
+as the default value of a function that is called in our 
+expressions.
+See fgets.Rdb in Rllvm/explorations.
+</item>
+<item>
+(Recursively) find global variables in functions.
+See fgets.Rdb in Rllvm/explorations.
+</item>
+
+<item>
+Come up with a mechanism that identifies
+side effects via closures.
+See for example the RClangSimple/RCIndex examples (notDone.R)
+where we call parseTU(file,  col$fun) and col$fun is a closure.
+<br/>
+This is slightly tricky as we want to mark col as being updated,
+not col$fun.  We could identify col as a reference type or mutable
+and hence if it is passed to a function, we can consider it mutated
+or possibly so. We can also analyze the function to which it is passed
+and see if it uses the mutable parts, and do this recursively to the functions
+it calls and so on.
+</item>
+
+
+<item>
+Function to determine if  a function (potentially) modifies its arguments.
+Put another way, determine which parameters are const.
+This can be part of a type inference package I am working on
+(github.com:duncantl/RTypeInference).
+</item>
+
+<item>
+Function that just revaluates the command to define a variable,
+e.g. <r:expr>sc$reval('foo')</r:expr>
+So this is for when we don't want to find the command and
+have the script.
+
+</item>
 
 <item status="done">
 getSectionDepends does'nt seem to recognize need for hout in RClangSimple/inst/TU/routinese.R

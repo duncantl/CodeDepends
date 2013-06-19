@@ -28,7 +28,7 @@ makeVariableGraph(doc, frags = readScript(doc), info = getInputs(frags),
 \value{
  An object of class \code{graphNEL} from the \code{graph} package.
 }
-\references{}
+%\references{}
 \author{Duncan Temple Lang}
 
 \seealso{
@@ -40,7 +40,7 @@ makeVariableGraph(doc, frags = readScript(doc), info = getInputs(frags),
   \code{Rgraphviz}
 }
 \examples{
- u = url("http://penguin.biostat.jhsph.edu/cpkg/49c0/90223e7b16d72240a928f69bccd72a0a164c/src/timeseries.R")
+ u = url("http://www.omegahat.org/CodeDepends/formula.R")
  sc = readScript(u)
  library(Rgraphviz)
  g = makeVariableGraph(, sc)
