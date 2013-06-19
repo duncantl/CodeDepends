@@ -31,3 +31,14 @@ test_altoutput = function()
     checkTrue("dblarrow" %in% res@outputs, "Detection of <<- as assignment (output) failed.")
   }
   
+
+test_libsymbols = function()
+    {
+        scr = readScript("testcode/inputtest4.R")
+        res = getInputs(scr, collector = CodeDepends:::inputCollector(checkLibrarySymbols = TRUE))
+        checkTrue( ! ( "pi" %in% res[[1]]@inputs ) , "'pi' symbol, present in base package, returned as input variable")
+        checkTrue("f" %in% res[[3]]@inputs, "code-defined function f not detected as input when used as an argument to sapply in subsequent code")
+        checkTrue( ! ( "rnorm" %in% res[[4]]@inputs) , "package defined functiornorm returned as input variable when used as argument to sapply")
+        checkTrue("f" %in% res[[5]]@inputs, "code-defined function f not detected as input when called by subsequent code")
+    }
+        

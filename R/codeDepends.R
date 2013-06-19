@@ -26,9 +26,13 @@ inputCollector =
   #  Would like them to be relative to the  location of the script.
   #  Need to call isFile() with basedir correctly
   #
-function(..., functionHandlers = list(...), inclPrevOutput = FALSE)
+function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrarySymbols = FALSE, funcsAsInputs = FALSE)
 {
   libraries = character()
+  if(checkLibrarySymbols)
+      libSymbols = corePkgSyms
+  else
+      libSymbols = character()
   files = character()
   strings = character()
       # What about collecting numbers, or all literals.
@@ -43,6 +47,11 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE)
 
   reset = function() {
     libraries <<- character()
+    if(checkLibrarySymbols)
+        libSymbols <<- corePkgSyms
+    else
+        libSymbols <<- character()
+    
     files <<- character()
     strings <<- character()
     vars <<- character()
@@ -53,7 +62,13 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE)
     sideEffects <<- character()
   }
   
-  list(library = function(name) libraries <<- c(libraries, name),
+  list(library = function(name)
+       {
+           #what about dependencies? do we want c(libraries, getDeps(name), name)?
+           libraries <<- c(libraries, name)
+           if(checkLibrarySymbols)
+               libSymbols <<- c(libSymbols, librarySymbols(name))
+       },
        string = function(name, basedir = NA, filep = isFile(name, basedir))
                 if(filep)
                     files <<- c(files, name)
@@ -71,17 +86,23 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE)
                 if(input)
                   {
                     if(inclPrevOutput)
-                      vars <<- c(vars, name[ !( name %in% BuiltinFunctions ) ])  # || name %in% set
+                      vars <<- c(vars, name[ !( name %in% c(BuiltinFunctions, libSymbols) ) ] ) #BuiltinFunctions ) ])  # || name %in% set
                     else
                   ##Variables can't be an input if they are already an output ~GB
-                      vars <<- c(vars, name[ !( name %in% BuiltinFunctions  || name %in% set )])  # || name %in% set
+                      vars <<- c(vars, name[ !( name %in% c(BuiltinFunctions, set, libSymbols) ) ] ) #BuiltinFunctions  || name %in% set )])  # || name %in% set
 
                   }
                 else
                    Set(name)
               },
        set = Set,
-       calls = function(name) functions <<- c(functions, name),
+       calls = function(name) {
+           functions <<- c(functions, name)
+           
+           if(funcsAsInputs)
+               vars(name, TRUE)
+       },
+       
        removes = function(name) removes <<- c(removes, name),
        sideEffects = function(name) sideEffects <<- c(sideEffects, name),       
        functionHandlers = functionHandlers,
