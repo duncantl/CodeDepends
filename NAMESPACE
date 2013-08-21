@@ -18,6 +18,8 @@ export(runUpToSection, sourceVariable)
 export(getInputs)
 exportMethods(getInputs)
 
+export(inputCollector)
+
 export(getVariables)
 exportMethods(getVariables)
 

@@ -188,7 +188,7 @@ function(doc, info = getInputs(doc), vars = getVariables(info))
   ans = do.call("rbind", ans)
   ans$var = factor(ans$var, levels = unique(ans$var))
   rownames(ans) = NULL
-  structure(ans, class = c("DetailedVariableTimeline", "data.frame"), range = c(1, length(info)),  scriptName = doc@location)
+  structure(ans, class = c("DetailedVariableTimeline", "data.frame"), range = c(1, length(info)),  scriptName = if(!missing(doc)) doc@location else as.character(NA))
 }
 
 getDetailedTimeline =

@@ -80,7 +80,6 @@ function(obj, out = NULL, addFunctionLinks = TRUE, inline = TRUE, h = htmlRender
            highlight(parse.output = obj, NULL, renderer = h)
          }
 
-  library(XML)
   library(RJSONIO)
 
   doc = htmlParse(html, asText = TRUE)

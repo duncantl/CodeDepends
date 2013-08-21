@@ -9,7 +9,9 @@ librarySymbols = function(nm, ..., verbose=FALSE, attach=FALSE)
         allsyms = unlist(lapply(libs, function(x)
             {
                 e = loadNamespace(x, partial=TRUE)
-                ls(envir= e)
+                ret =ls(envir= e)
+                names(ret) = rep(x, times = length(ret))
+                ret
             }))
     }
 

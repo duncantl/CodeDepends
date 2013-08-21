@@ -26,7 +26,7 @@ inputCollector =
   #  Would like them to be relative to the  location of the script.
   #  Need to call isFile() with basedir correctly
   #
-function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrarySymbols = FALSE, funcsAsInputs = FALSE)
+function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrarySymbols = FALSE, funcsAsInputs = checkLibrarySymbols)
 {
   libraries = character()
   if(checkLibrarySymbols)
@@ -43,6 +43,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
   updates = character()
   sideEffects = character()
   formulaVariables = character()
+  
   
   Set = function(name) set <<- c(set, name)
 
@@ -113,7 +114,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
        sideEffects = function(name) sideEffects <<- c(sideEffects, name),       
        functionHandlers = functionHandlers,
        reset = reset,
-       addInfo = addInfo,
+#       addInfo = addInfo,
        results = function(resetState = FALSE) {
                       ans = new("ScriptNodeInfo",
                                  libraries = unique(libraries),
@@ -158,14 +159,15 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
   } else if(is.call(e)) {
 
      findSideEffects(e, collector)
-    
-     if(is.symbol(e[[1]]) && as.character(e[[1]]) == "function") {
+     #put the customized handler check first so that it can override  default behaviors ~GB
+     if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% names(collector$functionHandlers)) {
+         collector$functionHandlers[[ as.character(e[[1]]) ]](e, collector, basedir)
+     } else if(is.symbol(e[[1]]) && as.character(e[[1]]) == "function") {
        tmp = eval(e)
        ans = codetools::findGlobals(tmp, FALSE)
        collector$vars(ans$variables, input = TRUE)
        collector$calls(ans$functions)
-     }
-     else if(is.symbol(e[[1]]) && as.character(e[[1]]) == "~") {
+     } else if(is.symbol(e[[1]]) && as.character(e[[1]]) == "~") {
          # a formula, eg a~b
          # whether we count variables that appear in formulas as inputs for the expression is controlled by the formulaInputs paramter
        #eventually we want to be able to handle the situation where we are calling
@@ -194,8 +196,7 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
 
      } else if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% c("$")) {
         collector$vars(as.character(e[[2]]), input = input)
-     } else if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% names(collector$functionHandlers)) {
-       collector$functionHandlers[[ as.character(e[[1]]) ]](e, collector, basedir)
+    
      } else {
 
             # an assignment.

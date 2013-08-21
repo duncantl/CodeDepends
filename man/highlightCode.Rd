@@ -53,13 +53,9 @@ highlightCode(obj, out = NULL, addFunctionLinks = TRUE, inline = TRUE,
 \author{
 Duncan Temple Lang
 }
-
-\seealso{
-\code{\link{}}
-}
 \examples{
 f = system.file("samples", "sitepairs.R", package = "CodeDepends")
-highlightCode(highlightCode, "foo.html")
+highlightCode(f, "foo.html")
 }
 \keyword{programming}
 

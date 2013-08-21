@@ -12,7 +12,8 @@
 \usage{
 getDetailedTimelines(doc, info = getInputs(doc), vars = getVariables(info))
 \method{plot}{DetailedVariableTimeline}(x, var.srt = 0,
-                                         var.mar = round(max(4, .5*max(nchar(levels(x$var))))), var.cex = 1, ...)
+                                         var.mar = round(max(4,
+.5*max(nchar(levels(x$var))))), var.cex = 1, main = attr(x, "scriptName"),...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -27,8 +28,10 @@ getDetailedTimelines(doc, info = getInputs(doc), vars = getVariables(info))
   \item{var.mar}{the number of lines to leave for the vertical axis.
    The labels for this are variable names so one often needs more space
    or to change the size of the labels.}
-  \item{var.cex}{character expansion factor for the variable labels on
+ \item{var.cex}{character expansion factor for the variable labels on
+   
     the vertical axis.}
+  \item{main}{the title of the plot}
   \item{\dots}{additional arguments to the \code{plot} command. These
     might include, for example, main to put a title on the plot.}
 }
@@ -54,13 +57,13 @@ getDetailedTimelines(doc, info = getInputs(doc), vars = getVariables(info))
 \examples{
 f = system.file("samples", "results-multi.R", package = "CodeDepends")
 sc = readScript(f)
-dtm = getDetailedTimelines(, getInputs(sc))
+dtm = getDetailedTimelines(sc, getInputs(sc))
 plot(dtm)
 table(dtm$var)
 
  # A big/long function
 info = getInputs(arima0)
-dtm = getDetailedTimelines(, info)
+dtm = getDetailedTimelines(info = info)
 plot(dtm, var.cex = .7, mar = 4, srt = 30)
 }
 \keyword{programming}
