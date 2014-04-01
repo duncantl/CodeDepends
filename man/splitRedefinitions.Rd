@@ -7,7 +7,7 @@
   of individual calls or code blocks and to divide
   it into separate blocks in which a particular variable
   has only one definition.
-  Within each bloc the variable is assigned a new value.
+  Within each block the variable is assigned a new value.
   
   At present, the code is quite simple and separates
   code blocks that merely alter an existing variable's

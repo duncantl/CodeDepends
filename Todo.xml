@@ -6,6 +6,70 @@
 
 <items>
 <title>Issues</title>
+<item>
+Deal with alternatives in the document.
+</item>
+
+<item>
+sourceVariable doesn't seem to run the function definition expressions.
+<br/>
+In CaseStudies/PairsTrading/
+<r:code>
+sc = readScript("duncanSol.Rdb")
+sourceVariable("r", , sc)
+</r:code>
+</item>
+<item status="check">
+sourceVariable seems to run up to but not including the expression to create c
+<br/>
+Actually it seems we just need force = TRUE.
+<r:code>
+sc = readScript("duncanSol.Rdb")
+sourceVariable("c", , sc)
+</r:code>
+</item>
+<item status="check">
+getVariables(sc[[3]]) doesn't seem to work. No method for an expression.
+<br/>
+But if we use a ScriptNodeInfo rather than an expression, this is fine.
+<br/>
+Method added for expression.
+</item>
+<item status="done">
+Names on a script have a preceeding space. 
+Is this makeTaskNames with names(x)[1] being empty? Yes.
+<br/>
+Now we trim the names.
+</item>
+<item>
+Identify functions in  plot(getDetailedTimelines(.)).
+</item>
+<item>
+Show functions being used in time lines,
+i.e. color them differently.
+<br/>
+</item>
+<item>
+Make an interactive, SVG plot of the timelines.
+Show the code when we mouseover or click on a point.
+</item>
+<item status="ok">
+duncalSol.Rdb in Projects/CaseStudies/PairsTrading/
+shows a red before a green in getProfit.K (?)
+<br/>
+This is fine as we do reference the function before we
+define it.
+<r:code>
+sc = readScript("duncanSol.Rdb")
+plot(getDetailedTimelines(sc))
+</r:code>
+</item>
+<item>
+Recognize  TRUE/FALSE, literals, @slotname not as regular variables.
+</item>
+<item>
+Variables in loops
+</item>
 
 <item status="done">
 highlightCode( inline = TRUE)
