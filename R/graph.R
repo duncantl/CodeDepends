@@ -226,16 +226,17 @@ function(x, var.srt = 0, var.mar = round(max(4, .5*max(nchar(levels(x$var))))), 
   plot(1, type = "n", xlim = attr(x, "range"), ylim = c(1, numVars),
          yaxt = "n",  xlab = "Step", ylab = "", main = main, ...)
 
-
   text(par("usr")[1] - 0.25, 1:numVars, srt = var.srt, adj = 1,
           labels = levels(x$var), xpd = TRUE, cex = var.cex)
 
   
   x$varNum = as.integer(x$var)
+
   by(x, x$var, function(x) {
                   i = x$varNum[1]
-                  lines(c(min(which(x$defined)), if(any(x$used)) max(which(x$used)) else min(which(x$defined))),
-                        c(i, i), col = "lightgray")
+                  start = c(min(which(x$defined)), if(any(x$used)) max(which(x$used)) else min(which(x$defined)))
+                  lines(c(1, start[1]), c(i, i), col = "lightgray", lty = 3)                  
+                  lines(start, c(i, i), col = "lightgray")
                   if(any(x$used))
                     points(which(x$used), rep(i, sum(x$used)), pch = 21, col = "red")
                   if(any(x$defined))

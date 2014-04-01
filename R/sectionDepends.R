@@ -313,6 +313,11 @@ setMethod("getVariables", "ScriptNodeInfo",
 setMethod("getVariables", "ScriptInfo",
             function(x, inputs = FALSE, ...)  {          
               unlist(lapply(x, getVariables, inputs))
+            })
+
+setMethod("getVariables", "expression",
+            function(x, inputs = FALSE, ...)  {          
+              getVariables(as(x, 'ScriptNodeInfo'), inputs, ...)
             })              
 
 
