@@ -17,4 +17,4 @@ Collate: classes.R librarySymbols.R codeDepends.R sectionDepends.R sweave.R xml.
          jss.R frags.R codeTypes.R gc.R graph.R parallel.R 
          deps.R separateBlocks.R callGraph.R isPlot.R isOutput.R 
          refScript.R sideEffects.R 
-         highlightCode.R
+         highlightCode.R freeVariables.R
