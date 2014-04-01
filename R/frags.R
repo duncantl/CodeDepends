@@ -161,10 +161,13 @@ makeTaskNames =
 function(x)
 {
   if(length(x) > 1)
-     names(x) = sprintf("%s %d", names(x)[1], seq(along = x))
+     names(x) = trim(sprintf("%s %d", names(x)[1], seq(along = x)))
   x
 }
 
+trim =
+function(x)
+  gsub("^[[:space:]]+|[[:space:]]+$", "", x)
 
 historyAsScript =
 function()
