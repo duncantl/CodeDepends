@@ -17,16 +17,16 @@ function(doc, txt = readLines(doc))
 }
 
 setGeneric("readScript",
-            function(doc, type = NA, txt = readLines(doc))
+            function(doc, type = NA, txt = readLines(doc), ...)
              standardGeneric("readScript"))
 
 tmp =
-function(doc, type = NA, txt = readLines(doc))
+function(doc, type = NA, txt = readLines(doc), ...)
 {
   if(is.na(type) ) 
     type = getDocType(doc, txt)
 
-  ans = frag.readers[[type]](doc, txt = txt)
+  ans = frag.readers[[type]](doc, txt = txt, ...)
   if(!is(ans, "Script"))
     ans = new("Script", ans, location = if(missing(doc))
                                            as.character(NA)
@@ -45,8 +45,8 @@ function(doc, type = NA, txt = readLines(doc))
 setMethod("readScript", "character", tmp)
 
 setMethod("readScript", "XMLInternalDocument",
-           function(doc, type = NA, txt = readLines(doc)) {
-             readXMLScript(doc)
+           function(doc, type = NA, txt = readLines(doc), ...) {
+             readXMLScript(doc, ...)
            })
 
 setOldClass("connection")
@@ -114,13 +114,13 @@ function(expr)
 
 
 readXMLScript =
-function(doc, txt = readLines(doc))
+function(doc, txt = readLines(doc), ...)
 {
   if(is.character(doc))
     doc = xmlParse(doc)
   
 #  val = xmlSource(txt, asText = TRUE, eval = FALSE, setNodeNames = TRUE)
-  val = xmlSource(doc, eval = FALSE, setNodeNames = TRUE)  
+  val = xmlSource(doc, eval = FALSE, setNodeNames = TRUE, ...)  
   i = grep("^r:(code|plot|function|init)", names(val))
   if(length(i)) {
     names(val)[i] = sprintf("step %d", i)
@@ -135,8 +135,8 @@ frag.readers =
   # list of functions indexed by a document type string
   # so that we can determine the type of the document
   # and then figure out how to get the fragments.
-  list( xml = function(doc, txt = readLines(doc)) {
-                  readXMLScript(xmlParse(txt, asText = TRUE))
+  list( xml = function(doc, txt = readLines(doc), ...) {
+                  readXMLScript(xmlParse(txt, asText = TRUE), ...)
               },
         Stangled = getTangledFrags,
         R = readRExpressions,
