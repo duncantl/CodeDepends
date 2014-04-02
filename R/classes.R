@@ -12,7 +12,7 @@ setClass("ScriptNodeInfo",
                          inputs = 'character',
                          outputs = 'character',
                          updates = 'character',
-                         functions = 'character',
+                         functions = 'logical', # indicating locally defined or not or NA, and the functions names are the names for the vector. #  'character',
                          removes = 'character',
                          formulaVariables = 'character',
                          sideEffects = 'character'))
