@@ -1,3 +1,7 @@
+  *  The functions slot in ScriptNodeInfo is now a logical vector with the names identifying the functions.
+     The logical values are used to indicate if the functions is defined within a task in the script (TRUE, 
+     if this is unknown (NA), or if it is externally defined (FALSE).
+
 0.3-0 
 
   *   Read Sweave files via knit() in knitr.

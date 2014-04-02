@@ -4,14 +4,19 @@
 <topics xmlns:r="http://www.r-project.org">
 <title>CodeDepends</title>
 
+<topic>
+<title>CodeDepends</title>
 <items>
 <title>Issues</title>
 <item>
 Deal with alternatives in the document.
 </item>
 
-<item>
+<item status="verify">
 sourceVariable doesn't seem to run the function definition expressions.
+<br/>
+I've added facilities to do this, identifying functions as 
+either locally defined within the script or not, or unknown.
 <br/>
 In CaseStudies/PairsTrading/
 <r:code>
@@ -19,6 +24,8 @@ sc = readScript("duncanSol.Rdb")
 sourceVariable("r", , sc)
 </r:code>
 </item>
+
+
 <item status="check">
 sourceVariable seems to run up to but not including the expression to create c
 <br/>
@@ -28,6 +35,7 @@ sc = readScript("duncanSol.Rdb")
 sourceVariable("c", , sc)
 </r:code>
 </item>
+
 <item status="check">
 getVariables(sc[[3]]) doesn't seem to work. No method for an expression.
 <br/>
@@ -35,23 +43,45 @@ But if we use a ScriptNodeInfo rather than an expression, this is fine.
 <br/>
 Method added for expression.
 </item>
+
 <item status="done">
 Names on a script have a preceeding space. 
 Is this makeTaskNames with names(x)[1] being empty? Yes.
 <br/>
 Now we trim the names.
 </item>
+
 <item>
-Identify functions in  plot(getDetailedTimelines(.)).
+Add in locally defined functions in  plot(getDetailedTimelines(.)).
+<br/>
+Can use functions = TRUE. However, functions = NULL doesn't turn all
+of the functions off.  
+<br/>
+[Fixed] When we include functions, c shows up define many places. 
+<br/>
+getDetailedTimeline now uses the functions argument in the call to getVariables.
+</item>
+
+
+<item status="done">
+Allow suppressing the display of the expressions in readScript.
+<br/>
+Added a ... and this is passed on to readXMLScript and any other fragment readers.
+Use  verbose = FALSE for XML documents.
 </item>
 <item>
 Show functions being used in time lines,
 i.e. color them differently.
 <br/>
+They seem to now appear as being redefined!
 </item>
 <item>
 Make an interactive, SVG plot of the timelines.
 Show the code when we mouseover or click on a point.
+</item>
+<item>
+Connect the SVG display to an HTML document with the code parts.
+Allow the viewer to navigate the document via the plot.
 </item>
 <item status="ok">
 duncalSol.Rdb in Projects/CaseStudies/PairsTrading/
@@ -64,8 +94,18 @@ sc = readScript("duncanSol.Rdb")
 plot(getDetailedTimelines(sc))
 </r:code>
 </item>
-<item>
-Recognize  TRUE/FALSE, literals, @slotname not as regular variables.
+<item status="verify">
+Seems to be working:
+<br/>
+Recognize  TRUE/FALSE, literals, @slotname, $name, not as regular variables.
+<br/>
+I think we probably don't want to include these literals as variables.
+They are literals/constants. And we don't seem to include them in ScriptNodeInfo.
+See 
+<r:code>
+sc = readScript("inst/samples/literal.R")
+as(sc, "ScriptInfo")
+</r:code>
 </item>
 <item>
 Variables in loops
@@ -121,7 +161,6 @@ p  = 1
 bar(p)
 </r:code>
 
-
 </item>
 
 <item>
@@ -130,8 +169,10 @@ and then  use that information when using sourceVariable().
 See if Gabe has done something on this.
 </item>
 
-<item>
+<item status="done">
 If a variable is named missing, we don't count it in the dependencies.
+<br/>
+Yes we do. See inst/samples/missing.R
 </item>
 
 <item>
@@ -200,7 +241,17 @@ Make the Script object something we can do something like
 <r:expr>  sc[["foo"]] </r:expr>
 to run the code to get foo and the return foo.
 This is just syntax for sourceVariable.
+<br/>
+Doesn't sc$name do this already.
+<br/>
+FIX: But it doesn't handle function definitions.
 </item>
+
+<item>
+For tasks/nodes that have a single output, put the name of the variable 
+as the name of the task.
+</item>
+
 <item>
 Allow sourceVariable()  to check what variables
 already exist and just run the code for those that don't.
@@ -402,5 +453,5 @@ and think about what else we should really be plotting.
 Find rm() commands.
 </item>
 </items>
-
+</topic>
 </topics>
