@@ -4,6 +4,7 @@
 \alias{getVariables,ScriptInfo-method}
 \alias{getVariables,ScriptNode-method}
 \alias{getVariables,ScriptNodeInfo-method}
+\alias{getVariables,expression-method}
 \title{Get the names of the variables used in code}
 \description{
   These functions and methods allow one to get the
