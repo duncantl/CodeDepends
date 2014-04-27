@@ -41,6 +41,10 @@ function(doc, type = NA, txt = readLines(doc), ...)
   ans
 }
 
+setMethod("readScript", c("missing", txt = "character"),
+          function(doc, type = NA, txt = readLines(doc), ...)
+            tmp(type = type, txt = txt, ...)
+         )
 
 setMethod("readScript", "character", tmp)
 
