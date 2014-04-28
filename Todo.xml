@@ -8,11 +8,8 @@
 <title>CodeDepends</title>
 <items>
 <title>Issues</title>
-<item>
-Deal with alternatives in the document.
-</item>
 
-<item status="verify">
+<item> Back again:<br/>
 sourceVariable doesn't seem to run the function definition expressions.
 <br/>
 I've added facilities to do this, identifying functions as 
@@ -108,7 +105,9 @@ as(sc, "ScriptInfo")
 </r:code>
 </item>
 <item>
-Variables in loops
+Variables in loops - when they are local to the loop, recognize this.
+See inst/samples/loop.R. i is not defined until the loop.
+We seem to need a new concept to introduced here.
 </item>
 
 <item status="done">
@@ -161,6 +160,18 @@ p  = 1
 bar(p)
 </r:code>
 
+<r:code>
+getInputs(quote({p = foo();p  = 1; bar(p)}))
+</r:code>
+gives p as an output and no input.
+We could say updates p.
+
+<br/>
+What about 
+<r:code>
+getInputs(quote({p  = p + 1; bar(p)}))
+</r:code>
+This has p as inputs and outputs. This is correct.
 </item>
 
 <item>
@@ -175,11 +186,19 @@ If a variable is named missing, we don't count it in the dependencies.
 Yes we do. See inst/samples/missing.R
 </item>
 
-<item>
+<item status="check">
 Identify as a dependency a variable that is used
 as the default value of a function that is called in our 
 expressions.
 See fgets.Rdb in Rllvm/explorations.
+<br/>
+<r:code>
+sc = readScript(system.file("samples", "defaultValue.R", package = "CodeDepends"))
+k = as(sc, "ScriptInfo")
+k[[3]]@inputs
+
+k[[4]]@inputs
+</r:code>
 </item>
 <item>
 (Recursively) find global variables in functions.
@@ -285,12 +304,8 @@ to ensure getVariableDepends() returns unique expressions.
 led to sort on columns.
 </item>
 
-<item>
-Introduce a SourceNodeInfo that extends ScriptNodeInfo and
-indicates this is a source command.
-Then introduce other important concepts that are not generic.
-</item>
-<item>
+
+<item status="high">
 <r:code><![CDATA[
 getInputs(quote(x[i] <- x[i] + 2))
 ]]></r:code>
@@ -300,12 +315,16 @@ LHS, but it is not an output. Need to be more precise.
 <item>
 Handle dget, .readRDS, etc. as potentially reading  files.
 </item>
-<item>
+<item status="verify">
 When an assignment is not a simple name, take the name
 of the first variable mentioned and use that as an input.
 <br/>
 Test to see if it is working. Changed the is.name(e[[2]][[2]]) condition.
 Need to be more general.
+<br/>
+<r:code><![CDATA[
+getInputs(quote( x[[3]]$foo <- k + g(z)))
+]]></r:code>
 </item>
 
 <item status="done">
@@ -319,13 +338,17 @@ getInputs(s[[28]])
 For some silly reason, I was excluding variables that were also in the outputs.
 </item>
 
-<item>
+<item status="verify">
+Seems to be working - April 1, 2014
+<br/>
 Names of assignment functions not being added to functions in
 getInputs. E.g. in 
 <r:code><![CDATA[
 getInputs(quote(colnames(covs) <- paste(xcolnames(covs), "c", sep = ".")))
 ]]></r:code>
-should be catching the colnames
+should be catching the colnames.
+
+
 </item>
 
 <item>
@@ -358,14 +381,9 @@ named, e.g., "modified" to reflect inline modifications
 via x$foo and x[i] and x[i, j]
 </item>
 
-<item>
-Draw the tasks as a flow.
-<br/>
-Think about alternatives at this point, but of course they don't really belong here
-necessarily.
-</item>
 
-<item>
+
+<item status="verify">
 Document the undocumented functions.
 <r:code>
 library(tools)
@@ -388,6 +406,11 @@ getExpressionThread() and redefined variables and infinite loops.
 Follow load() and source() commands to identify variables they provide.
 Recursively process source() commands.
 Get the table of contents for a load() file.
+</item>
+<item>
+Introduce a SourceNodeInfo that extends ScriptNodeInfo and
+indicates this is a source command.
+Then introduce other important concepts that are not generic.
 </item>
 
 
@@ -454,4 +477,20 @@ Find rm() commands.
 </item>
 </items>
 </topic>
+<topic>
+<title>Alternatives and Threads</title>
+<items>
+<item>
+Deal with alternatives in the document.
+</item>
+<item>
+Draw the tasks as a flow.
+<br/>
+Think about alternatives at this point, but of course they don't really belong here
+necessarily.
+</item>
+</items>
+</topic>
+
+
 </topics>

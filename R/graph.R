@@ -182,9 +182,9 @@ function(x, ...)
 
 
 getDetailedTimelines =
-function(doc, info = getInputs(doc), vars = getVariables(info))
+function(doc, info = getInputs(doc), vars = getVariables(info, functions = functions), functions = TRUE)
 {
-  ans = lapply(unique(vars), getDetailedTimeline, info = info)
+  ans = lapply(unique(vars), getDetailedTimeline, info = info, functions = functions)
   ans = do.call("rbind", ans)
   ans$var = factor(ans$var, levels = unique(ans$var))
   rownames(ans) = NULL
@@ -196,10 +196,10 @@ getDetailedTimeline =
 # Want to be able to determine when the variable could
 # be garbage collected and is reassigned and identify the
 # gap.
-function(var, info)
+function(var, info, functions = TRUE)
 {
   used = sapply(info, function(x) var %in% x@inputs)
-  defined = sapply(info, function(x) var %in% getVariables(x))
+  defined = sapply(info, function(x) var %in% getVariables(x, functions = functions))
   data.frame(step = 1:length(info), used = used, defined = defined, var = rep(var, length(defined)), stringsAsFactors = FALSE)
 }
 

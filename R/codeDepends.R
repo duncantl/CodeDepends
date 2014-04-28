@@ -116,6 +116,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
        reset = reset,
 #       addInfo = addInfo,
        results = function(resetState = FALSE) {
+                      funcs = unique(functions)
                       ans = new("ScriptNodeInfo",
                                  libraries = unique(libraries),
                                  files = unique(files),
@@ -125,7 +126,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                                  updates = unique(updates),
                                  removes = removes,
                                  formulaVariables = formulaVariables,
-                                 functions = unique(functions),
+                                 functions = structure(rep(NA, length(funcs)), names = funcs),
                                  sideEffects = unique(sideEffects))
                       
                       if(resetState) 
@@ -294,14 +295,32 @@ setMethod("getInputs", "Script",
 function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
 {
   ans = lapply(e, getInputs, collector = collector,  basedir = basedir, reset = TRUE, ...)
-  new("ScriptInfo", ans)
+  
+  new("ScriptInfo", identifyLocalFunctions(ans))
 })
 
 setMethod("getInputs", "ScriptNode",
 function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
 {
-  getInputs(e@code, collector, basedir, ...)
+  nodes = getInputs(e@code, collector, basedir, ...)
+  # Now determine if the functions are locally defined or not, i.e. within earlier tasks in this script.
+  identifyLocalFunctions(nodes)
 })
+
+identifyLocalFunctions =
+function(nodes)
+{
+  defs = character()
+  for(i in seq(along = nodes)) {
+     tmp = nodes[[i]]
+     if(length(tmp@functions) && any(w <- is.na(tmp@functions))) {
+        tmp@functions[w] = names(tmp@functions[w]) %in% defs
+        nodes[[i]] = tmp
+     }
+     defs = c(defs, tmp@outputs)
+  }
+  nodes
+}
 
 
 setMethod("getInputs", "ScriptNodeInfo",
