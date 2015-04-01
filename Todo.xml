@@ -9,6 +9,77 @@
 <items>
 <title>Issues</title>
 
+<item>
+sourceVariable() needs to find all of the functions
+that are called in any function that is defined in the dependencies.
+</item>
+
+<item status="verify">
+Fix getInputs so that it doesn't add the elements on the RHS to updates.
+See ~/Projects/CaseStudies/BML/BML.Rdb. and sc[[45]]@outputs and specifically
+adding grid to the updates..
+</item>
+
+<item status="verify">
+Fix getInputs so that if it is just an update, then don't put in the outputs
+See ~/Projects/CaseStudies/BML/BML.Rdb. and sc[[45]]@outputs.
+</item>
+
+<item>
+getDepends
+
+getVariables() also includes @updates, so found 
+then includes updates, but not
+
+<r:code>
+sc = readScript("~/Projects/CaseStudies/BML/BML.Rdb")
+inputs = getInputs(sc)
+getDepends("createGrid", sc)
+</r:code>
+</item>
+
+<item>
+Handle calls to substitute.
+Also quote.
+</item>
+
+
+<item>
+Don't seem to identify x as an output in 
+<r:code>
+  ans = numeric(length(x))
+  for(i in seq(along =x)[-1])
+      x[i] = x[i-1]*2
+  ans
+</r:code>
+Should be for the second expression - the for loop where body updates x.
+</item>
+
+<item>
+Get getInputs() from the body of a function, an expression, etc. 
+to behave the same as reading from a script.
+See RLLVMCompile/explorations/deadVariables.R
+</item>
+<item>
+Is getInputs () method for function correct in having the names of the formals
+be outputs and not inputs?
+</item>
+
+<item>
+findWhenUnneeded probably need to query the updates also.
+If an update is done as he last use of a variable, this is currently missed.
+(See RLLVMCompile explorations/script.R)
+</item>
+<item>
+findWhenUnneeded returns NA for a variable that is never used, just defined.
+Od we want 0 or 1 or where it is defined?
+</item>
+
+<item>
+<r:expr>if (as.character(fn) == "close")</r:expr>.
+fn can be of the form x$foo and so have length greater than 1.
+</item>
+
 <item> Back again:<br/>
 sourceVariable doesn't seem to run the function definition expressions.
 <br/>

@@ -30,7 +30,7 @@ function(vars, doc, frags = readScript(doc), eval = TRUE, env = globalenv(),
   
   idx = getVariableDepends(vars, frags, info, checkLibraries = checkLibraries, asIndex = TRUE)
   if(length(idx) == 0) {
-    warning("no variable(s) named ", paste(vars, collapse = ", "), " in the script")
+    warning("no variable(s) named ", paste(vars, collapse = ", "), " defined in the script")
     return(FALSE)
   }
   els = frags[idx]
@@ -140,7 +140,7 @@ function(sect, frags, info = lapply(frags, getInputs), index = FALSE)
 {
   target = info[[sect]]
 
-    # Linear or not ? i..e can we go forward in the document to find the definition of a var.
+    # Linear or not ? i.e. can we go forward in the document to find the definition of a var.
     # And when we return the list here, the order may be important.
 
   inputs = c(target@inputs, getLocalFunctions(target@functions, TRUE))
@@ -441,7 +441,11 @@ function(var, otherSections)
       # are actually also inputs.
      if(any(found)) {
        index = c(index, i)
-       var = c(var[!found], src@inputs)
+         # have to be careful what we exclude. They have to be
+         # only outputs, and not updates. We still need to keep looking for the updates.
+         # So remove all the var[found] which are in the outputs
+         # in other words, include all the var[found] that are not in the  outputs.
+       var = c(var[!found], setdiff(var[found], src@outputs), src@inputs)
      }
      i = i-1
   }
