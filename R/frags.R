@@ -65,7 +65,7 @@ function(doc, txt = readLines(doc))
 
   if(length(grep("<([[:alpha:]]*:code|code)", txt)))
       "xml"
-  else if(any(grepl("^(### chunk number|<<[^>]*>>=)", txt)))
+  else if(any(grepl("^(### chunk number|<<[^>]*>>=|```\\{r.*\\})", txt)))
       "Stangled"
   else
       "R"

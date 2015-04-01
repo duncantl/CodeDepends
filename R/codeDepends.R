@@ -170,7 +170,8 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
        collector$vars(ans$variables, input = TRUE)
        collector$calls(ans$functions)
      } else if(is.symbol(e[[1]]) && as.character(e[[1]]) == "~") {
-         # a formula, eg a~b
+
+         ## a formula, eg a~b
          # whether we count variables that appear in formulas as inputs for the expression is controlled by the formulaInputs paramter
        #eventually we want to be able to handle the situation where we are calling
        #lm(y~x + z, data=dat) where y and x are in dat but z is not, but that is HARD to detect so for now we allow users to specify whether CodeDepends counts all variables used by formulas (assuming they come from the global environment/current scope) or none (assuming the fomula will be used only within the scope of, eg, a data.frame). I think the second one is the most common use-case in practice...
@@ -182,7 +183,9 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
          col = inputCollector()
          lapply(e[-1], getInputs, col, basedir = basedir, input = input, formulaInputs = formulaInputs, ..., update = update)
          vals = col$results()
-         collector$addInfo(modelVars = vals@inputs, funcNames = vals@functions)
+         ## format of vals@functions is named vector of NA with functions as the names
+         ## logical value in return appears to indicate local or not.
+         collector$addInfo(modelVars = vals@inputs, funcNames = names(vals@functions))
        }
 
      } else if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% c("require", "library")) {
