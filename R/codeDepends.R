@@ -309,7 +309,10 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
 {
   nodes = getInputs(e@code, collector, basedir, ...)
   # Now determine if the functions are locally defined or not, i.e. within earlier tasks in this script.
-  identifyLocalFunctions(nodes)
+  ## We don't have the whole script here, only a single node, can't (??) do the
+  ## described above. ~GB
+  ## identifyLocalFunctions(nodes)
+  nodes
 })
 
 identifyLocalFunctions =

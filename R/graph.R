@@ -1,3 +1,22 @@
+
+## some "var" names are not allowed as node labels
+## I know that | and || are not allowed, I guessed about some
+## other things that might also cause problems. Seems to work now ~GB
+disallowed = c("|" = "vectorized or",
+    "||" = "binary or",
+    "&&" = "binary and",
+    "&" = "vectorized and",
+    "[" = "square bracket",
+    "(" = "parenthesis",
+    "==" = "equal op",
+    "<-" = "left assign")
+makeNodeLabs = function(vars) {
+    mtch = match(vars, names(disallowed))
+    vars[!is.na(mtch)] = disallowed[mtch[!is.na(mtch)]]
+    vars
+}
+
+
 getDependsOn =
   #
   # Find what variables depend on this one variable.
@@ -28,8 +47,12 @@ function(doc, frags = readScript(doc), info = getInputs(frags), vars = getVariab
   if(!require(graph))
       stop("you need to install the graph package to create the variable graph")
   vars = unique(vars)
-  edges = structure(lapply(vars, getDependsOn, info = info, vars = vars), names = vars)
-  
+
+  edges = lapply(vars, getDependsOn, info = info, vars = vars)
+
+  ## Fix var names to be allowable node labels ~GB
+  vars = makeNodeLabs(vars)
+  names(edges) = vars
   new("graphNEL", nodes = vars, edgeL = edges, edgemode = "directed")
 }
 

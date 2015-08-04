@@ -36,7 +36,9 @@ function(e, info = getInputs(e))
 {
 
   funs = info@functions
-  pkgs = sapply(funs, find)
+  ## format of info@functions seems to be logical indicating local
+  ## with fun names as vec names. See classes.R ~GB
+  pkgs = sapply(names(funs), find)
 
   ans = character()
   
