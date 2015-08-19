@@ -45,7 +45,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
   removes = character()
   updates = character()
   sideEffects = character()
-  formulaVariables = character()
+  nsevalVars = character()
   
   
   Set = function(name) {
@@ -81,7 +81,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
         functions <<- character()
         removes <<- character()
         updates <<- character()
-        formulaVariables <<- character()
+        nsevalVars <<- character()
         sideEffects <<- character()
     }
   
@@ -93,7 +93,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                libSymbols <<- c(libSymbols, librarySymbols(name))
        },
        addInfo = function(funcNames = character(), modelVars = character()) {
-           formulaVariables <<- c(formulaVariables,  modelVars)
+           nsevalVars <<- c(nsevalVars,  modelVars)
            functions <<- c(functions, funcNames)
        },
        string = function(name, basedir = NA, filep = isFile(name, basedir))
@@ -131,7 +131,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                                  outputs = unique(set),
                                  updates = unique(updates),
                                  removes = removes,
-                                 formulaVariables = formulaVariables,
+                                 nsevalVars = nsevalVars,
                                  functions = structure(rep(NA, length(funcs)), names = funcs),
                                  sideEffects = unique(sideEffects))
                       
@@ -148,13 +148,13 @@ setGeneric("getInputs",
            })
 
 getInputs.language =          
-function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = TRUE, formulaInputs = FALSE, ...,  pipe = FALSE, update = FALSE)
+function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = TRUE, formulaInputs = FALSE, ...,  pipe = FALSE, update = FALSE, nseval=FALSE)
 {
   ans = character()
 
   if(inherits(e, "expression")) {
 
-     ans = lapply(e, getInputs, collector = collector, basedir = basedir, formulaInputs = formulaInputs, pipe = pipe, ...)
+     ans = lapply(e, getInputs, collector = collector, basedir = basedir, formulaInputs = formulaInputs, pipe = pipe, nseval = nseval, ...)
 
   } else if(is.function(e)) {
 
@@ -163,37 +163,54 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
      collector$calls(ans$functions)     
 
   } else if(is.call(e)) {
+      if(is.symbol(e[[1]]) && nseval) {
+          collector$addInfo( funcNames= as.character(e[[1]]))
+          lapply(e[-1], getInputs, collector = collector, basedir =basedir,
+                 formulaInputs = formulaInputs, ..., update = FALSE,
+                 input = input, pipe = pipe, nseval=TRUE)
+      } else {
 
-     findSideEffects(e, collector)
-     ## put the customized handler check first so that it can override  default behaviors ~GB
-     ## all the built in special cases are now factored out as default handlers. See
-     ## functionHandlers.R ~GB
-     if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% names(collector$functionHandlers)) {
-         collector$functionHandlers[[ as.character(e[[1]]) ]](e, collector,
-                                                              basedir = basedir,
-                                                              formulaInputs = formulaInputs,
-                                                              update = update,
-                                                              input = input,
-                                                              pipe = pipe)
-     } else {
-         collector$calls(as.character(e[[1]]))
-         lapply(e[-1], getInputs, collector=collector, basedir = basedir,
-                formulaInputs = formulaInputs, ..., update = update,
-                input = input, pipe = pipe)
-     }
+          findSideEffects(e, collector)
+          ## put the customized handler check first so that it can override  default behaviors ~GB
+          ## all the built in special cases are now factored out as default handlers. See
+          ## functionHandlers.R ~GB
+          if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% names(collector$functionHandlers)) {
+              collector$functionHandlers[[ as.character(e[[1]]) ]](e, collector,
+                                                                   basedir = basedir,
+                                                                   formulaInputs = formulaInputs,
+                                                                   update = update,
+                                                                   input = input,
+                                                                   pipe = pipe,
+                                                                   nseval = nseval)
+          } else {
+              collector$functionHandlers[["_default_"]](e, collector,
+                                                       basedir = basedir,
+                                                       formulaInputs = formulaInputs,
+                                                       update = update,
+                                                       input = input,
+                                                       pipe = pipe,
+                                                       nseval = nseval)
+              
+       
+          }
+      }
      
  } else if(isAssignment(e)) {
-     collector$functionHandlers[["_assignment"]](e, collector, input = input, basedir = basedir,
+     collector$functionHandlers[["_assignment_"]](e, collector, input = input, basedir = basedir,
                                                  formulaInputs = formulaInputs,
-                                                 update = update, pipe = pipe)
+                                                 update = update, pipe = pipe,
+                                                 nseval = nseval)
      
  } else if(is.name(e) || is.symbol(e)) {
 
-     if(as.character(e) != "")
-       if(update)
-          collector$update(as.character(e))
-       else
-          collector$vars(as.character(e), input)
+     if(as.character(e) != "") {
+         if(update)
+             collector$update(as.character(e))
+         else if (nseval)
+             collector$addInfo(modelVars = as.character(e))
+         else
+             collector$vars(as.character(e), input)
+     }
 
   } else if(is.integer(e) || is.logical(e) || is.numeric(e) || is.complex(e)) {
       # literal so ignore.
@@ -208,8 +225,9 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
 
    } else if(is.pairlist(e)) {
 
-     lapply(e, getInputs, collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ..., update = update, pipe = pipe)
-
+     lapply(e, getInputs, collector = collector, basedir = basedir, input = input,
+            formulaInputs = formulaInputs, ..., update = update, pipe = pipe,
+            nseval = nseval)
    } else {
 
      stop("don't know about ", class(e))
@@ -274,7 +292,7 @@ setMethod("getInputs", "function",
               if(as.character(expr[[1]]) == "{")
                  expr = expr[-1]
               vars = new("ScriptNodeInfo", outputs = names(formals(e))) #??? outputs - shouldn't this be inputs?
-              new("ScriptInfo", c(vars, lapply(expr, getInputs, collector = collector, basedir = basedir)))
+              new("ScriptInfo", c(vars, lapply(expr, getInputs, collector = collector, basedir = basedir, ...)))
             })
 
 

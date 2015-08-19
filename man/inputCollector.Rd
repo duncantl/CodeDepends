@@ -133,7 +133,7 @@ FALSE, checkLibrarySymbols = FALSE, funcsAsInputs = checkLibrarySymbols)
 \examples{
    f = system.file("samples", "results-multi.R", package="CodeDepends")
    sc = readScript(f)
-  collector = inputCollector(library = function(e, collector, basedir)
+  collector = inputCollector(library = function(e, collector, basedir, ...)
   {
     print(paste("loaded library",  e[[2]]))
     collector$library(as.character(e[[2]]))

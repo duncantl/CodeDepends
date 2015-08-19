@@ -42,3 +42,33 @@ test_libsymbols = function()
         checkTrue("f" %in% res[[5]]@inputs, "code-defined function f not detected as input when called by subsequent code")
     }
         
+
+sameset = function(x,y) {
+    if(!is.vector(x) || !is.vector(y))
+        stop("x,y need to be vectors")
+    if(!identical(class(x), class(y)))
+        return(FALSE)
+    identical(sort(unique(x)), sort(unique(y)))
+}
+
+
+test_colons = function() {
+    scr = readScript(,txt = "stats::rnorm(n, x)")
+    inp = getInputs(scr)[[1]]
+    checkTrue(sameset(names(inp@functions), c("::", "rnorm")), "Not identifying functions correctly in double colon calls")
+    checkTrue(sameset(inp@inputs, c("n", "x")), "Not identifying inputs correctly in double colon calls")
+    checkTrue(sameset(inp@libraries, c("stats")), "Did not correctly identify libraries used via ::")
+}
+
+
+test_pipe = function() {
+    scr = readScript("testcode/inputtest5.R")
+    res = getInputs(scr)[[1]]
+    checkTrue(sameset(names(res@functions), c("%>%", "::", paste0("f", 1:4))),
+              "Did not correctly identify functions called via pipe")
+    checkTrue(sameset(res@libraries, c("stats", "graphics")), "Didn't catch libraries called via :: within pipe expression")
+    checkTrue(sameset(res@inputs, c("df", "w", "z")), "Didn't correctly id initial and additional inputs to pipe expression")
+    checkIdentical(res@outputs, "out", "Didn't correctly identify output of -> in pipe expression")
+    
+
+}

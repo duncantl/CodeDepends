@@ -14,7 +14,7 @@ setClass("ScriptNodeInfo",
                          updates = 'character',
                          functions = 'logical', # indicating locally defined or not or NA, and the functions names are the names for the vector. #  'character',
                          removes = 'character',
-                         formulaVariables = 'character',
+                         nsevalVars = 'character',
                          sideEffects = 'character'))
 
 setOldClass(c("DetailedVariableTimeline", "data.frame"))
