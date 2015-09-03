@@ -67,6 +67,8 @@ function(doc, txt = readLines(doc))
       "xml"
   else if(any(grepl("^(### chunk number|<<[^>]*>>=|```\\{r.*\\})", txt)))
       "Stangled"
+  else if (any(grepl("^#\\+BEGIN_SRC R", txt, ignore.case=TRUE)))
+      "org"
   else
       "R"
 }
@@ -133,8 +135,13 @@ function(doc, txt = readLines(doc), ...)
 }
 
 
+readOrgmode =
+    function(doc, txt = readLines(doc), ...)
+{
+    
+    stop("notimplemented")
 
-
+}
 frag.readers =
   # list of functions indexed by a document type string
   # so that we can determine the type of the document
@@ -145,7 +152,8 @@ frag.readers =
         Stangled = getTangledFrags,
         R = readRExpressions,
         JSS = readJSSCode,
-        labeled = readAnnotatedScript)
+        labeled = readAnnotatedScript,
+       org = readOrgmode)
 
 
 

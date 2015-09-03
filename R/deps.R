@@ -25,37 +25,68 @@ function(var, info)
   sapply(info, function(x) any(var %in% getVariables(x)))
 
 
-getDependsThread =
-  # This is an iterative version that walks back down the
-  # ScriptNodeInfo  list picking out the ones that are needed to run.
-function(var, info, reverse = TRUE)
-{
+
+findLastDef = function(var, info) {
+
   w = isDefinedVar(var, info)
   if(!any(w))
     return(integer())
 
   last = max(which(w))
 
-  if(last == 1)
-    return(1L)
+  last
+}
 
-  ans = last
-  vars = info[[last]]@inputs
-  while(TRUE) {
 
-    sub = info[1:(last-1)]    
+
+setGeneric("getDependsThread", function(var, info, reverse = TRUE)
+    standardGeneric("getDependsThread"))
+
+setMethod("getDependsThread", "character", function(var, info, reverse) {
+              expr = parse(text=var)
+              if(length(expr) == 1 && is(expr[[1]], "name")) {
+                  ## This is a variable name
+                  position = findLastDef(var, info)
+                  
+              } else {
+                  ## it's a code expression
+                  matches = sapply(info, function(x) identical(expr, x@code) || identical(expr[[1]], x@code))
+                  if(sum(matches) >= 1)
+                      position = max(which(matches))
+                  else
+                      stop("string passed to var seems to be an expression that does not appear in info")
+              }
+              getDependsThread(var = position, info = info, reverse = reverse)
+          })
+
+setMethod("getDependsThread", "numeric", function(var, info, reverse) {
+              
+              .getDependsThread(position = var, info = info, reverse = reverse)
+
+          })
+
+.getDependsThread =
+  # This is an iterative version that walks back down the
+  # ScriptNodeInfo  list picking out the ones that are needed to run.
+function(var, info, position = findLastDef(var, info), reverse = TRUE)
+{
+    ans = position
+    vars = info[[position]]@inputs
+    while(TRUE) {
+
+    sub = info[1:(position-1)]    
     w = isDefinedVar(vars, sub)
     if(!any(w))
        break
 
-    last = max(which(w))
-    ans = c(ans, last)
-    if(last == 1)
+    position = max(which(w))
+    ans = c(ans, position)
+    if(position == 1)
       break
       # Do any outputs from this block take care of variables in
       # the ones we are looking for.
-    vars = vars[!(vars %in% getVariables(sub[[last]]))]
-    vars = c(vars, sub[[last]]@inputs)
+    vars = vars[!(vars %in% getVariables(sub[[position]]))]
+    vars = c(vars, sub[[position]]@inputs)
 
   }
 

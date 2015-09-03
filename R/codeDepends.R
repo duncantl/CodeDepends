@@ -46,6 +46,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
   updates = character()
   sideEffects = character()
   nsevalVars = character()
+    code = NULL
   
   
   Set = function(name) {
@@ -83,6 +84,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
         updates <<- character()
         nsevalVars <<- character()
         sideEffects <<- character()
+        code = NULL
     }
   
   list(library = function(name)
@@ -120,6 +122,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
        sideEffects = function(name) sideEffects <<- c(sideEffects, name),       
        functionHandlers = functionHandlers,
        reset = reset,
+       code = function(name) code <<- name,
 #       addInfo = addInfo,
        results = function(resetState = FALSE) {
                       funcs = unique(functions)
@@ -133,7 +136,8 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                                  removes = removes,
                                  nsevalVars = nsevalVars,
                                  functions = structure(rep(NA, length(funcs)), names = funcs),
-                                 sideEffects = unique(sideEffects))
+                                 sideEffects = unique(sideEffects),
+                                code = code)
                       
                       if(resetState) 
                         reset()
@@ -150,11 +154,18 @@ setGeneric("getInputs",
 getInputs.language =          
 function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = TRUE, formulaInputs = FALSE, ...,  pipe = FALSE, update = FALSE, nseval=FALSE)
 {
+    ## scoping state hackery
+    if(is.null(dynGet("getinputstoplevel", ifnotfound = NULL))) {
+        collector$code(e)
+        getinputstoplevel = TRUE
+    }
+
   ans = character()
 
   if(inherits(e, "expression")) {
 
-     ans = lapply(e, getInputs, collector = collector, basedir = basedir, formulaInputs = formulaInputs, pipe = pipe, nseval = nseval, ...)
+     ans = lapply(e, getInputs, collector = collector, basedir = basedir,
+         formulaInputs = formulaInputs, pipe = pipe, nseval = nseval, ...)
 
   } else if(is.function(e)) {
 
