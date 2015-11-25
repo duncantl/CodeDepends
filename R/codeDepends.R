@@ -206,9 +206,10 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
             # an assignment.
        if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% c("<-", "=", "<<-")) {
             # Do the left hand side first.
-            #if it is a simple name, then it is an output,
+            #if it is a simple name (or a character value),
+            # then it is an output,
             # but otherwise it is a call and may have more inputs.
-           if(!is.name(e[[2]])) {
+           if(!(is.name(e[[2]]) || is.character(e[[2]]))) {
 
                   # if this is a x$foo <- val or x[["foo"]] = val or x[i, j] <- val
                   # make certain to add the variable being updated as an input.
@@ -231,7 +232,7 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
              # Do the right hand side
            lapply(e[-c(1,2)], getInputs, collector, basedir = basedir, input = TRUE, formulaInputs = formulaInputs, update = FALSE)
 
-            if(is.name(e[[2]])) 
+            if(is.name(e[[2]]) || is.character(e[[2]]))
                collector$set(asVarName(e[[2]]))
             else {
                # handle, e.g.
