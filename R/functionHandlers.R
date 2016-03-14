@@ -258,6 +258,27 @@ spreadhandler = function(e, collector, basedir, input, formulaInputs, update, pi
        
 }
 
+forhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+    collector$call(as.character(e[[1]]))
+    collector$vars(as.character(e[[2]]), input=FALSE)
+    getInputs(e[[3]], collector = collector, basedir = basedir, input=TRUE, update = update, pipe = pipe, nseval=FALSE, ...)
+    getInputs(e[[4]], collector = collector, basedir = basedir, input=input, update = update, pipe = pipe, nseval=FALSE, ...)
+}
+
+ifforcomp = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+    collector$calls("if")
+    getInputs(e[[2]], collector = collector, basedir = basedir, input = input, update = update, pipe = pipe, nseval=FALSE, ...)
+    
+    innerres = getInputs(e[[3]], inputCollector(functionHandlers = collector$functionHandlers))
+    collector$vars(innerres@inputs, input=TRUE)
+    collector$library(innerres@libraries)
+    collector$string(innerres@strings, basedir = basedir, filep=FALSE)
+    collector$string(innerres@files, basedir=basedir, filep=TRUE)
+    collector$calls(innerres@functions)
+    
+
+}
+
 defaultFuncHandlers = list(
     library = libreqhandler,
     require = libreqhandler,
@@ -299,6 +320,7 @@ defaultFuncHandlers = list(
     "::" = colonshandler,
     ":::" = colonshandler,
     "%>%" = pipehandler,
+    "for" = forhandler,
     "_assignment_" = assignhandler,
     "_default_" = defhandler
     
