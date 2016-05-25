@@ -1,5 +1,5 @@
 Package: CodeDepends
-Version: 0.4-1
+Version: 0.4-2
 Title: Analysis of R code for reproducible research and code comprehension
 Description: This package provides some code for analyzing R expressions
   or blocks of code and determining the dependencies between them.

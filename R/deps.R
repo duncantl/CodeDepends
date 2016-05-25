@@ -56,6 +56,7 @@ setMethod("getDependsThread", "character", function(var, info, reverse) {
                   else
                       stop("string passed to var seems to be an expression that does not appear in info")
               }
+              ## Delegate to numeric method
               getDependsThread(var = position, info = info, reverse = reverse)
           })
 
@@ -64,6 +65,12 @@ setMethod("getDependsThread", "numeric", function(var, info, reverse) {
               .getDependsThread(position = var, info = info, reverse = reverse)
 
           })
+
+
+setMethod("getDependsThread", "name", function(var, info, reverse) {
+    ## Delegate to character method
+    getDependsThread(as.character(var), info = info, reverse = reverse)
+    })
 
 .getDependsThread =
   # This is an iterative version that walks back down the
