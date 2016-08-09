@@ -1,5 +1,5 @@
 Package: CodeDepends
-Version: 0.3-5
+Version: 0.4-2
 Title: Analysis of R code for reproducible research and code comprehension
 Description: This package provides some code for analyzing R expressions
   or blocks of code and determining the dependencies between them.
@@ -13,7 +13,7 @@ License: GPL
 Depends: methods
 Imports: codetools, XML
 Suggests: graph, Rgraphviz, RUnit, knitr,  highlight, RJSONIO, RCurl
-Collate: classes.R librarySymbols.R codeDepends.R sectionDepends.R sweave.R xml.R 
+Collate: classes.R librarySymbols.R functionHandlers.R codeDepends.R sectionDepends.R sweave.R xml.R 
          jss.R frags.R codeTypes.R gc.R graph.R parallel.R 
          deps.R separateBlocks.R callGraph.R isPlot.R isOutput.R 
          refScript.R sideEffects.R 

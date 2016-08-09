@@ -1,0 +1,5 @@
+Changes in version 0.4.1 (2016-03-14)
+Bugfixes
+	* default loop handler now recognizes "i" spot as output
+Minor API changes
+      * created non-default ifforcomp if handler reports all inputs used within a conditional, but not conditionally created outputs, as suggested by Nick Ulle for use in compiler buildling.

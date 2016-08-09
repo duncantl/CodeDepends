@@ -83,7 +83,7 @@ Class \code{"\linkS4class{vector}"}, by class "list", distance 2.
  info = getInputs(sc, basedir = dirname(f))
 
    # Providing our own handler for calls to source()
- sourceHandler = function(e, collector = NULL, basedir = ".") {
+ sourceHandler = function(e, collector = NULL, basedir = ".", ...) {
      collector$string(e[[2]], , TRUE)
      collector$calls(as.character(e[[1]]))
  }

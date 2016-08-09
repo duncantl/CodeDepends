@@ -28,6 +28,9 @@ inputCollector =
   #
 function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrarySymbols = FALSE, funcsAsInputs = checkLibrarySymbols)
 {
+    cust = names(functionHandlers)
+    functionHandlers = c(functionHandlers,
+        defaultFuncHandlers[! names(defaultFuncHandlers) %in% cust])
   libraries = character()
   if(checkLibrarySymbols)
       libSymbols = corePkgSyms
@@ -42,30 +45,47 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
   removes = character()
   updates = character()
   sideEffects = character()
-  formulaVariables = character()
+  nsevalVars = character()
+    code = NULL
   
   
   Set = function(name) {
             set <<- c(set, name)
         }
 
-  reset = function() {
-    libraries <<- character()
-    if(checkLibrarySymbols)
-        libSymbols <<- corePkgSyms
-    else
-        libSymbols <<- character()
-    
-    files <<- character()
-    strings <<- character()
-    vars <<- character()
-    set <<- character()
-    functions <<- character()
-    removes <<- character()
-    updates <<- character()
-    formulaVariables <<- character()
-    sideEffects <<- character()
-  }
+    Vars =  function(name, input) {
+        if(!length(name))
+            return()
+        if(input)
+        {
+            if(inclPrevOutput)
+                vars <<- c(vars, name[ !( name %in% c(BuiltinFunctions, libSymbols) ) ] ) #BuiltinFunctions ) ])  # || name %in% set
+            else
+                ##Variables can't be an input if they are already an output ~GB
+                vars <<- c(vars, name[ !( name %in% c(BuiltinFunctions, set, libSymbols) ) ] ) #BuiltinFunctions  || name %in% set )])  # || name %in% set
+            
+        }
+        else
+            Set(name)
+    }
+    reset = function() {
+        libraries <<- character()
+        if(checkLibrarySymbols)
+            libSymbols <<- corePkgSyms
+        else
+            libSymbols <<- character()
+        
+        files <<- character()
+        strings <<- character()
+        vars <<- character()
+        set <<- character()
+        functions <<- character()
+        removes <<- character()
+        updates <<- character()
+        nsevalVars <<- character()
+        sideEffects <<- character()
+        code = NULL
+    }
   
   list(library = function(name)
        {
@@ -75,7 +95,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                libSymbols <<- c(libSymbols, librarySymbols(name))
        },
        addInfo = function(funcNames = character(), modelVars = character()) {
-           formulaVariables <<- c(formulaVariables,  modelVars)
+           nsevalVars <<- c(nsevalVars,  modelVars)
            functions <<- c(functions, funcNames)
        },
        string = function(name, basedir = NA, filep = isFile(name, basedir))
@@ -89,33 +109,20 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                       return()
                    updates <<- c(updates, name)
                  },
-       vars = function(name, input) {
-                if(!length(name))
-                   return()
-                if(input)
-                  {
-                    if(inclPrevOutput)
-                      vars <<- c(vars, name[ !( name %in% c(BuiltinFunctions, libSymbols) ) ] ) #BuiltinFunctions ) ])  # || name %in% set
-                    else
-                  ##Variables can't be an input if they are already an output ~GB
-                      vars <<- c(vars, name[ !( name %in% c(BuiltinFunctions, set, libSymbols) ) ] ) #BuiltinFunctions  || name %in% set )])  # || name %in% set
-
-                  }
-                else
-                   Set(name)
-              },
+       vars = Vars,
        set = Set,
        calls = function(name) {
            functions <<- c(functions, name)
            
            if(funcsAsInputs)
-               vars(name, TRUE)
+               Vars(name, TRUE)
        },
        
        removes = function(name) removes <<- c(removes, name),
        sideEffects = function(name) sideEffects <<- c(sideEffects, name),       
        functionHandlers = functionHandlers,
        reset = reset,
+       code = function(name) code <<- name,
 #       addInfo = addInfo,
        results = function(resetState = FALSE) {
                       funcs = unique(functions)
@@ -127,9 +134,10 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                                  outputs = unique(set),
                                  updates = unique(updates),
                                  removes = removes,
-                                 formulaVariables = formulaVariables,
+                                 nsevalVars = nsevalVars,
                                  functions = structure(rep(NA, length(funcs)), names = funcs),
-                                 sideEffects = unique(sideEffects))
+                                 sideEffects = unique(sideEffects),
+                                code = code)
                       
                       if(resetState) 
                         reset()
@@ -144,13 +152,20 @@ setGeneric("getInputs",
            })
 
 getInputs.language =          
-function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = TRUE, formulaInputs = FALSE, ...,   update = FALSE)
+function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = TRUE, formulaInputs = FALSE, ...,  pipe = FALSE, update = FALSE, nseval=FALSE)
 {
+    ## scoping state hackery
+    if(is.null(dynGet("getinputstoplevel", ifnotfound = NULL))) {
+        collector$code(e)
+        getinputstoplevel = TRUE
+    }
+
   ans = character()
 
   if(inherits(e, "expression")) {
 
-     ans = lapply(e, getInputs, collector = collector, basedir = basedir, formulaInputs = formulaInputs, ...)
+     ans = lapply(e, getInputs, collector = collector, basedir = basedir,
+         formulaInputs = formulaInputs, pipe = pipe, nseval = nseval, ...)
 
   } else if(is.function(e)) {
 
@@ -159,112 +174,54 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
      collector$calls(ans$functions)     
 
   } else if(is.call(e)) {
+      if(is.symbol(e[[1]]) && nseval) {
+          collector$addInfo( funcNames= as.character(e[[1]]))
+          lapply(e[-1], getInputs, collector = collector, basedir =basedir,
+                 formulaInputs = formulaInputs, ..., update = FALSE,
+                 input = input, pipe = pipe, nseval=TRUE)
+      } else {
 
-     findSideEffects(e, collector)
-     #put the customized handler check first so that it can override  default behaviors ~GB
-     if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% names(collector$functionHandlers)) {
-         collector$functionHandlers[[ as.character(e[[1]]) ]](e, collector, basedir)
-     } else if(is.symbol(e[[1]]) && as.character(e[[1]]) == "function") {
-       tmp = eval(e)
-       ans = codetools::findGlobals(tmp, FALSE)
-       collector$vars(ans$variables, input = TRUE)
-       collector$calls(ans$functions)
-     } else if(is.symbol(e[[1]]) && as.character(e[[1]]) == "~") {
+          findSideEffects(e, collector)
+          ## put the customized handler check first so that it can override  default behaviors ~GB
+          ## all the built in special cases are now factored out as default handlers. See
+          ## functionHandlers.R ~GB
+          if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% names(collector$functionHandlers)) {
+              collector$functionHandlers[[ as.character(e[[1]]) ]](e, collector,
+                                                                   basedir = basedir,
+                                                                   formulaInputs = formulaInputs,
+                                                                   update = update,
+                                                                   input = input,
+                                                                   pipe = pipe,
+                                                                   nseval = nseval)
+          } else {
+              collector$functionHandlers[["_default_"]](e, collector,
+                                                       basedir = basedir,
+                                                       formulaInputs = formulaInputs,
+                                                       update = update,
+                                                       input = input,
+                                                       pipe = pipe,
+                                                       nseval = nseval)
+              
+       
+          }
+      }
+     
+ } else if(isAssignment(e)) {
+     collector$functionHandlers[["_assignment_"]](e, collector, input = input, basedir = basedir,
+                                                 formulaInputs = formulaInputs,
+                                                 update = update, pipe = pipe,
+                                                 nseval = nseval)
+     
+ } else if(is.name(e) || is.symbol(e)) {
 
-         ## a formula, eg a~b
-         # whether we count variables that appear in formulas as inputs for the expression is controlled by the formulaInputs paramter
-       #eventually we want to be able to handle the situation where we are calling
-       #lm(y~x + z, data=dat) where y and x are in dat but z is not, but that is HARD to detect so for now we allow users to specify whether CodeDepends counts all variables used by formulas (assuming they come from the global environment/current scope) or none (assuming the fomula will be used only within the scope of, eg, a data.frame). I think the second one is the most common use-case in practice...
-       collector$call(as.character(e[[1]]))
-       if(formulaInputs)
-           lapply(e[-1], getInputs, collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ..., update = update)
-       else {
-          # collect the variables and functions in the 
-         col = inputCollector()
-         lapply(e[-1], getInputs, col, basedir = basedir, input = input, formulaInputs = formulaInputs, ..., update = update)
-         vals = col$results()
-         ## format of vals@functions is named vector of NA with functions as the names
-         ## logical value in return appears to indicate local or not.
-         collector$addInfo(modelVars = vals@inputs, funcNames = names(vals@functions))
-       }
-
-     } else if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% c("require", "library")) {
-
-         # XXX Deal with case there are more arguments and also that the
-         # first argument is not the name of the library and that it is a
-         # a character.
-         # Should also deal with match named arguments!
-       collector$library(as.character(e[[2]]))
-
-     } else if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% c("rm")) {
-        collector$removes( sapply(e[-1], as.character) )
-
-     } else if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% c("$")) {
-        collector$vars(as.character(e[[2]]), input = input)
-     } else {
-
-            # an assignment.
-       if(is.symbol(e[[1]]) && as.character(e[[1]]) %in% c("<-", "=", "<<-")) {
-            # Do the left hand side first.
-            #if it is a simple name, then it is an output,
-            # but otherwise it is a call and may have more inputs.
-           if(!is.name(e[[2]])) {
-
-                  # if this is a x$foo <- val or x[["foo"]] = val or x[i, j] <- val
-                  # make certain to add the variable being updated as an input.
-                  # It will also be an output. 
-              if(is.name(e[[2]][[2]]) || TRUE) { #XX Check - add TRUE to do this unconditionally.
-                if(FALSE) {
-                   if(TRUE || as.character(e[[2]][[1]]) %in% c("$", "[", "[["))
-                      collector$vars(asVarName(e[[2]][[2]]), input = input)
-                   collector$set(asVarName(e[[2]][[2]]))
-                 }
-                 collector$update(asVarName(e[[2]][[2]]))
-                 collector$call(paste(as.character(e[[2]][[1]]), "<-", sep = ""))
-                 update = TRUE
-              }
-
-              if(as.character(e[[2]][[1]]) != "$")
-                lapply(as.list(e[[2]][-c(1,2)]), getInputs, collector, basedir = basedir, input = FALSE, formulaInputs = formulaInputs, ..., update = update)
-           }
-
-             # Do the right hand side
-           lapply(e[-c(1,2)], getInputs, collector, basedir = basedir, input = TRUE, formulaInputs = formulaInputs, update = FALSE)
-
-            if(is.name(e[[2]])) 
-               collector$set(asVarName(e[[2]]))
-            else {
-               # handle, e.g.
-               #   foo(x) = 1
-               #   x[["y"]] = 2
-               #   x [ x > 0 ] = 2 * y
-               if(is.call(e[[2]])) {
-                       #XXX will get foo in foo(x)
-                   if(!update)
-                      collector$set(asVarName(e[[2]][[2]]))
-                   if(as.character(e[[2]][[1]]) != "$")                   
-                     lapply(e[[2]][-c(1,2)], getInputs, collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ..., update = update)
-               } else {
-                   collector$set(asVarName(e[[2]][[2]]))
-               }
-             }
-
-       } else if(!(is.symbol(e[[1]]) && as.character(e[[1]]) == "function")) {
-           collector$call(as.character(e[[1]]))           
-           lapply(e[-1], getInputs, collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ..., update = update)
-       } else if(is.symbol(e[[1]])) {
-          collector$call(as.character(e[[1]]))
-          lapply(e[-1], getInputs, collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ..., update = update)          
-       }
+     if(as.character(e) != "") {
+         if(update)
+             collector$update(as.character(e))
+         else if (nseval)
+             collector$addInfo(modelVars = as.character(e))
+         else
+             collector$vars(as.character(e), input)
      }
-
-  } else if(is.name(e) || is.symbol(e)) {
-
-     if(as.character(e) != "")
-       if(update)
-          collector$update(as.character(e))
-       else
-          collector$vars(as.character(e), input)
 
   } else if(is.integer(e) || is.logical(e) || is.numeric(e) || is.complex(e)) {
       # literal so ignore.
@@ -279,8 +236,9 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
 
    } else if(is.pairlist(e)) {
 
-     lapply(e, getInputs, collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ..., update = update)
-
+     lapply(e, getInputs, collector = collector, basedir = basedir, input = input,
+            formulaInputs = formulaInputs, ..., update = update, pipe = pipe,
+            nseval = nseval)
    } else {
 
      stop("don't know about ", class(e))
@@ -309,7 +267,10 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
 {
   nodes = getInputs(e@code, collector, basedir, ...)
   # Now determine if the functions are locally defined or not, i.e. within earlier tasks in this script.
-  identifyLocalFunctions(nodes)
+  ## We don't have the whole script here, only a single node, can't (??) do the
+  ## described above. ~GB
+  ## identifyLocalFunctions(nodes)
+  nodes
 })
 
 identifyLocalFunctions =
@@ -342,7 +303,7 @@ setMethod("getInputs", "function",
               if(as.character(expr[[1]]) == "{")
                  expr = expr[-1]
               vars = new("ScriptNodeInfo", outputs = names(formals(e))) #??? outputs - shouldn't this be inputs?
-              new("ScriptInfo", c(vars, lapply(expr, getInputs, collector = collector, basedir = basedir)))
+              new("ScriptInfo", c(vars, lapply(expr, getInputs, collector = collector, basedir = basedir, ...)))
             })
 
 
