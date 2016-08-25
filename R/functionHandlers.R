@@ -4,7 +4,21 @@ libreqhandler = function(e, collector, basedir, input, formulaInputs, update, pi
 
 rmhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) collector$removes(sapply(e[-1], as.character))
 
-dollarhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) collector$vars(as.character(e[[2]]), input = input)
+dollarhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+    
+
+
+    ##need to handle cases like a$b$c, which translate to `$`(a$b, c), correctly.
+    ## Only a is a real variable here! Identified based on MathiasHinz
+    ## https://github.com/duncantl/CodeDepends/issues/4
+    if(is(e[[2]], "name"))
+        collector$vars(as.character(e[[2]]), input = input)
+    else
+        getInputs(e[[2]], collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs,
+                  update = update, pipe = pipe, nseval = nseval, ...)
+}
+
+
 
 assignhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
     ## Do the left hand side first.
@@ -285,6 +299,7 @@ defaultFuncHandlers = list(
     requireNamespace = libreqhandler,
     rm = rmhandler,
     "$" = dollarhandler,
+    "@" = dollarhandler,
     "=" = assignhandler,
     "<-" = assignhandler,
     "<<-" = assignhandler,
