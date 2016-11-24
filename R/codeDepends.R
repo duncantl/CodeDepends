@@ -131,7 +131,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                                  files = unique(files),
                                  strings = unique(strings),         
                                  inputs = unique(vars),
-                                 outputs = unique(set),
+                                 outputs = Unique(set),
                                  updates = unique(updates),
                                  removes = removes,
                                  nsevalVars = nsevalVars,
@@ -143,7 +143,13 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                         reset()
                       ans
                     })
-}  
+}
+
+Unique =
+function(x)
+{
+    x[!duplicated(x)]
+}
 
 
 setGeneric("getInputs",
