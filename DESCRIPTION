@@ -18,3 +18,5 @@ Collate: classes.R librarySymbols.R functionHandlers.R codeDepends.R sectionDepe
          deps.R separateBlocks.R callGraph.R isPlot.R isOutput.R 
          refScript.R sideEffects.R 
          highlightCode.R freeVariables.R
+         convenienceFuns.R
+
