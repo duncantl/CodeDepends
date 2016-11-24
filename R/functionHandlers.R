@@ -10,6 +10,7 @@ assignhandler = function(e, collector, basedir, input, formulaInputs, update, pi
     ## Do the left hand side first.
     ##if it is a simple name, then it is an output,
     ## but otherwise it is a call and may have more inputs.
+
     if(!is.name(e[[2]])) {
         
         ## if this is a x$foo <- val or x[["foo"]] = val or x[i, j] <- val
@@ -33,7 +34,7 @@ assignhandler = function(e, collector, basedir, input, formulaInputs, update, pi
 
     ## Do the right hand side
     lapply(e[-c(1,2)], getInputs, collector, basedir = basedir, input = TRUE, formulaInputs = formulaInputs, update = FALSE, pipe = pipe, nseval = nseval)
-    
+
     if(is.name(e[[2]])) 
         collector$set(asVarName(e[[2]]))
     else {
@@ -99,7 +100,10 @@ assignfunhandler = function(e, collector, basedir, input, formulaInputs, update,
         return()
     } else { ## character containing the name to assign to
         collector$calls("assign")
-        collector$set(e[[2]]) ##varable
+        if(is.character(e[[2]]))
+           collector$set(e[[2]]) ##variable
+        else
+           collector$set(structure(as.character(NA), names = deparse(e[[2]])))
         getInputs(e[[3]], collector = collector, basedir = basedir, input = TRUE,
                   formulaInputs = formulaInputs, update = update, pipe = pipe,
                   nseval = nseval, ... )
