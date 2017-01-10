@@ -40,7 +40,7 @@ makeVariableGraph(doc, frags = readScript(doc), info = getInputs(frags),
   \code{Rgraphviz}
 }
 \examples{
- u = url("http://www.omegahat.org/CodeDepends/formula.R")
+ u = url("http://www.omegahat.net/CodeDepends/formula.R")
  sc = readScript(u)
  library(Rgraphviz)
  g = makeVariableGraph(, sc)
