@@ -7,7 +7,7 @@ Description: This package provides some code for analyzing R expressions
   There are many facilities including the ability to summarize  or get a high-level
   view of code, determining dependencies betwen variables,  code improvement
   suggestions.
-Author: Duncan Temple Lang, Roger Peng, Deborah Nolan
+Author: Duncan Temple Lang, Roger Peng, Deborah Nolan, Gabriel Becker
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
 License: GPL
 Depends: methods
