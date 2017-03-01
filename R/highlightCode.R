@@ -34,7 +34,7 @@ function(addFunctionLinks = TRUE,  checkURLs = TRUE, h = renderer_html())
       w = which(styles == "symbol")
       p = tokens[ w - 2] %in% c("require", "library")
       if(any(p)) 
-        ans[w][p]  = sprintf("<a href='http://www.omegahat.org/%s'>%s</a>", tokens[w][p], ans[w][p])
+        ans[w][p]  = sprintf("<a href='http://www.omegahat.net/%s'>%s</a>", tokens[w][p], ans[w][p])
 
       if(any(!p)) {
         i = w[!p]
