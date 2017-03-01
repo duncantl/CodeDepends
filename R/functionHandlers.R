@@ -4,7 +4,14 @@ libreqhandler = function(e, collector, basedir, input, formulaInputs, update, pi
 
 rmhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) collector$removes(sapply(e[-1], as.character))
 
-dollarhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) collector$vars(as.character(e[[2]]), input = input)
+dollarhandler =
+function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...)
+{
+    if(is.name(e[[2]]))
+       collector$vars(as.character(e[[2]]), input = input)
+    else
+  getInputs(e[[2]], collector, basedir, nseval = nseval, ...) # XXX FIX.
+}
 
 assignhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
     ## Do the left hand side first.
