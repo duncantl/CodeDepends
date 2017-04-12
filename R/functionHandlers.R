@@ -290,6 +290,34 @@ ifforcomp = function(e, collector, basedir, input, formulaInputs, update, pipe =
 
 }
 
+dataformals = names(formals(data))[-1] # first formal is ..., those are nsevaluated
+
+## XXX This grabs the symbols for the datasets being laoded, and counts them as
+## nseval. I'm not sure this is valuable to do and may be actively misleading.
+## Could easily make it not do that, but I'll leave it as is for now.
+datahandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+    collector$calls(as.character(e[[1]]))
+   
+    for(i in 2:length(e)) {
+        getInputs(e[[i]], collector = collector, basedir = basedir,
+                  input = TRUE, update = update, pipe = pipe,
+                  ## it's nseval IFF it's eaten by the dots, ie not in dataformals
+                  nseval = !(names(e)[i] %in% dataformals),
+                  ...)
+    }
+
+    ## protect against data(package="bla") case wehre nothing is actually loaded
+    if(!all(names(e)[-1] %in% dataformals)) {
+        ## do the datacall in a temp environment so we can grab what it loads
+        myenv = new.env()
+        e2 = e
+        e2$envir = myenv
+        res = eval(e2)
+        collector$vars(res, input= FALSE)
+    }
+}
+        
+
 defaultFuncHandlers = list(
     library = libreqhandler,
     require = libreqhandler,
@@ -332,6 +360,7 @@ defaultFuncHandlers = list(
     ":::" = colonshandler,
     "%>%" = pipehandler,
     "for" = forhandler,
+    data = datahandler,
     "_assignment_" = assignhandler,
     "_default_" = defhandler
     
