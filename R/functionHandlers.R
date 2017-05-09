@@ -26,7 +26,6 @@ assignhandler = function(e, collector, basedir, input, formulaInputs, update, pi
     ## Do the left hand side first.
     ##if it is a simple name, then it is an output,
     ## but otherwise it is a call and may have more inputs.
-
     if(!is.name(e[[2]])) {
         
         ## if this is a x$foo <- val or x[["foo"]] = val or x[i, j] <- val
@@ -38,6 +37,10 @@ assignhandler = function(e, collector, basedir, input, formulaInputs, update, pi
                     collector$vars(asVarName(e[[2]][[2]]), input = input)
                 collector$set(asVarName(e[[2]][[2]]))
             }
+            ## anything that is being updated must be an input!  This
+            ## is a behavior change but it seems necessary for the
+            ## dependency stuff to function correctly.
+            collector$vars(asVarName(e[[2]][[2]]), input = TRUE)
             collector$update(asVarName(e[[2]][[2]]))
             collector$call(paste(as.character(e[[2]][[1]]), "<-", sep = ""))
             ## needs to modify getInputs state. a bit of a sharp edge for the refactor ~GB
