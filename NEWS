@@ -1,3 +1,8 @@
+Changes in version 0.4.3 (2016-08-25)
+Bugfixes
+	* Change default handling of `@` function as accessor operator similar to `$`
+	  uses dollarhandler by default.
+
 Changes in version 0.4.1 (2016-03-14)
 Bugfixes
 	* default loop handler now recognizes "i" spot as output
