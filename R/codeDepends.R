@@ -110,8 +110,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                    if(!length(name))
                       return()
                    updates <<- c(updates, name)
-                   inputs <<- unique(c(inputs, 
-                 },
+                  },
        vars = Vars,
        set = Set,
        calls = function(name) {
