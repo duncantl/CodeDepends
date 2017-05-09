@@ -11,7 +11,7 @@ Author: Duncan Temple Lang, Roger Peng, Deborah Nolan, Gabriel Becker
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
 License: GPL
 Depends: methods
-Imports: codetools, XML
+Imports: codetools, XML, utils
 Suggests: graph, Rgraphviz, RUnit, knitr,  highlight, RJSONIO, RCurl
 Collate: classes.R librarySymbols.R functionHandlers.R codeDepends.R sectionDepends.R sweave.R xml.R 
          jss.R frags.R codeTypes.R gc.R graph.R parallel.R 

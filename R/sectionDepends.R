@@ -1,7 +1,3 @@
-if(FALSE) {
-        ##outputs = lapply(frags, getAssigns)
-        inputs = lapply(frags, getInputs)
-}
 
 # ideally allow the author to specify in a section that future references
 # to a variable, e.g. x, are not related to the previous x, i.e.
@@ -188,107 +184,7 @@ function(vars, frags, info = lapply(frags, getInputs), checkLibraries = FALSE, a
     frags[idx]
 }  
 
-# What variables does one variable depend on, i.e. the chain
-#
-if(FALSE) {
- e = parse("../inst/samples/dual.R")
- getVariableInputs("fit", e, index = TRUE)
- getVariableInputs("fit", e)
- getVariableInputs("fit", e, recursive = FALSE)
-}
 
-if(FALSE) # No longer needed or used. See getDependsThread in deps.R
-getVariableInputs =
-  #
-  # Find the code blocks/fragments which directly (and indirectly if recursive is TRUE) feed
-  #  into defining the given variable.
-  #
-  # with index and recursive TRUE, this is very similar to getDepends() ?
-  #
-  #
-  # This is a real mess now. I have confused myself as to what we are trying to do.
-  #
-function(var, frags, info = lapply(frags, getInputs), recursive = TRUE, index = FALSE, depth = 1, offset = 0)
-{
-  if(length(info) == 0)
-    return(if(index) integer() else character())
-  
-  cat(var, depth, length(info), "\n")
-
-      # Find which expressions/frags have the desired variable(s) in their outputs. There may be several.
-  w = sapply(info, function(x) var %in% getVariables(x))
-
-     # If not recursive and want the indices, just return the index of these frags.
-  if((index && !recursive) || !any(w))  # || !any(w))
-    return(if(index) which(w) + offset else character())
-
-    # Get the inputs for each of these.
-  vars = unique(unlist(lapply(info[w], function(x) x@inputs)))
-  if(!recursive) 
-    return(vars)
-
-   # if length of w is more than 1, then the variable is defined/assigned
-   # in more than one block. We have to be careful to go from 1 to where it was
-   # first assigned, then from the next to where it was next assigned, etc.
-
-  if(sum(w) == 1)  {
-    sub = info[seq( length = which(w) - 1 ) ]    
-    tt = lapply(vars, getVariableInputs, info = sub, recursive = recursive,
-                                                     index = index, depth = depth + 1)
-
-    if(index) {
-#      return(which(sapply(info, function(x) any(v %in% x@outputs))))
-      return(sort(unique(c(which(w), unlist(tt)))) + offset)
-    } else {
-      v = sort(unique(vars, c(unlist(tt))))
-      return(v)
-    }
-  }
-
-  
-      # compute the start and end fragment  
-  pos = which(w)
-  start = c(1, pos + 1)[- (sum(w) + 1) ]
-  xx = cbind(start, pos - 1)
-
-  ans = lapply(seq(length = nrow(xx)),
-         function(j) {
-           sub = info[xx[j,1]: xx[j,2]]           
-           if(xx[j,1] == xx[j,2])
-             return(if(index) xx[j,1] + offset else sub[[1]]@outputs)
-           if(xx[j,1] == 1 && xx[j,2] == 2)
-             return(if(index) 0 +  offset else sub[[1]]@outputs)
-
-           idx = unlist(lapply(vars, getVariableInputs, info = sub, recursive = recursive,
-                                                       index = index, depth = depth + 1, offset = xx[j,1] - 1))
-
-           if(index)
-              sort(unique(c(offset, idx)))
-           else
-              c(vars, idx)
-
-#           ans = unique(c(ans, idx))
-#           if(index) 
-#              sort(unique(c(which(w) + offset, rev(which(sapply(sub, function(x) any(ans %in% x@outputs))) + xx[j,1] - 1))))
-#           else
-#              ans
-         })
-
-  return(ans)
-  
-
-      # Put class information on the results to distinguish between a single
-      #  thread or a multiple-definition thread.
-   if(length(ans) == 1) {
-     ans = ans[[1]]
-     class(ans) = "ExpressionThread"
-   } else {
-     ans = lapply(ans, function(x) {class(x) = "ExpressionThread" ; x})
-     class(ans) = "MultiDefinitionExpressionThread"
-   }
-
-  ans
-}
 
 
 ###############################################

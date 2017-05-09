@@ -312,8 +312,10 @@ datahandler = function(e, collector, basedir, input, formulaInputs, update, pipe
         myenv = new.env()
         e2 = e
         e2$envir = myenv
-        res = eval(e2)
-        collector$vars(res, input= FALSE)
+        ## returns value all specified datasets, even ones that don't exist!!!
+        res = suppressWarnings(eval(e2))
+        ## we check in the envir to see which ones were actually real.
+        collector$vars(ls(myenv), input= FALSE)
     }
 }
         

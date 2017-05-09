@@ -1,7 +1,9 @@
 import(XML)
 import(codetools)
+import(methods)
+importFrom(utils, find)
 
-# getVariableInputs
+                                        # getVariableInputs
 export(getVariableDepends, getPropagateChanges)
 export(getSectionDepends, getExpressionThread)
 

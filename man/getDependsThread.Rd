@@ -35,8 +35,10 @@ getDependsThread(var, info, reverse = TRUE)
   \code{\link{getVariables}}
 }
 \examples{
- sc = readScript(system.file("samples", "dual.R", package = "CodeDepends"))
- idx = getDependsThread("fit", as(sc, "ScriptInfo"))
+ sc = readScript(system.file("samples", "dual.R", package =
+"CodeDepends"))
+sci = getInputs(sc, formulaInputs = TRUE) ## script has formula with no data.frame
+ idx = getDependsThread("fit", sci)
 }
 \keyword{programming}
 \concept{meta-programming}
