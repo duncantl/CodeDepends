@@ -6,8 +6,14 @@ function(funcNames)
 }
 
 htmlRenderer =
-function(addFunctionLinks = TRUE,  checkURLs = TRUE, h = renderer_html())
+function(addFunctionLinks = TRUE,  checkURLs = TRUE, h)
 {
+    if(missing(h)) {
+        if(!requireNamespace("highlight"))
+            stop("default value for h requires the highlight package (not found).")
+        h = highlight::renderer_html()
+    }
+        
 
   if(is.logical(addFunctionLinks)) {
     addFunctionLinks = if(addFunctionLinks) getFunctionLinks else NULL
@@ -34,7 +40,7 @@ function(addFunctionLinks = TRUE,  checkURLs = TRUE, h = renderer_html())
       w = which(styles == "symbol")
       p = tokens[ w - 2] %in% c("require", "library")
       if(any(p)) 
-        ans[w][p]  = sprintf("<a href='http://www.omegahat.org/%s'>%s</a>", tokens[w][p], ans[w][p])
+        ans[w][p]  = sprintf("<a href='http://www.omegahat.net/%s'>%s</a>", tokens[w][p], ans[w][p])
 
       if(any(!p)) {
         i = w[!p]
@@ -50,8 +56,9 @@ function(addFunctionLinks = TRUE,  checkURLs = TRUE, h = renderer_html())
       tmp = gsub('(^"|"$)', "", tokens[w])
       e = file.exists(tmp)
       if(checkURLs) {
-        library(RCurl)
-        e[!e] = url.exists(tmp[!e])
+          if(!requireNamespace("RCurl"))
+              stop("checking URLs requires RCurl (not found).")
+        e[!e] = RCurl::url.exists(tmp[!e])
       }
       i = w[e]
       if(length(i)) {
@@ -71,7 +78,11 @@ function(obj, out = NULL, addFunctionLinks = TRUE, inline = TRUE, h = htmlRender
          css = system.file("CSS", "highlight.css", package = "CodeDepends"),
          jsCode = system.file("JavaScript", "highlightSymbols.js", package = "CodeDepends"))
 {
-  library(highlight)
+    if(!requireNamespace("highlight") || !requireNamespace("RJSONIO"))
+        stop("Unable to highlight code without the highlight and/or RJSONIO package(s)")
+    highlight = highlight::highlight
+    toJSON = RJSONIO::toJSON
+    
 
   html = if(is.character(obj))
            highlight(obj, NULL, renderer = h)
@@ -80,8 +91,7 @@ function(obj, out = NULL, addFunctionLinks = TRUE, inline = TRUE, h = htmlRender
            highlight(parse.output = obj, NULL, renderer = h)
          }
 
-  library(RJSONIO)
-
+ 
   doc = htmlParse(html, asText = TRUE)
 
   pre = getNodeSet(doc, "//pre")[[1]]

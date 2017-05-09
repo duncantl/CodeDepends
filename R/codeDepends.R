@@ -30,26 +30,28 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
 {
     cust = names(functionHandlers)
     functionHandlers = c(functionHandlers,
-        defaultFuncHandlers[! names(defaultFuncHandlers) %in% cust])
-  libraries = character()
-  if(checkLibrarySymbols)
-      libSymbols = corePkgSyms
-  else
-      libSymbols = character()
-  files = character()
-  strings = character()
-      # What about collecting numbers, or all literals.
-  vars = character()
-  set = character()
-  functions = character()
-  removes = character()
-  updates = character()
-  sideEffects = character()
-  nsevalVars = character()
+                         defaultFuncHandlers[! names(defaultFuncHandlers) %in% cust])
+    libraries = character()
+    if(checkLibrarySymbols)
+        libSymbols = corePkgSyms
+    else
+        libSymbols = character()
+    files = character()
+    strings = character()
+    ## What about collecting numbers, or all literals.
+    ## this is the inputs  
+    vars = character()
+    ## this is the outputs
+    set = character()
+    functions = character()
+    removes = character()
+    updates = character()
+    sideEffects = character()
+    nsevalVars = character()
     code = NULL
-  
-  
-  Set = function(name) {
+    
+    
+    Set = function(name) {
             set <<- c(set, name)
         }
 
@@ -108,6 +110,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                    if(!length(name))
                       return()
                    updates <<- c(updates, name)
+                   inputs <<- unique(c(inputs, 
                  },
        vars = Vars,
        set = Set,
@@ -131,7 +134,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                                  files = unique(files),
                                  strings = unique(strings),         
                                  inputs = unique(vars),
-                                 outputs = unique(set),
+                                 outputs = Unique(set),
                                  updates = unique(updates),
                                  removes = removes,
                                  nsevalVars = nsevalVars,
@@ -143,7 +146,13 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                         reset()
                       ans
                     })
-}  
+}
+
+Unique =
+function(x)
+{
+    x[!duplicated(x)]
+}
 
 
 setGeneric("getInputs",

@@ -11,6 +11,7 @@ dollarhandler = function(e, collector, basedir, input, formulaInputs, update, pi
     ##need to handle cases like a$b$c, which translate to `$`(a$b, c), correctly.
     ## Only a is a real variable here! Identified based on MathiasHinz
     ## https://github.com/duncantl/CodeDepends/issues/4
+    ## make sure that @ or $ is listed in the called functions
     if(is(e[[1]], "name"))
         collector$call(as.character(e[[1]]))
     if(is(e[[2]], "name"))
@@ -21,11 +22,11 @@ dollarhandler = function(e, collector, basedir, input, formulaInputs, update, pi
 }
 
 
-
 assignhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
     ## Do the left hand side first.
     ##if it is a simple name, then it is an output,
     ## but otherwise it is a call and may have more inputs.
+
     if(!is.name(e[[2]])) {
         
         ## if this is a x$foo <- val or x[["foo"]] = val or x[i, j] <- val
@@ -49,7 +50,7 @@ assignhandler = function(e, collector, basedir, input, formulaInputs, update, pi
 
     ## Do the right hand side
     lapply(e[-c(1,2)], getInputs, collector, basedir = basedir, input = TRUE, formulaInputs = formulaInputs, update = FALSE, pipe = pipe, nseval = nseval)
-    
+
     if(is.name(e[[2]])) 
         collector$set(asVarName(e[[2]]))
     else {
@@ -115,7 +116,10 @@ assignfunhandler = function(e, collector, basedir, input, formulaInputs, update,
         return()
     } else { ## character containing the name to assign to
         collector$calls("assign")
-        collector$set(e[[2]]) ##varable
+        if(is.character(e[[2]]))
+           collector$set(e[[2]]) ##variable
+        else
+           collector$set(structure(as.character(NA), names = deparse(e[[2]])))
         getInputs(e[[3]], collector = collector, basedir = basedir, input = TRUE,
                   formulaInputs = formulaInputs, update = update, pipe = pipe,
                   nseval = nseval, ... )
@@ -295,6 +299,36 @@ ifforcomp = function(e, collector, basedir, input, formulaInputs, update, pipe =
 
 }
 
+dataformals = names(formals(data))[-1] # first formal is ..., those are nsevaluated
+
+## XXX This grabs the symbols for the datasets being laoded, and counts them as
+## nseval. I'm not sure this is valuable to do and may be actively misleading.
+## Could easily make it not do that, but I'll leave it as is for now.
+datahandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+    collector$calls(as.character(e[[1]]))
+   
+    for(i in 2:length(e)) {
+        getInputs(e[[i]], collector = collector, basedir = basedir,
+                  input = TRUE, update = update, pipe = pipe,
+                  ## it's nseval IFF it's eaten by the dots, ie not in dataformals
+                  nseval = !(is.null(names(e)) || names(e)[i] %in% dataformals),
+                  ...)
+    }
+
+    ## protect against data(package="bla") case wehre nothing is actually loaded
+    if(!all(names(e)[-1] %in% dataformals)) {
+        ## do the datacall in a temp environment so we can grab what it loads
+        myenv = new.env()
+        e2 = e
+        e2$envir = myenv
+        ## returns value all specified datasets, even ones that don't exist!!!
+        res = suppressWarnings(eval(e2))
+        ## we check in the envir to see which ones were actually real.
+        collector$vars(ls(myenv), input= FALSE)
+    }
+}
+        
+
 defaultFuncHandlers = list(
     library = libreqhandler,
     require = libreqhandler,
@@ -338,6 +372,7 @@ defaultFuncHandlers = list(
     ":::" = colonshandler,
     "%>%" = pipehandler,
     "for" = forhandler,
+    data = datahandler,
     "_assignment_" = assignhandler,
     "_default_" = defhandler
     

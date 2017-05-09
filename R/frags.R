@@ -186,7 +186,8 @@ function()
 {
   f = tempfile()
   on.exit(unlink(f))
-  savehistory(f)
+  
+  utils::savehistory(f)
   lines = readLines(f, encoding = "UTF-8")[-1]
   lines = gsub("\\\\040", " ", lines)
   expr = lapply(lines, function(ll) tryCatch(parse(text = ll), error = function(e) {NULL}))

@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<script type="text/javascript"><!--
+function showVariable(name, symIds)
+{
+
+  var ids = symIds[name];
+//  alert("showing symbols " + name + " " + ids.length);
+  for(var i =0; i < ids.length; i++) {
+     var el = document.getElementById(ids[i]);
+     el.className = "showSymbol";
+  }
+
+}
+
+function hideVariable(name, symIds)
+{
+
+  var ids = symIds[name];
+  for(var i =0; i < ids.length; i++) {
+     var el = document.getElementById(ids[i]);
+     el.className = "symbol";
+  }
+
+}
+--></script><script type="text/javascript">var symIdentifiers = {
+ "dev": "sym4",
+"dtm": [ "sym2", "sym5" ],
+"z": [ "sym1", "sym3" ] 
+};</script><style rel="stylesheet" type="text/css">
+ pre.Rcode {
+   background: lightgrey;
+ }
+
+ .number{
+ 	color: rgb(21,20,181) ;
+ }
+ 
+ .functioncall{
+ 	color: black ;
+ }
+ 
+ .string{
+ 	color: rgb(153,153,255) ;
+ }
+ 
+ .keyword{
+ 	font-weight: bolder ;
+ 	color: black;
+ }
+ 
+ .argument{
+ 	color: rgb( 177,63,5) ;
+ }
+ 
+ .comment{
+ 	color: rgb( 255, 0, 0) ;
+ }
+ 
+ .roxygencomment{
+ 	color: rgb(0,151,255);
+ }
+ 
+ .formalargs{
+ 	color: rgb(18,182,18);
+ }
+ 
+ .eqformalargs{
+ 	color: rgb(18,182,18);
+ }
+ 
+ .assignement{
+ 	font-weight: bolder;
+ 	color: rgb(55,55,98);
+ }
+ 
+ .package{
+ 	color: rgb(150,182,37);
+ }
+ 
+ .slot{
+ 	font-style:italic;
+ }
+ 
+ .symbol{
+ 	color: black ;
+ }
+ 
+ .prompt{
+ 	color: black ;
+ }
+ 
+ .line{
+     color: gray ;   
+ }
+
+ .showSymbol {
+  background: grey;
+  color: red;
+ }
+
+</style>
+</head>
+<body>
+<pre class="Rcode">
+ <span class="comment">#</span>
+ <span class="comment"># If we create the timeline plot in D3, we can make it</span>
+ <span class="comment"># interactive and show the associated code in an HTML</span>
+ <span class="comment"># document. We can mark it up to show syntax, links, etc,</span>
+ <span class="comment"># but then when we higlight a point in the plot, we see</span>
+ <span class="comment"># the corresponding code hightlighted.</span>
+ <span class="comment"># Do this for the variables as inputs and outputs, i.e. separate modes.</span>
+
+ <a href="base/library.html">library</a> <span class="keyword">(</span> <a href="http://www.omegahat.net/CodeDepends"><span class="symbol">CodeDepends</span></a> <span class="keyword">)</span>
+ <a href="base/library.html">library</a> <span class="keyword">(</span> <a href="http://www.omegahat.net/RD3Device"><span class="symbol">RD3Device</span></a> <span class="keyword">)</span>
+
+ <span id="sym1" class="symbol" onmouseover='showVariable("z", symIdentifiers);' onmouseout='hideVariable("z", symIdentifiers);'>z</span>  <span class="assignement">=</span>  <a href="CodeDepends/readScript.html">readScript</a> <span class="keyword">(</span> <a href="/Users/duncan/GitWorkingArea/RClangSimple/Paper/RClang.tex"><span class="string">"~/GitWorkingArea/RClangSimple/Paper/RClang.tex"</span></a> <span class="keyword">,</span>  <span class="string">"JSS"</span> <span class="keyword">)</span>
+ <span id="sym2" class="symbol" onmouseover='showVariable("dtm", symIdentifiers);' onmouseout='hideVariable("dtm", symIdentifiers);'>dtm</span>  <span class="assignement">=</span>  <a href="CodeDepends/getDetailedTimelines.html">getDetailedTimelines</a> <span class="keyword">(</span> <span id="sym3" class="symbol" onmouseover='showVariable("z", symIdentifiers);' onmouseout='hideVariable("z", symIdentifiers);'>z</span> <span class="keyword">)</span>
+
+ <span id="sym4" class="symbol" onmouseover='showVariable("dev", symIdentifiers);' onmouseout='hideVariable("dev", symIdentifiers);'>dev</span>  <span class="assignement">=</span>  <a href="NA/d3Device.html">d3Device</a> <span class="keyword">(</span> <span class="keyword">)</span>
+ <a href="graphics/plot.html">plot</a> <span class="keyword">(</span> <span id="sym5" class="symbol" onmouseover='showVariable("dtm", symIdentifiers);' onmouseout='hideVariable("dtm", symIdentifiers);'>dtm</span> <span class="keyword">)</span>
+ <a href="grDevices/dev.off.html">dev.off</a> <span class="keyword">(</span> <span class="keyword">)</span>
+</pre>
+</body>
+</html>
