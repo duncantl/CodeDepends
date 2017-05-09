@@ -302,7 +302,7 @@ datahandler = function(e, collector, basedir, input, formulaInputs, update, pipe
         getInputs(e[[i]], collector = collector, basedir = basedir,
                   input = TRUE, update = update, pipe = pipe,
                   ## it's nseval IFF it's eaten by the dots, ie not in dataformals
-                  nseval = !(names(e)[i] %in% dataformals),
+                  nseval = !(is.null(names(e)) || names(e)[i] %in% dataformals),
                   ...)
     }
 
