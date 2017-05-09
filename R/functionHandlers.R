@@ -11,6 +11,8 @@ dollarhandler = function(e, collector, basedir, input, formulaInputs, update, pi
     ##need to handle cases like a$b$c, which translate to `$`(a$b, c), correctly.
     ## Only a is a real variable here! Identified based on MathiasHinz
     ## https://github.com/duncantl/CodeDepends/issues/4
+    if(is(e[[1]], "name"))
+        collector$call(as.character(e[[1]]))
     if(is(e[[2]], "name"))
         collector$vars(as.character(e[[2]]), input = input)
     else
