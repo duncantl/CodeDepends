@@ -292,7 +292,7 @@ ifforcomp = function(e, collector, basedir, input, formulaInputs, update, pipe =
     collector$calls("if")
     getInputs(e[[2]], collector = collector, basedir = basedir, input = input, update = update, pipe = pipe, nseval=FALSE, ...)
     
-    innerres = getInputs(e[[3]], inputCollector(functionHandlers = collector$functionHandlers))
+    innerres = getInputs(e[[3]], inputCollector(functionHandlers = collector$functionHandlers), basedir = basedir)
     collector$vars(innerres@inputs, input=TRUE)
     collector$library(innerres@libraries)
     collector$string(innerres@strings, basedir = basedir, filep=FALSE)

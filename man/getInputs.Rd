@@ -74,13 +74,13 @@ Things tracked include:
 }
 \examples{
   frags = parse(system.file("samples", "dual.R", package = "CodeDepends"))  
-  # form
+  # formula involves non-df variables
   inputs = lapply(frags, getInputs, formulaInputs=TRUE)
   inputs
   sapply(inputs, slot, "outputs")
 
    # Specify the base directory in which to resolve the file names.
-  getInputs(frags[[1]], basedir = system.file("samples", package = "CodeDepends"))
+  getInputs(frags[[5]], basedir = system.file("samples", package = "CodeDepends"))
 
 
   f = system.file("samples", "namedAnnotatedScript.R", package = "CodeDepends")
