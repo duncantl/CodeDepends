@@ -16,7 +16,7 @@ function(doc, txt = readLines(doc))
   parse(text = txt)
 }
 
-setGeneric("readScript",
+setGeneric("readScript", signature = c("doc", "txt"), 
             function(doc, type = NA, txt = readLines(doc), ...)
              standardGeneric("readScript"))
 
@@ -41,7 +41,8 @@ function(doc, type = NA, txt = readLines(doc), ...)
   ans
 }
 
-setMethod("readScript", c("missing", txt = "character"),
+##setMethod("readScript", c("missing", txt = "character"),
+setMethod("readScript", c("missing", txt = "ANY"),
           function(doc, type = NA, txt = readLines(doc), ...)
             tmp(type = type, txt = txt, ...)
          )
@@ -59,18 +60,25 @@ setOldClass(c("file", "connection"))
 setMethod("readScript", "connection", tmp)
 
 
+
 getDocType =
 function(doc, txt = readLines(doc))
 {
 
-  if(length(grep("<([[:alpha:]]*:code|code)", txt)))
-      "xml"
-  else if(any(grepl("^(### chunk number|<<[^>]*>>=|```\\{r.*\\})", txt)))
-      "Stangled"
-  else if (any(grepl("^#\\+BEGIN_SRC R", txt, ignore.case=TRUE)))
-      "org"
-  else
-      "R"
+    if(is(txt, "list") && (is.call(txt[[1]]) || is.expression(txt[[1]])))
+        "elist"
+    if(is.expression(txt[[1]]))
+        "expression"
+    else if(is.call(txt[[1]]))
+        "expression"
+    else if(length(grep("<([[:alpha:]]*:code|code)", txt)))
+        "xml"
+    else if(any(grepl("^(### chunk number|<<[^>]*>>=|```\\{r.*\\})", txt)))
+        "Stangled"
+    else if (any(grepl("^#\\+BEGIN_SRC R", txt, ignore.case=TRUE)))
+        "org"
+    else
+        "R"
 }
 
 readAnnotatedScript =
@@ -88,7 +96,15 @@ function(doc, txt = readLines(doc))
                                            summary(doc)$description
                                         else doc)
   ids = sapply(ans, slot, "id")
-  names(ans)[!is.na(ids)] = ids[!is.na(ids)]
+  nms = rep("", times = length(ans))
+  nms[!is.na(ids)] = ids[!is.na(ids)]
+  ## we need suppress warnings here because there is a (seemingly incorrect)
+  ## warning saying that assigning names here will create an invalid object.
+  if(any(nzchar(nms)))
+      suppressWarnings({names(ans) = nms})
+  
+
+  #  names(ans)[!is.na(ids)] = ids[!is.na(ids)]
   ans
 }
 
@@ -148,12 +164,16 @@ frag.readers =
   # and then figure out how to get the fragments.
   list( xml = function(doc, txt = readLines(doc), ...) {
                   readXMLScript(xmlParse(txt, asText = TRUE), ...)
-              },
-        Stangled = getTangledFrags,
-        R = readRExpressions,
-        JSS = readJSSCode,
-        labeled = readAnnotatedScript,
-       org = readOrgmode)
+  },
+  Stangled = getTangledFrags,
+  R = readRExpressions,
+  JSS = readJSSCode,
+  labeled = readAnnotatedScript,
+  org = readOrgmode,
+  elist = function(doc, txt) txt#,
+  ## expression = function(doc, txt) txt,
+  ## call = function(doc, txt) as(txt, "expression")
+  )
 
 
 

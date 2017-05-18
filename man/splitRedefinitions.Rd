@@ -38,7 +38,9 @@ splitRedefinitions(var, info)
  \code{\link{readScript}}  
 }
 \examples{
- sc = readScript(system.file("samples", "dual.R", package = "CodeDepends"))
- groups = separateExpressionBlocks(sc)
+ sc = readScript(system.file("samples", "redef.R", package =
+  "CodeDepends"))
+scinfo = getInputs(sc)
+ groups = splitRedefinitions("x", scinfo)
 }
 \keyword{programming}

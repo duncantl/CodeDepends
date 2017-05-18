@@ -42,13 +42,13 @@ makeVariableGraph(doc, frags = readScript(doc), info = getInputs(frags),
 \examples{
  u = url("http://www.omegahat.net/CodeDepends/formula.R")
  sc = readScript(u)
- library(Rgraphviz)
+ close(u)
  g = makeVariableGraph(, sc)
 
 
  f = system.file("samples", "results-multi.R", package = "CodeDepends")
  sc = readScript(f)
- g = makeVariableGraph(, info = getInputs(sc))
+ g = makeVariableGraph( info = getInputs(sc))
  if(require(Rgraphviz))
    plot(g)
 }

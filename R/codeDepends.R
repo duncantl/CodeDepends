@@ -86,7 +86,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
         updates <<- character()
         nsevalVars <<- character()
         sideEffects <<- character()
-        code = NULL
+        code <<- NULL
     }
   
   list(library = function(name)
@@ -155,15 +155,17 @@ function(x)
 
 
 setGeneric("getInputs",
-           function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...) {
+           function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaInputs = FALSE, ...) {
              standardGeneric("getInputs")
            })
 
 getInputs.language =          
-function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = TRUE, formulaInputs = FALSE, ...,  pipe = FALSE, update = FALSE, nseval=FALSE)
+function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaInputs = FALSE, input = TRUE,  ...,  pipe = FALSE, update = FALSE, nseval=FALSE)
 {
     ## scoping state hackery
     if(is.null(dynGet("getinputstoplevel", ifnotfound = NULL))) {
+        if(reset)
+            collector$reset()
         collector$code(e)
         getinputstoplevel = TRUE
     }
@@ -263,18 +265,19 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, input = 
 setMethod("getInputs", "ANY", getInputs.language)
 
 setMethod("getInputs", "Script",
-function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
+function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaInputs = FALSE, ...)
 {
-  ans = lapply(e, getInputs, collector = collector,  basedir = basedir, reset = TRUE, ...)
+  
+  ans = lapply(e, getInputs, collector = collector,  basedir = basedir, reset = TRUE, formulaInputs = formulaInputs, ...)
   
   new("ScriptInfo", identifyLocalFunctions(ans))
 })
 
 setMethod("getInputs", "ScriptNode",
-function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
+function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaInputs = FALSE, ...)
 {
-  nodes = getInputs(e@code, collector, basedir, ...)
-  # Now determine if the functions are locally defined or not, i.e. within earlier tasks in this script.
+    nodes = getInputs(e@code, collector, basedir, reset = reset, formulaInputs = formulaInputs, ...)
+    ## Now determine if the functions are locally defined or not, i.e. within earlier tasks in this script.
   ## We don't have the whole script here, only a single node, can't (??) do the
   ## described above. ~GB
   ## identifyLocalFunctions(nodes)
@@ -298,7 +301,7 @@ function(nodes)
 
 
 setMethod("getInputs", "ScriptNodeInfo",
-function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
+function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaInputs = FALSE, ...)
 {
   e
 })
@@ -306,12 +309,14 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
 
 
 setMethod("getInputs", "function",
-            function(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...) {
+            function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaInputs = FALSE, ...) {
               expr = body(e)
               if(as.character(expr[[1]]) == "{")
                  expr = expr[-1]
               vars = new("ScriptNodeInfo", outputs = names(formals(e))) #??? outputs - shouldn't this be inputs?
-              new("ScriptInfo", c(vars, lapply(expr, getInputs, collector = collector, basedir = basedir, ...)))
+              scr = readScript(txt = as.list(body(e)))
+              new("ScriptInfo", c(vars, getInputs(scr, basedir = basedir, reset = reset, formulaInputs = formulaInputs, ...)))
+              
             })
 
 

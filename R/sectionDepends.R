@@ -132,25 +132,27 @@ function(functions, local = TRUE)
 
 getSectionDepends =
   #' @param sect number
-function(sect, frags, info = lapply(frags, getInputs), index = FALSE)
+function(sect, frags, info = lapply(frags, getInputs, ...), index = FALSE, ...)
 {
-  target = info[[sect]]
-
-    # Linear or not ? i.e. can we go forward in the document to find the definition of a var.
-    # And when we return the list here, the order may be important.
-
-  inputs = c(target@inputs, getLocalFunctions(target@functions, TRUE))
-  
-  if(length(inputs) == 0)
-     i = integer()
-  else
-     i = getDepends(inputs, info[1:(sect - 1)])
-
-  i = c(rev(i), sect)
-  if(index)
-    i
-  else
-    frags[i]
+    if(missing(frags) && !index)
+        stop("frags must be specified if index is FALSE")
+    target = info[[sect]]
+    
+    ## Linear or not ? i.e. can we go forward in the document to find the definition of a var.
+    ## And when we return the list here, the order may be important.
+    
+    inputs = c(target@inputs, getLocalFunctions(target@functions, TRUE))
+    
+    if(length(inputs) == 0)
+        i = integer()
+    else
+        i = getDepends(inputs, info[1:(sect - 1)])
+    
+    i = c(rev(i), sect)
+    if(index)
+        i
+    else
+        frags[i]
 }
 
 getVariableDepends =
@@ -158,30 +160,37 @@ getVariableDepends =
   # Return the code fragments needed to define the variable(s) in vars
   # including the one that actually defines the variable.
   #
-function(vars, frags, info = lapply(frags, getInputs), checkLibraries = FALSE, asIndex = FALSE, functions = TRUE)
+    function(vars, frags = list(), info = lapply(frags, getInputs, ...),
+             checkLibraries = FALSE, asIndex = FALSE, functions = TRUE,
+             ...)
 {
-  defs = sapply(info, function(v) any(vars %in% getVariables(v, functions = functions)))
-  
-  ans = lapply(which(defs), getSectionDepends, frags, info, TRUE)
-  if(length(unlist(ans)) == 0)
-     return(NULL)
-  
-  idx = sort(unique(unlist(ans)))
-  
-  if(checkLibraries) {
-         # heuristic for now.
-    fns = unlist(lapply(info[idx], function(x) getLocalFunctions(x@functions, NA)))
-    miss = !sapply(fns, exists, mode = "function")
-    if(any(miss)) {
-       w = which(sapply(info[1:max(idx)], function(x) length(x@libraries) > 0))
-       idx = sort(unique(c(idx, w)))
+    if(length(frags) ==0 && missing(info))
+        stop("one of frags and info must be specified when calling getVariableDepends.")
+    else if(missing(frags) && !asIndex)
+        stop("frags must be specified if asIndex is FALSE when calling getVariableDepends")
+            
+    defs = sapply(info, function(v) any(vars %in% getVariables(v, functions = functions)))
+    
+    ans = lapply(which(defs), getSectionDepends, frags, info, TRUE, ...)
+    if(length(unlist(ans)) == 0)
+        return(NULL)
+    
+    idx = sort(unique(unlist(ans)))
+    
+    if(checkLibraries) {
+        ## heuristic for now.
+        fns = unlist(lapply(info[idx], function(x) getLocalFunctions(x@functions, NA)))
+        miss = !sapply(fns, exists, mode = "function")
+        if(any(miss)) {
+            w = which(sapply(info[1:max(idx)], function(x) length(x@libraries) > 0))
+            idx = sort(unique(c(idx, w)))
+        }
     }
-  }
-
-  if(asIndex)
-    idx
-  else
-    frags[idx]
+    
+    if(asIndex)
+        idx
+    else
+        frags[idx]
 }  
 
 
@@ -199,7 +208,7 @@ getExpressionThread =
   #
   #
   #
-function(target, expressions, info = lapply(expressions, getInputs))
+function(target, expressions, info = lapply(expressions, getInputs, ...), ...)
 {
   if(is.integer(target)) 
     target = getVariables(info[[target]])
@@ -213,30 +222,40 @@ function(target, expressions, info = lapply(expressions, getInputs))
   # Get all the variables mentioned.
   # This should be generic
   #
-setGeneric("getVariables", function(x, inputs = FALSE, functions = FALSE, ...) standardGeneric("getVariables"))
+setGeneric("getVariables", function(x, inputs = FALSE,
+                                    functions = TRUE,
+                                    ...) {
+    standardGeneric("getVariables")
+})
 
 setMethod("getVariables", "Script", 
-          function(x, inputs = FALSE, functions = FALSE,  ...)  {
-            getVariables(as(x, "ScriptInfo"), inputs, functions, ...)
-          })
+          function(x, inputs = FALSE, functions = TRUE,  ...)  {
+    getVariables(getInputs(x, ...), inputs = inputs,
+                 functions = functions, ...)
+})
+
 setMethod("getVariables", "ScriptNode",
-          function(x, inputs = FALSE, functions = FALSE, ...)  {          
-            getVariables(as(x, "ScriptNodeInfo"), inputs, functions, ...)
+          function(x, inputs = FALSE, functions = TRUE, ...)  {          
+    getVariables(getInputs(x, ...), inputs = inputs,
+                 functions = functions, ...)
          })
 
 setMethod("getVariables", "ScriptNodeInfo",
-            function(x, inputs = FALSE, functions = FALSE, ...)  {          
-              c(x@outputs, x@updates, x@sideEffects, if(inputs) x@inputs, getLocalFunctions(x@functions, functions))
-            })
+          function(x, inputs = FALSE, functions = TRUE, ...)  {          
+    c(x@outputs, x@updates, x@sideEffects,
+      if(inputs) c(x@inputs, getLocalFunctions(x@functions, functions)))
+})
 
 setMethod("getVariables", "ScriptInfo",
-            function(x, inputs = FALSE, functions = FALSE, ...)  {          
-              unlist(lapply(x, getVariables, inputs, functions, ...))
+            function(x, inputs = FALSE, functions = TRUE, ...)  {          
+    unlist(lapply(x, getVariables, inputs = inputs, 
+                  functions = functions, ...))
             })
 
 setMethod("getVariables", "expression",
-            function(x, inputs = FALSE, functions = FALSE, ...)  {          
-              getVariables(as(x, 'ScriptNodeInfo'), inputs, functions, ...)
+            function(x, inputs = FALSE, functions = TRUE, ...)  {          
+    getVariables(getInputs(x, ...),
+                 inputs = inputs, functions = functions, ...)
             })              
 
 

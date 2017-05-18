@@ -18,7 +18,10 @@
   with \code{getVariableInputs}.
 }
 \usage{
-getInputs(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
+getInputs (e, collector = inputCollector(), basedir = ".", reset =
+  FALSE, formulaInputs = FALSE, ...)
+
+
 }
 \arguments{
   \item{e}{the expression whose code we are to process}
@@ -33,6 +36,8 @@ getInputs(e, collector = inputCollector(), basedir = ".", reset = FALSE, ...)
   \item{formulaInputs}{ Logical indicating whether symbols appearing in
     formulas should be treated as inputs to the expression. Defaults to
     \code{FALSE}.}
+  
+  
 }
 
 \value{
@@ -66,6 +71,8 @@ Things tracked include:
   typical inputs. Note this classification is determined by the
   functionhandlers in use by \code{collector}.}
 }
+\note{Users should never call \code{getInputs.langauge} directly. It is
+  listed here due to the vagaries of R CMD check documentation checks.}
 %\references{}
 \author{Duncan Temple Lang}
 

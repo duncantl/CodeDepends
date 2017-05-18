@@ -10,8 +10,10 @@
   \code{getSectionDepends}
 }
 \usage{
-getVariableDepends(vars, frags, info = lapply(frags, getInputs), checkLibraries = FALSE, asIndex = FALSE)
-getSectionDepends(sect, frags, info = lapply(frags, getInputs), index = FALSE)
+getVariableDepends(vars, frags, info = lapply(frags, getInputs, ...),
+checkLibraries = FALSE, asIndex = FALSE, functions = TRUE, ...)
+getSectionDepends(sect, frags, info = lapply(frags, getInputs, ...), index =
+FALSE, ...)
 }
 \arguments{
   \item{vars}{the names of the variables of interest}
@@ -27,6 +29,8 @@ getSectionDepends(sect, frags, info = lapply(frags, getInputs), index = FALSE)
   \item{checkLibraries}{a logical value}
   \item{asIndex}{a logical value that controls whether we return the
     expressions/code blocks or their indices.}
+  \item{...}{passed to \code{getInputs}. Ignored if \code{info} is
+    explicitly specified.} 
 }
 \value{
   \code{getVariableDepends} returns a \code{\link{Script-class}} object
@@ -42,9 +46,8 @@ getSectionDepends(sect, frags, info = lapply(frags, getInputs), index = FALSE)
 }
 \examples{
 e = readScript(system.file("samples", "dual.R", package = "CodeDepends"))
-
-getVariableDepends("fit", e)
-getVariableDepends("fit", e, asIndex = TRUE)
+getVariableDepends("fit", e, formulaInputs = TRUE)
+getVariableDepends("fit", e, formulaInputs = TRUE, asIndex = TRUE)
 
 getVariableDepends("y", e, asIndex = TRUE)
 getVariableDepends("y", e)

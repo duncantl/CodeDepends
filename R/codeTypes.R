@@ -3,19 +3,19 @@
 # e.g. plot, modeling, reading data, filtering
 # We can do some of this by looking at the functions that are called.
 
-GraphicsPackages = c("package:grDevices", "package:graphics", "package:lattice")
+GraphicsPackages = c("package:grDevices", "package:graphics", "package:lattice", "package:ggplot2")
 ModelingPackages = c("package:stats", "package:lme", "package:lmer", "package:lme4")
 ModelingFunctions = c("glm", "lm", "glmm",  "gam")
 
 InputFunctions = c("read.table", "read.csv", "read.csv2", "read.delim", "read.fwf", "file", "url", "load",
                    "gzfile", "bzfile", "download.file", "pipe", "fifo", "unz",
-                   "data.frame", "matrix")
-OutputFunctions = c("save", "save.image", "write", "dput", "dump")
+                   "data.frame", "matrix", "readRDS", "readLines")
+OutputFunctions = c("save", "save.image", "write", "dput", "dump", "write.table", "write.csv", "saveRDS")
 SimulationFunctions = c("sample",
                "rnorm", "rexp", "rcauchy", "rchisq", "rf", "rgamma", "rlnorm", "rlogis", "rstudent", "rt", "runif", "rweibull",
                "rmultinom", "rnbinom", "rgeom", "rhyper", "rpois", "rbinom", "rwilcox", "rsignrank")
 
-FilteringFunctions = c("[", "[[", "[[<-", "&", "|", "<", "<=", ">=", "!=", "!", "tapply", "by")
+FilteringFunctions = c("[", "[[", "[[<-", "&", "|", "<", "<=", ">=", "!=", "!", "tapply", "by", "filter", "subset", "select")
 ArithmeticFunctions = c("[", "[[", "[[<-")
 
 PresentationFunctions = c("print", "cat")
@@ -34,16 +34,17 @@ guessTaskType =
   
 function(e, info = getInputs(e))
 {
-
-  funs = info@functions
-  ## format of info@functions seems to be logical indicating local
+  ## format of info@functions is logical indicating local
   ## with fun names as vec names. See classes.R ~GB
-  pkgs = sapply(names(funs), find)
+  funs = names(info@functions)
+  pkgs = sapply(funs, find)
 
   ans = character()
   
   if(any(pkgs %in%  GraphicsPackages))
-     ans = c(ans, "graphics")
+      ans = c(ans, "graphics")
+  else if (length(grep("^(geom_|stat_|aes|facet_|scale_|theme_)", funs)))
+      ans = c(ans, "graphics")
 
   if(any(funs %in%  InputFunctions) || any(c("package:RCurl") %in% pkgs))
      ans = c(ans, "data input")

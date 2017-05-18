@@ -36,6 +36,10 @@ This returns
   either the expressions or the indices of the expressions
   that need to be re-evaluated due to a change in \code{var}.
 }
+\note{The returned expression do NOT include the expression which
+  defines the variable \code{var}. Only expressions *after* that are
+  included.
+}
 \author{Duncan Temple Lang}
 
 \seealso{

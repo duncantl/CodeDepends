@@ -23,7 +23,7 @@ function(addFunctionLinks = TRUE,  checkURLs = TRUE, h)
   
   symbols = list()
   h$formatter =
-    function (tokens, styles, ...) {
+    function (tokens, styles, urlchk = checkURLs, ...) {
 
       ans = ifelse(styles == "", tokens,
                        sprintf("<span class=\"%s\">%s</span>", styles, tokens))
@@ -55,7 +55,7 @@ function(addFunctionLinks = TRUE,  checkURLs = TRUE, h)
       w = which(styles == "string")
       tmp = gsub('(^"|"$)', "", tokens[w])
       e = file.exists(tmp)
-      if(checkURLs) {
+      if(length(tmp) > 0 && checkURLs) {
           if(!requireNamespace("RCurl"))
               stop("checking URLs requires RCurl (not found).")
         e[!e] = RCurl::url.exists(tmp[!e])
