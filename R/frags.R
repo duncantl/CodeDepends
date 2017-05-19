@@ -65,20 +65,20 @@ getDocType =
 function(doc, txt = readLines(doc))
 {
 
-    if(is(txt, "list") && (is.call(txt[[1]]) || is.expression(txt[[1]])))
+    if(is(txt, "list") && is.language(txt[[1]]))
         "elist"
-    if(is.expression(txt[[1]]))
-        "expression"
-    else if(is.call(txt[[1]]))
-        "expression"
+    if(is.language(txt))
+        "language"
     else if(length(grep("<([[:alpha:]]*:code|code)", txt)))
         "xml"
     else if(any(grepl("^(### chunk number|<<[^>]*>>=|```\\{r.*\\})", txt)))
         "Stangled"
     else if (any(grepl("^#\\+BEGIN_SRC R", txt, ignore.case=TRUE)))
         "org"
-    else
+    else if(is(txt,"character")) ## this is txt, so can't be connection.
         "R"
+    else
+        stop("Unable to determine document type.")
 }
 
 readAnnotatedScript =
@@ -170,8 +170,8 @@ frag.readers =
   JSS = readJSSCode,
   labeled = readAnnotatedScript,
   org = readOrgmode,
-  elist = function(doc, txt) txt#,
-  ## expression = function(doc, txt) txt,
+  elist = function(doc, txt) txt,
+  language = function(doc, txt) list(txt)#,
   ## call = function(doc, txt) as(txt, "expression")
   )
 

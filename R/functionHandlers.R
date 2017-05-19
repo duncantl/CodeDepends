@@ -169,7 +169,7 @@ assignfunhandler = function(e, collector, basedir, input, formulaInputs, update,
 
 fullnsehandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
     collector$calls(as.character(e[[1]]))
-    lapply(e[-1], getInputs, collector = collector, basedir = basedir,
+    lapply(as.list(e[-1]), getInputs, collector = collector, basedir = basedir,
             input = TRUE, formulaInputs = formulaInputs, update = update,
             pipe = pipe, nseval = TRUE)
 }
@@ -298,7 +298,7 @@ counthandler = function(e, collector, basedir, input, formulaInputs, update, pip
                   pipe = pipe, nseval = nseval, ...)
 }
 
-##filter(),mutate(),mutate_each(),transmute(),rename(),slice(),summarise(),summarize(),summarise_each(),arrange(),select(),group_by(),group_indices(),data_frame(),distinct(),do(),funs(),count()
+##filter(),mutate(),mutate_each(),transmute(),rename(),slice(),summarise(),summarize_(),summarise_each(),arrange(),select(),group_by(),group_indices(),data_frame(),distinct(),do(),funs(),count()
 
 colonshandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
     collector$library( as.character(e[[2]]))
@@ -367,7 +367,107 @@ datahandler = function(e, collector, basedir, input, formulaInputs, update, pipe
         collector$vars(ls(myenv), input= FALSE)
     }
 }
+
+applyhandlerfactory = function(funpos) {
+    force(funpos)
+    applyhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval=FALSE, ...) {
         
+        collector$calls(as.character(e[[1]]))
+        hasnamedfun = "FUN" %in% names(e)
+        lapply(2:length(e), function(i) {
+            if((hasnamedfun && names(e)[i] == "FUN") || (!hasnamedfun && i == funpos)) {
+                if(is.name(e[[i]])){
+                    collector$calls(asVarName(e[[i]]))
+                } else {
+                    getInputs(e[[i]], collector = collector, basedir = basedir, formulaInputs = formulaInputs, update = update, pipe = pipe, nseval = nseval, ...)
+                }
+            } else {
+                getInputs(e[[i]], collector = collector, basedir = basedir, formulaInputs = formulaInputs, update = update, pipe = pipe, nseval = nseval, ...)
+            }
+        })
+    }
+    applyhandler
+}
+        
+                          
+
+  #          collector
+    
+
+summarize_handlerfactory = function(funspos = 3) {
+
+    ret = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval=FALSE, ...) {
+        newcol = do.call(inputCollector, collector$collectorSettings())
+        collector$calls(asVarName(e[[1]]))
+        if(pipe)  {
+            funspos = funspos-1
+        }
+        inds = funspos:length(e)
+        getInputs(e[[2]], collector = collector, basedir = basedir,
+                  input = input, formulaInputs = formulaInputs,
+                  update =update,  pipe = FALSE, nseval = FALSE)
+        
+        if( funspos > 3){
+            beffunspos = 3:(funspos-1)
+            lapply(as.list(e[beffunspos]), getInputs, collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = update, pipe = FALSE, nseval = FALSE, ...)
+        }
+        .funhandler(e[[funspos]], collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = FALSE, pipe = FALSE, nseval = FALSE, ..., iscalled=TRUE)
+        
+        if(length(e) > funspos)
+            lapply(as.list(e[(funspos+1):length(e)]), getInputs, collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = FALSE, pipe = FALSE, nseval = FALSE, ..., iscalled=TRUE)
+    }
+    ret
+}
+
+.funhandler = function(e, collector, basedir, input, formulaInputs, update, pipe, nseval, ..., iscalled = TRUE) {
+    if(is.call(e) && asVarName(e[[1]]) == "funs") {
+        collector$calls("funs")
+        if(length(e) > 1) {
+            lapply(2:length(e), function(i, ...) .funhandler(e[[i]], ...),
+                   collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs,
+                   update = update, pipe = FALSE, nseval = FALSE, iscalled = iscalled)
+            return()
+        }
+    }
+    if(is.name(e) || is.character(e)) {
+        if(iscalled)
+            collector$calls(asVarName(e))
+        else
+            collector$vars(asVarName(e), input=TRUE)
+    }else {
+        inres = getInputs(e, collector = do.call(inputCollector, collector$collectorSettings()),
+                          basedir = basedir, input = input, formulaInputs = formulaInputs, update = update,
+                          pipe = pipe, nseval = nseval)
+        collector$calls(names(inres@functions))
+        collector$vars(setdiff(inres@inputs, "."), input=TRUE)
+        collector$string(inres@strings, filep=FALSE)
+        collector$nseval(inres@nsevalVars)
+        collector$string(inres@files, filep= TRUE)
+    }
+    
+        
+}
+
+funshandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval=FALSE, ...) {
+    collector$calls(e[[1]])
+    if(length(e) > 2) {
+        lapply(2:length(e), function(i) .funhandler(e[[i]], collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = update, pipe = FALSE, nseval = nseval, ...))
+    }
+}
+
+    
+## ## ugh, dplyr just keeps making this harder and harder
+## ## funs(mean, "mean", mean(., blahblabla))
+## funshandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval=FALSE, ...) {
+##     collector$calls("funs")
+
+
+
+## }
+
+## Add test case to inst/samples/funchandlers.R whenever ANY new entries are
+## added to defaultFuncHandlers, even if they reuse an existing handler (they
+## may not always).
 
 defaultFuncHandlers = list(
     library = libreqhandler,
@@ -383,6 +483,7 @@ defaultFuncHandlers = list(
     "~" = formulahandler,
     "assign" = assignfunhandler,
     aes = fullnsehandler,
+    vars = fullnsehandler,
     subset = nseafterfirst,
     transform = nseafterfirst, 
     filter = filterhandler,
@@ -401,7 +502,7 @@ defaultFuncHandlers = list(
     data_frame = fullnsehandler,
     distinct =  nseafterfirst,
     do = nseafterfirst,
-    funs = fullnsehandler,
+    ##   funs = funshandler, #fullnsehandler,
     count = counthandler,
     tally = counthandler,
     arrange = nseafterfirst,
@@ -413,6 +514,14 @@ defaultFuncHandlers = list(
     "%>%" = pipehandler,
     "for" = forhandler,
     data = datahandler,
+    apply = applyhandlerfactory(funpos = 4), #apply, x, MARGIN, FUN
+    lapply = applyhandlerfactory(funpos = 3), #lapply, x, FUN
+    sapply = applyhandlerfactory(funpos = 3), #sapply, x, FUN
+    mapply = applyhandlerfactory(funpos = 2), #mapply, FUN, ...
+    tapply = applyhandlerfactory(funpos = 4), #tapply, x, INDEX, FUN
+    summarize_all = summarize_handlerfactory(3), #summarize_all, .tbl, .funs
+    summarize_at = summarize_handlerfactory(4), #summarize_at, .tbl, .cols, .funs
+    vars = fullnsehandler, 
     "_assignment_" = assignhandler,
     "_default_" = defhandler
     

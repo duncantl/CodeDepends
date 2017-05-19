@@ -125,6 +125,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
        functionHandlers = functionHandlers,
        reset = reset,
        code = function(name) code <<- name,
+       nsevals = function(name) nsevalVars <<- c(nsevalVars, name),
 #       addInfo = addInfo,
        results = function(resetState = FALSE) {
                       funcs = unique(functions)
@@ -144,7 +145,15 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                       if(resetState) 
                         reset()
                       ans
-                    })
+  },
+  collectorSettings = function() {
+      list(functionHandlers = functionHandlers,
+           inclPrevOutputs = inclPrevOutput,
+           checkLibrarySymbols = checkLibrarySymbols,
+           funcsAsInputs = funcsAsInputs)
+  })
+                                       
+                                       
 }
 
 Unique =
@@ -315,7 +324,7 @@ setMethod("getInputs", "function",
                  expr = expr[-1]
               vars = new("ScriptNodeInfo", outputs = names(formals(e))) #??? outputs - shouldn't this be inputs?
               scr = readScript(txt = as.list(body(e)))
-              new("ScriptInfo", c(vars, getInputs(scr, basedir = basedir, reset = reset, formulaInputs = formulaInputs, ...)))
+              new("ScriptInfo", c(vars, getInputs(scr, collector = collector, basedir = basedir, reset = reset, formulaInputs = formulaInputs, ...)))
               
             })
 
