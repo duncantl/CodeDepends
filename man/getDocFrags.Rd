@@ -1,9 +1,9 @@
 \name{readScript}
 \alias{readScript}
-\alias{readScript,character,ANY-method}
-\alias{readScript,connection,ANY-method}
-\alias{readScript,XMLInternalDocument,ANY-method}
-\alias{readScript,missing,character-method}
+\alias{readScript,character-method}
+\alias{readScript,connection-method}
+\alias{readScript,XMLInternalDocument-method}
+\alias{readScript,missing-method}
 \alias{readAnnotatedScript}
 \title{Read the code blocks/chunks from a document}
 \description{

@@ -396,6 +396,8 @@ applyhandlerfactory = function(funpos) {
 
 summarize_handlerfactory = function(funspos = 3) {
 
+    ## we're going to allow funspos to be a vector but assume it is contiguous, ie of the form n:m with m>n
+
     ret = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval=FALSE, ...) {
         newcol = do.call(inputCollector, collector$collectorSettings())
         collector$calls(asVarName(e[[1]]))
@@ -407,14 +409,15 @@ summarize_handlerfactory = function(funspos = 3) {
                   input = input, formulaInputs = formulaInputs,
                   update =update,  pipe = FALSE, nseval = FALSE)
         
-        if( funspos > 3){
-            beffunspos = 3:(funspos-1)
+        if( min(funspos) > 3){
+            beffunspos = 3:(min(funspos)-1)
             lapply(as.list(e[beffunspos]), getInputs, collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = update, pipe = FALSE, nseval = FALSE, ...)
         }
-        .funhandler(e[[funspos]], collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = FALSE, pipe = FALSE, nseval = FALSE, ..., iscalled=TRUE)
+        lapply(funspos, function (i) .funhandler(e[[i]], collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = FALSE, pipe = FALSE, nseval = FALSE, ..., iscalled=TRUE))
         
-        if(length(e) > funspos)
-            lapply(as.list(e[(funspos+1):length(e)]), getInputs, collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = FALSE, pipe = FALSE, nseval = FALSE, ..., iscalled=TRUE)
+        
+        if(length(e) > max(funspos))
+            lapply(as.list(e[(max(funspos)+1):length(e)]), getInputs, collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = FALSE, pipe = FALSE, nseval = FALSE, ..., iscalled=TRUE)
     }
     ret
 }
@@ -520,7 +523,11 @@ defaultFuncHandlers = list(
     mapply = applyhandlerfactory(funpos = 2), #mapply, FUN, ...
     tapply = applyhandlerfactory(funpos = 4), #tapply, x, INDEX, FUN
     summarize_all = summarize_handlerfactory(3), #summarize_all, .tbl, .funs
+    mutate_all = summarize_handlerfactory(3), #mutate_all, .tbl, .funs
     summarize_at = summarize_handlerfactory(4), #summarize_at, .tbl, .cols, .funs
+    mutate_at = summarize_handlerfactory(4), #mutate_at, .tbl, .cols, .funs
+    summarize_if = summarize_handlerfactory(3:4), #summarize_if, tbl, .predicate, .funs
+    mutate_if = summarize_handlerfactory(3:4), #mutate_if, tbl, .predicate, .funs 
     vars = fullnsehandler, 
     "_assignment_" = assignhandler,
     "_default_" = defhandler

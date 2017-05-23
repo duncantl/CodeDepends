@@ -10,6 +10,7 @@
 \alias{coerce,expression,ScriptNodeInfo-method}
 \alias{coerce,language,ScriptNodeInfo-method}
 \alias{[,Script,vector,missing-method}
+\alias{[,Script,character,missing-method}
 \alias{$,Script-method}
 
 \title{The Script class and elements}

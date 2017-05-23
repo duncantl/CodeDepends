@@ -9,10 +9,15 @@ update and input)
 The reason for this is that all the dependency-related code appeared
 to assume this would occur.
 
-## signficant change to handling of *apply calls
+## signficant change to handling functions applied via "functional" (ie *apply calls)
 
 The function applied is now listed under functions *not* under inputs
 (unless funcsAsInputs is TRUE for the collector used...).
+
+Functions applied via the dplyr mutate_(all|if|at) and
+summarize_(all|if|at) are also treated as called as well.
+
+purrr support is still in the todo list for now.
 
 
 ## getVariableDepends and getSectionDepends now accept ...

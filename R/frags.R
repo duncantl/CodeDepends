@@ -67,7 +67,7 @@ function(doc, txt = readLines(doc))
 
     if(is(txt, "list") && is.language(txt[[1]]))
         "elist"
-    if(is.language(txt))
+    else if(is.language(txt))
         "language"
     else if(length(grep("<([[:alpha:]]*:code|code)", txt)))
         "xml"

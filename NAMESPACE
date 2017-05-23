@@ -61,3 +61,8 @@ export(updatingScript)
 export(historyAsScript)
 
 export(highlightCode)
+export(defaultFuncHandlers)
+export(asVarName)
+
+exportPattern("^[^.]+handler(factory){0,1}$")
+export(nseafterfirst)

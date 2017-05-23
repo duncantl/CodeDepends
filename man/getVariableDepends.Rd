@@ -29,6 +29,9 @@ FALSE, ...)
   \item{checkLibraries}{a logical value}
   \item{asIndex}{a logical value that controls whether we return the
     expressions/code blocks or their indices.}
+  \item{functions}{passed to \code{getVariables}. What kind of functions
+    should be counted as variables (\code{TRUE} is local functions only,
+    the default)}
   \item{...}{passed to \code{getInputs}. Ignored if \code{info} is
     explicitly specified.} 
 }
