@@ -10,8 +10,12 @@
   This is of use when propogating changes to dependent expressions.
 }
 \usage{
-getPropagateChanges(var, expressions, info = lapply(expressions, getInputs), recursive = FALSE,
-                    index = FALSE, envir = globalenv(), eval = !missing(envir), verbose = FALSE)
+
+getPropagateChanges(var, expressions, info = lapply(expressions,
+                    getInputs), recursive = FALSE, index = FALSE, envir
+                    = globalenv(), eval = !missing(envir), verbose =
+                    FALSE)
+
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

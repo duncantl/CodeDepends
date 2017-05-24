@@ -14,10 +14,13 @@ and packages}
   life-span of variables in a script.
 }
 \usage{
+
 highlightCode(obj, out = NULL, addFunctionLinks = TRUE, inline = TRUE,
-              h = htmlRenderer(addFunctionLinks),
-              css = system.file("CSS", "highlight.css", package = "CodeDepends"), 
-              jsCode = system.file("JavaScript", "highlightSymbols.js", package = "CodeDepends"))
+              h = htmlRenderer(addFunctionLinks), css = system.file("CSS",
+              "highlight.css", package = "CodeDepends"), jsCode =
+              system.file("JavaScript", "highlightSymbols.js", package =
+              "CodeDepends"))
+
 }
 \arguments{
   \item{obj}{the name of a file containing R code or an R expression or

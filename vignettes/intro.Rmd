@@ -1,7 +1,10 @@
 ---
 title: "CodeDepends: Static analysis and dependency detection for R code"
 author: "Gabriel Becker"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    fig_width: 8
+    fig_height: 6
 vignette: >
   %\VignetteIndexEntry{CodeDependsIntro}
   %\VignetteEngine{knitr::rmarkdown}
@@ -104,7 +107,11 @@ When creating an input collector, various behavior can be customized,
 primarily in the form of \function handlers\ which specify behavior
 when analyzing calls to specific functions. This is, for example, how
 `CodeDepends` knows that some arguments within certain functions are
-non-standardly evaluated. CodeDepends ships with a robust set of default handlers, but these can be overridden or supplemented with custom handlers by specifying them when constructing the collector, either via the `...` arguments or as list. In both cases, the names are the names of the function the handler should be used on.
+non-standardly evaluated. CodeDepends ships with a robust set of
+default handlers, but these can be overridden or supplemented with
+custom handlers by specifying them when constructing the collector,
+either via the `...` arguments or as list. In both cases, the names
+are the names of the function the handler should be used on.
 
 ```{r custhandler}
 
@@ -115,7 +122,59 @@ col = inputCollector(library = function(e, collector, ...) {
 getInputs(quote(library(CodeDepends)), collector = col)
 ```
 
-`inputCollector` also accepts arguments which control what is counted as an input when processing expressions. The `inclPrevOutput` argument specifies whether output variables should be included as inputs to subsequent expressions when processing multiple expressions as an single block (e.g., when they are wrapped in `{}`). The  `checkLibrarySymbols` and `funcsAsInputs` arguments control how symbols which appear to be resolved within libraries, and functions which are called are handled, respectively. The default behavior is for all of these to be `FALSE`.
+`inputCollector` also accepts arguments which control what is counted
+as an input when processing expressions. The `inclPrevOutput` argument
+specifies whether output variables should be included as inputs to
+subsequent expressions when processing multiple expressions as an
+single block (e.g., when they are wrapped in `{}`). The
+`checkLibrarySymbols` and `funcsAsInputs` arguments control how
+symbols which appear to be resolved within libraries, and functions
+which are called are handled, respectively. The default behavior is
+for all of these to be `FALSE`.
 
 # Dependency detection and script visualization
 
+`CodeDepends` can visualize code in various ways.
+
+## Variable dependency graphs
+We can create the variable graph of dependnecies between variables,
+via the `makeVariableGraph` function:
+
+```{r variablegraph}
+
+ f = system.file("samples", "results-multi.R", package = "CodeDepends")
+ sc = readScript(f)
+ g = makeVariableGraph( info = getInputs(sc))
+ if(require(Rgraphviz))
+   plot(g)
+```
+
+## call graphs
+
+We can also create call graphs for functions or entire packages:
+
+```{r callgraphs}
+  gg = makeCallGraph("package:CodeDepends")
+  if(require(Rgraphviz)) {
+     gg = layoutGraph(gg, layoutType = "circo")
+     graph.par(list(nodes = list(fontsize=55)))
+     renderGraph(gg) ## could also call plot directly
+  } 
+```
+
+## Variable definitions timelines
+
+Finally we can display timelines for when variables are defined,
+redefined, and used:
+
+```{r timelines}
+f = system.file("samples", "results-multi.R", package = "CodeDepends")
+sc = readScript(f)
+dtm = getDetailedTimelines(sc, getInputs(sc))
+plot(dtm)
+
+ # A big/long function
+info = getInputs(arima0)
+dtm = getDetailedTimelines(info = info)
+plot(dtm, var.cex = .7, mar = 4, srt = 30)
+```

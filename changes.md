@@ -15,9 +15,8 @@ The function applied is now listed under functions *not* under inputs
 (unless funcsAsInputs is TRUE for the collector used...).
 
 Functions applied via the dplyr mutate_(all|if|at) and
-summarize_(all|if|at) are also treated as called as well.
-
-purrr support is still in the todo list for now.
+summarize_(all|if|at) and purrr's map* are handled as called as well.
+well.
 
 
 ## getVariableDepends and getSectionDepends now accept ...
@@ -33,3 +32,8 @@ directly int he call to the get*Depends functions.
 functions created in that block are already captured as ouputs by
 defualt)
 
+## getCallGraph only accepts package names
+
+The code-paths for other input types is currently broken, and I don't
+have time to fix it right away, so the documentation has been updated
+to reflect this.

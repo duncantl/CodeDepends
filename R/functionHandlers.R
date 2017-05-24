@@ -368,12 +368,21 @@ datahandler = function(e, collector, basedir, input, formulaInputs, update, pipe
     }
 }
 
-applyhandlerfactory = function(funpos) {
+applyhandlerfactory = function(funpos, funargname = "FUN", inmap = FALSE) {
     force(funpos)
     applyhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval=FALSE, ...) {
+        if(pipe)
+            funpos = funpos - 1
         
         collector$calls(as.character(e[[1]]))
         hasnamedfun = "FUN" %in% names(e)
+        ## protect against hadley's weird formula anonymous function thing
+        ##
+        ## XXX There are corner cases where this is probably going to
+        ## get it wrong.
+        if(inmap)
+            formulaInputs = FALSE
+        
         lapply(2:length(e), function(i) {
             if((hasnamedfun && names(e)[i] == "FUN") || (!hasnamedfun && i == funpos)) {
                 if(is.name(e[[i]])){
@@ -522,6 +531,27 @@ defaultFuncHandlers = list(
     sapply = applyhandlerfactory(funpos = 3), #sapply, x, FUN
     mapply = applyhandlerfactory(funpos = 2), #mapply, FUN, ...
     tapply = applyhandlerfactory(funpos = 4), #tapply, x, INDEX, FUN
+    ## I should really probably allow dynamic/pattern-based matching
+    ## ... but I don't right now
+    map = applyhandlerfactory(funpos = 3, funargname = ".f", inmap = TRUE),
+    map_dbl = applyhandlerfactory(funpos = 3, funargname = ".f", inmap = TRUE),
+    map_chr = applyhandlerfactory(funpos = 3, funargname = ".f", inmap = TRUE),
+    map_int = applyhandlerfactory(funpos = 3, funargname = ".f", inmap = TRUE),
+    map_lgl = applyhandlerfactory(funpos = 3, funargname = ".f", inmap = TRUE),
+    map_df = applyhandlerfactory(funpos = 3, funargname = ".f", inmap = TRUE),
+    map2_dbl = applyhandlerfactory(funpos = 4, funargname = ".f", inmap = TRUE),
+    map2_chr = applyhandlerfactory(funpos = 4, funargname = ".f", inmap = TRUE),
+    map2_int = applyhandlerfactory(funpos = 4, funargname = ".f", inmap = TRUE),
+    map2_lgl = applyhandlerfactory(funpos = 4, funargname = ".f", inmap = TRUE),
+    map2_df = applyhandlerfactory(funpos = 4, funargname = ".f", inmap = TRUE),
+    map_if = applyhandlerfactory(funpos = 4, funargname = ".f", inmap = TRUE),
+    map_at = applyhandlerfactory(funpos = 4, funargname = ".f", inmap = TRUE),
+    pmap = applyhandlerfactory(funpos = 3, funargname = ".f", inmap = TRUE),
+    pmap_dbl = applyhandlerfactory(funpos = 3, funargname = ".f", inmap = TRUE),
+    pmap_chr = applyhandlerfactory(funpos = 3, funargname = ".f", inmap = TRUE),
+    pmap_int = applyhandlerfactory(funpos = 3, funargname = ".f", inmap = TRUE),
+    pmap_lgl = applyhandlerfactory(funpos = 3, funargname = ".f", inmap = TRUE),
+    pmap_df = applyhandlerfactory(funpos = 3, funargname = ".f", inmap = TRUE),
     summarize_all = summarize_handlerfactory(3), #summarize_all, .tbl, .funs
     mutate_all = summarize_handlerfactory(3), #mutate_all, .tbl, .funs
     summarize_at = summarize_handlerfactory(4), #summarize_at, .tbl, .cols, .funs

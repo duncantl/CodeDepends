@@ -1,3 +1,15 @@
+## copied from XML package so we can pass check with no NOTES.
+.limitXPathToSection = function(sections, xpath) {
+    if (length(section) == 0) 
+        return(paste(xpath, collapse = "|"))
+    if (is.character(section)) 
+        section = paste("@id=", sQuote(section), sep = "")
+    paste(outer(section, xpath,
+                function(sect, xp) paste("//section[", sect, "]", xp,
+                                         sep = "")),
+          collapse = "|")
+}
+
 getXMLFrags =
   #
   # Read the XML file if necessary, and then extract the elements corresponding to xpath
@@ -16,8 +28,8 @@ function(doc, sections = character(),  xpath = c("//r:code", "//r:func", "//r:pl
    doc = xmlInternalTreeParse(doc)
 
     # merge section with xpath. See xmlInternalSource.R
- xpath = XML:::limitXPathToSection(sections, xpath)  
- 
+## xpath = XML:::limitXPathToSection(sections, xpath)  
+ xpath = .limitXPathToSection(sections, xpath)
  if(asXML)
    getNodeSet(doc, xpath)
  else {

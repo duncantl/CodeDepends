@@ -11,9 +11,8 @@
 makeCallGraph(obj, all = FALSE, ...)
 }
 \arguments{
-  \item{obj}{a function, the name of a function, the name of a package,
-    a character vector of function names,
-  }
+  \item{obj}{The name of a package, optionally prefixed with
+    \code{"package:"}. Other inputs may be supported in the future}
    \item{all}{a logical value that controls whether the graph includes
      all the functions called by any of the target functions. This will
      greatly expand the graph.}

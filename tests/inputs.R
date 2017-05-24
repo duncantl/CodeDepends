@@ -113,3 +113,12 @@ res9 = getInputs(quote(x <- lapply(1:10, function(i) x[[10-i]])))
 stopifnot(identical(res9@inputs, "x"),
           identical(res9@outputs, character()),
           identical(res9@updates, "x"))
+
+## pipe handling and apply/map style function invocation play nicely
+## together
+
+res15 = getInputs(quote(1:10 %>% map_int(rnorm, sd = sample(1:10))))
+stopifnot(identical(res15@inputs, character()))
+stopifnot(identical(res15@functions, c("%>%" = NA, map_int = NA,
+                                       rnorm = NA, sample = NA,
+                                       ":" = NA)))

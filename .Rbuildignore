@@ -4,3 +4,9 @@ flow.R
 foo
 foo.R
 RepRes
+^[^/\\]*\.R$
+^Web
+^doc
+^[^/\\]*html$
+^Todo.xml
+^changes.md$
