@@ -58,7 +58,7 @@ function(addFunctionLinks = TRUE,  checkURLs = TRUE, h)
       if(length(tmp) > 0 && checkURLs) {
           if(!requireNamespace("RCurl"))
               stop("checking URLs requires RCurl (not found).")
-        e[!e] = RCurl::url.exists(tmp[!e])
+        e[!e] = sapply(tmp[!e], RCurl::url.exists) #RCurl::url.exists(tmp[!e])
       }
       i = w[e]
       if(length(i)) {
