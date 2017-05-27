@@ -91,9 +91,11 @@ Class \code{"\linkS4class{vector}"}, by class "list", distance 2.
  h = CodeDepends:::inputCollector(source = sourceHandler)
  info = getInputs(sc, h, basedir = dirname(f))
 
+\dontrun{
  u = url("http://www.omegahat.net/CodeDepends/formula.R")
  sc = readScript(u)
  as(sc, "ScriptInfo")
+}
 }
 \keyword{classes}
 \keyword{programming}

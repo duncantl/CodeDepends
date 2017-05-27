@@ -40,11 +40,12 @@ makeVariableGraph(doc, frags = readScript(doc), info = getInputs(frags),
   \code{Rgraphviz}
 }
 \examples{
+\dontrun{
  u = url("http://www.omegahat.net/CodeDepends/formula.R")
  sc = readScript(u)
  close(u)
  g = makeVariableGraph(, sc)
-
+}
 
  f = system.file("samples", "results-multi.R", package = "CodeDepends")
  sc = readScript(f)

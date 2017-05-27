@@ -44,8 +44,9 @@ readAnnotatedScript(doc, txt = readLines(doc))
 }
 \examples{
   e = readScript( system.file ("samples", "dual.R", package = "CodeDepends") )
-
+  \dontrun{
   readScript(url("http://www.omegahat.net/CodeDepends/formula.R"))
+}
 }
 \keyword{IO}
 \keyword{programming}
