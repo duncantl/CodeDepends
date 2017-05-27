@@ -22,6 +22,8 @@ function(blocks)
 #                             unlist(x, recursive = FALSE)
                           else
                              x
-                       })
+  })
+    if(all(is.na(names(tmp))))
+        names(tmp) = NULL
   unlist(tmp, recursive = FALSE)
 }

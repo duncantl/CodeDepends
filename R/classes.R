@@ -1,8 +1,13 @@
 setClass("ScriptNode", representation(code = "{", taskType = "character", id = "character"),
                          prototype = list(id = as.character(NA)))
 
+
+
 setClass("Script", representation(location = "character"), contains = "list")
+
 setClass("AnnotatedScript", contains = "Script")
+
+
 
 setClass("ScriptInfo", contains = "list")
 setClass("ScriptNodeInfo",
@@ -37,6 +42,12 @@ setAs("language", "ScriptNodeInfo",
       function(from)
         getInputs(from))
 
+setMethod("[", signature(x = "Script", i = "character", j = "missing"),
+          function(x, i, j, ..., drop = TRUE) {
+    inds = match(i, names(x))
+    inds = inds[!is.na(inds)]
+    x[inds, drop = drop]
+    })
 setMethod("[", signature(x = "Script", i = "vector", j = "missing"),
           function(x, i, j, ..., drop = TRUE) {
                   x@.Data <- x@.Data[i]

@@ -10,7 +10,8 @@
   and across blocks of code in a script or the body of a function.
 }
 \usage{
-getDetailedTimelines(doc, info = getInputs(doc), vars = getVariables(info))
+getDetailedTimelines(doc, info = getInputs(doc, ...), vars =
+getVariables(info, functions = functions), functions=TRUE, ...)
 \method{plot}{DetailedVariableTimeline}(x, var.srt = 0,
                                          var.mar = round(max(4,
 .5*max(nchar(levels(x$var))))), var.cex = 1, main = attr(x, "scriptName"),...)
@@ -22,6 +23,10 @@ getDetailedTimelines(doc, info = getInputs(doc), vars = getVariables(info))
   \item{info}{meta-information extracted from the code identifying the
     inputs and outputs. See \code{\link{getInputs}}.}
   \item{vars}{the variables of interest}
+  \item{functions}{What type of functions should be included in the
+    timeline: \code{NULL} for none, \code{TRUE} for locally defined
+    only, \code{NA} for unknown provenance functions, or \code{FALSE}
+    for non-locally-defined functions. Defaults to \code{TRUE}.}
   \item{x}{the \code{DetailedVariableTimeline} object being plotted}
   \item{var.srt}{rotation of the labels for the vertical axis listing
     the variables}
@@ -32,22 +37,19 @@ getDetailedTimelines(doc, info = getInputs(doc), vars = getVariables(info))
    
     the vertical axis.}
   \item{main}{the title of the plot}
-  \item{\dots}{additional arguments to the \code{plot} command. These
-    might include, for example, main to put a title on the plot.}
+  \item{\dots}{Passed to down to getInputs for the default \code{info}
+  value in \code{getDetailedTimelines} and to underlying plotting
+  functions for \code{plot.DetailedTimelines}.}
 }
 \value{
   \code{getDetailedTimelines} returns a data frame
-  with three variables: \code{var}, \code{used} and \code{defined}.
-  For each variable, there are as many rows as there are code blocks in
-  the document (and elements in \code{info}). (Variables that are
-  redefined will have more rows, but these are essentially different
-  variables.)
-  These rows correspond to the different code blocks or "time steps".
-  \code{used} and \code{defined} indicate whether the variable
-  acted as an input or was defined within this code block.
-  Many will have \code{FALSE} for both as the variable is not used in
-  that code block.
-  \code{var} is used merely to identify the variable.
+  with four columns: \code{step}, \code{used}, \code{defined}, and
+  \code{var}. Step represents steps within the timeline, with the same
+  value indicating that the described event are occuring at the same
+  time. \code{used} indicates whether \code{var} was used at that step,
+  and \code{defined} indicates whether \code{var} was defined. Many rows
+  will have \code{FALSE} for both as the variable is not used in that
+  code block.
 }
 %\references{}
 \author{Duncan Temple Lang}

@@ -1,5 +1,8 @@
 \name{getDependsThread}
 \alias{getDependsThread}
+\alias{getDependsThread,character-method}
+\alias{getDependsThread,name-method}
+\alias{getDependsThread,numeric-method}
 \title{Compute which code blocks in a script are inputs to define a variable}
 \description{
   This function is used to determine which code blocks in an R "script"

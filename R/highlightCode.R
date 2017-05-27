@@ -23,7 +23,7 @@ function(addFunctionLinks = TRUE,  checkURLs = TRUE, h)
   
   symbols = list()
   h$formatter =
-    function (tokens, styles, ...) {
+    function (tokens, styles, urlchk = checkURLs, ...) {
 
       ans = ifelse(styles == "", tokens,
                        sprintf("<span class=\"%s\">%s</span>", styles, tokens))
@@ -54,11 +54,12 @@ function(addFunctionLinks = TRUE,  checkURLs = TRUE, h)
 
       w = which(styles == "string")
       tmp = gsub('(^"|"$)', "", tokens[w])
-      e = file.exists(tmp)
-      if(checkURLs) {
+        e = file.exists(tmp)
+        e2chk = !e & nzchar(tmp) & grepl("[^.]", tmp) & grepl("[[:alnum:]]", tmp)
+      if(length(tmp) > 0 && checkURLs) {
           if(!requireNamespace("RCurl"))
               stop("checking URLs requires RCurl (not found).")
-        e[!e] = RCurl::url.exists(tmp[!e])
+        e[e2chk] = sapply(tmp[e2chk], RCurl::url.exists) #RCurl::url.exists(tmp[!e])
       }
       i = w[e]
       if(length(i)) {
@@ -74,9 +75,10 @@ function(addFunctionLinks = TRUE,  checkURLs = TRUE, h)
 
 
 highlightCode =
-function(obj, out = NULL, addFunctionLinks = TRUE, inline = TRUE, h = htmlRenderer(addFunctionLinks),
-         css = system.file("CSS", "highlight.css", package = "CodeDepends"),
-         jsCode = system.file("JavaScript", "highlightSymbols.js", package = "CodeDepends"))
+    function(obj, out = NULL, addFunctionLinks = TRUE, checkURLs = TRUE,
+             inline = TRUE, h = htmlRenderer(addFunctionLinks, checkURLs),
+             css = system.file("CSS", "highlight.css", package = "CodeDepends"),
+             jsCode = system.file("JavaScript", "highlightSymbols.js", package = "CodeDepends"))
 {
     if(!requireNamespace("highlight") || !requireNamespace("RJSONIO"))
         stop("Unable to highlight code without the highlight and/or RJSONIO package(s)")

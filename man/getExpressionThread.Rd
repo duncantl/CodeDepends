@@ -15,7 +15,8 @@
   
 }
 \usage{
-getExpressionThread(target, expressions, info = lapply(expressions, getInputs))
+getExpressionThread(target, expressions, info = lapply(expressions,
+getInputs, ...), ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -23,7 +24,10 @@ getExpressionThread(target, expressions, info = lapply(expressions, getInputs))
     expression of interest in \code{expressions} or the names of the variables.}
   \item{expressions}{the list of expressions}
   \item{info}{a list of objects giving information about the inputs
-     to each top-level expression in expressions.}
+    to each top-level expression in expressions.}
+  \item{...}{Passed to \code{getInputs} if \code{info} is not explicitly
+    specified.}
+  
 }
 \value{
   A \code{\link{Script-class}} object containing the subset of the

@@ -14,10 +14,14 @@ and packages}
   life-span of variables in a script.
 }
 \usage{
-highlightCode(obj, out = NULL, addFunctionLinks = TRUE, inline = TRUE,
-              h = htmlRenderer(addFunctionLinks),
-              css = system.file("CSS", "highlight.css", package = "CodeDepends"), 
-              jsCode = system.file("JavaScript", "highlightSymbols.js", package = "CodeDepends"))
+
+highlightCode(obj, out = NULL, addFunctionLinks = TRUE, checkURLs= TRUE,
+              inline = TRUE, h = htmlRenderer(addFunctionLinks,
+              checkURLs), css = system.file("CSS", "highlight.css",
+              package = "CodeDepends"), jsCode =
+              system.file("JavaScript", "highlightSymbols.js", package =
+              "CodeDepends"))
+
 }
 \arguments{
   \item{obj}{the name of a file containing R code or an R expression or
@@ -31,6 +35,9 @@ highlightCode(obj, out = NULL, addFunctionLinks = TRUE, inline = TRUE,
     function.
   If this is a function, it is called with a vector of  function names
   and should return a character vector with links for each of them.}
+\item{checkURLs}{When sorting through possible link targets, should we
+  check for existing local files OR URLs. Defaults to \code{TRUE}, if
+  \code{FALSE} only locally existing files are checked for.}
   \item{inline}{a logical value indicating whether to put the CSS and
     JavaScript code directly into the HTML document or just refer to them.}
   \item{h}{the renderer to create the HTML. See \code{\link[highlight]{highlight}}}
@@ -55,7 +62,8 @@ Duncan Temple Lang
 }
 \examples{
 f = system.file("samples", "sitepairs.R", package = "CodeDepends")
-highlightCode(f, "foo.html")
+## url checking takes a while, too long for CRAN example
+highlightCode(f, "foo.html", checkURLs=FALSE)
 }
 \keyword{programming}
 

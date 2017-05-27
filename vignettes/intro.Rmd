@@ -1,0 +1,180 @@
+---
+title: "CodeDepends: Static analysis and dependency detection for R code"
+author: "Gabriel Becker"
+output:
+  rmarkdown::html_vignette:
+    fig_width: 8
+    fig_height: 6
+vignette: >
+  %\VignetteIndexEntry{CodeDependsIntro}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+# Introduction
+
+The CodeDepends package provides a flexible framework for statically
+analyzing R code (i.e., without evaluating it). It also contains
+higher-level functionality for: detecting dependencies between R code
+blocks or expressions, "tree-shaking" (pruning a script down to only
+the expressions necessary to evaluate a given expression), plotting
+variable usage timelines, and more.
+
+# The workhorses: readScript and getInputs
+
+The primary functions to perform basic code analysis are `readScript`
+which reads in R scripts of various forms (including .R and .Rmd
+files), and `getInputs` which performs the low-level code-analysis.
+
+The `readScript` function returns a `Script` object (essentially a
+list of `ScriptNodes` representing the top-level expressions in the
+script). This can then be passed to the `getInputs` which, in that
+case, returns a `ScriptInfo` object, which can be thought of as a list
+of `ScriptNodeInfo` objects representing information about those
+top-level expressions.
+
+R expressions can also be passed directly to `getInputs`, which
+returns a single `ScriptNodeInfo` object in that case. While in
+practice users will generally call `getInputs` on entire scripts,
+passing expressions directly is useful for testing and illustration.
+
+As stated above, `ScriptNodeInfo` objects are the units of information
+about single expressions being analyzed, and collect various
+information extracted from examining the expression itself:
+
+```{r scriptnodeinfo}
+library(CodeDepends)
+getInputs(quote(x <- y + rnorm(10, sd = z)))
+
+```
+
+As we can see, the information includes the any string literals used
+in the expression, split into file and non-file strings based on
+whether the string appears to point to an existing path at analysis
+time with respect to the `basedir` argument (which defaults to the
+current directory). It also contains any libraries loaded by the code
+(via `library`, `require`, or `requireNamespace` calls).
+
+Next is are the inputs and outputs of the expression, which are the
+variables used by the expression and created by the expression (via
+assignment), respectively. By default, these lists will not include
+symbols used in ways that mean they are non-standardly evaluated
+(e.g., within the construction of a `ggplot2` plot object). These
+non-standard evaluation variables are collected separately (as
+nsevalVars).
+
+Variables whose values are updated (ie ones who are assigned new values which depend on their existing value) are collected separately. These updates can take a large number of forms, including:
+
+```{r updateexprs, eval=FALSE}
+x = x + 5
+rownames(x) = 5
+x[1:3] = 5
+x  = lapply(1:5, function(i) x[i]^2)
+x$y = 5
+```
+
+In all of the above cases, the variable `x` will be listed in both the
+`updated` and `inputs` categories, but *NOT* in the `outputs`
+category.
+
+Next are the functions which were called by the expression. These
+include those invoked as funtionals, e.g. via the `apply` family or
+`mutate_*` and `summarize_*` families. We note here that the functions
+list is actually a `logical` vector, indicating whether the function
+was locally defined within the script (`TRUE`), defined within a
+package (`FALSE`), or unkown (`NA`). The names of the vector indicate
+the names of the functions. Currently, functions will always be
+unknown if a single expression is analyzed directly. Function
+provenance detection is only applied to full scripts.
+
+Finally, the list of removed variables, side-effects `CodeDepends` is
+able to detect, and a copy of the code complete the list of
+information extracted.
+
+## Symbols within formulas
+
+Symbols within formulas are treated specially when analyzing code, based on the `formulaInputs` argument to `getInputs`. If `FALSE` (the default), they are assumed to evaluated nonstandardly (e.g., in the context of a `data.frame`), if `TRUE`, they are counted as standard inputs. Currently there is no capacity for mixing these behaviors within a single call to `getInputs`. 
+
+# Input collectors, function handlers, and customization
+
+The `getInputs` function accepts a `collector` argument, which
+essentially specifies a state tracker to be used when walking the code
+to collect inputs, functions called, etc.
+
+For largely historical reasons, input collectors are roughly defined as the output from the `inputCollector` constructor, rather than as a more formal class.
+
+When creating an input collector, various behavior can be customized,
+primarily in the form of \function handlers\ which specify behavior
+when analyzing calls to specific functions. This is, for example, how
+`CodeDepends` knows that some arguments within certain functions are
+non-standardly evaluated. CodeDepends ships with a robust set of
+default handlers, but these can be overridden or supplemented with
+custom handlers by specifying them when constructing the collector,
+either via the `...` arguments or as list. In both cases, the names
+are the names of the function the handler should be used on.
+
+```{r custhandler}
+
+col = inputCollector(library = function(e, collector, ...) {
+    print(paste("Hello", asVarName(e)))
+    defaultFuncHandlers$library(e, collector, ...)
+})
+getInputs(quote(library(CodeDepends)), collector = col)
+```
+
+`inputCollector` also accepts arguments which control what is counted
+as an input when processing expressions. The `inclPrevOutput` argument
+specifies whether output variables should be included as inputs to
+subsequent expressions when processing multiple expressions as an
+single block (e.g., when they are wrapped in `{}`). The
+`checkLibrarySymbols` and `funcsAsInputs` arguments control how
+symbols which appear to be resolved within libraries, and functions
+which are called are handled, respectively. The default behavior is
+for all of these to be `FALSE`.
+
+# Dependency detection and script visualization
+
+`CodeDepends` can visualize code in various ways.
+
+## Variable dependency graphs
+We can create the variable graph of dependnecies between variables,
+via the `makeVariableGraph` function:
+
+```{r variablegraph}
+
+ f = system.file("samples", "results-multi.R", package = "CodeDepends")
+ sc = readScript(f)
+ g = makeVariableGraph( info = getInputs(sc))
+ if(require(Rgraphviz))
+   plot(g)
+```
+
+## call graphs
+
+We can also create call graphs for functions or entire packages:
+
+```{r callgraphs}
+  gg = makeCallGraph("package:CodeDepends")
+  if(require(Rgraphviz)) {
+     gg = layoutGraph(gg, layoutType = "circo")
+     graph.par(list(nodes = list(fontsize=55)))
+     renderGraph(gg) ## could also call plot directly
+  } 
+```
+
+## Variable definitions timelines
+
+Finally we can display timelines for when variables are defined,
+redefined, and used:
+
+```{r timelines}
+f = system.file("samples", "results-multi.R", package = "CodeDepends")
+sc = readScript(f)
+dtm = getDetailedTimelines(sc, getInputs(sc))
+plot(dtm)
+
+ # A big/long function
+info = getInputs(arima0)
+dtm = getDetailedTimelines(info = info)
+plot(dtm, var.cex = .7, mar = 4, srt = 30)
+```

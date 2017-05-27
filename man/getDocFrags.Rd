@@ -3,6 +3,7 @@
 \alias{readScript,character-method}
 \alias{readScript,connection-method}
 \alias{readScript,XMLInternalDocument-method}
+\alias{readScript,missing-method}
 \alias{readAnnotatedScript}
 \title{Read the code blocks/chunks from a document}
 \description{
@@ -19,7 +20,7 @@
   
 }
 \usage{
-readScript(doc, type = NA, txt = readLines(doc))
+readScript(doc, type = NA, txt = readLines(doc), ...)
 readAnnotatedScript(doc, txt = readLines(doc)) 
 }
 
@@ -29,7 +30,8 @@ readAnnotatedScript(doc, txt = readLines(doc))
   \item{type}{a string indicating the type of the document. If this is
     missing, the function calls \code{getDocType} to attempt to
   determine this based on the "common" types of documents.}
-  \item{txt}{the lines of text of the document.}
+\item{txt}{the lines of text of the document.}
+\item{...}{Passed to low-level input functions used by various methods.}
 }
 \value{
  A list of the R expressions that constitute the code blocks.
@@ -42,8 +44,9 @@ readAnnotatedScript(doc, txt = readLines(doc))
 }
 \examples{
   e = readScript( system.file ("samples", "dual.R", package = "CodeDepends") )
-
+  \dontrun{
   readScript(url("http://www.omegahat.net/CodeDepends/formula.R"))
+}
 }
 \keyword{IO}
 \keyword{programming}
