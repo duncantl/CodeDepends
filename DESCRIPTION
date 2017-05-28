@@ -8,7 +8,7 @@ Description: Tools for analyzing R expressions
   view of code, determining dependencies betwen variables,  code improvement
   suggestions.
 Author: Duncan Temple Lang, Roger Peng, Deborah Nolan, Gabriel Becker
-Maintainer:  Duncan Temple Lang <duncan@r-project.org>, Gabriel Becker <becker.gabriel@gene.com>
+Maintainer:  Gabriel Becker <becker.gabriel@gene.com>, Duncan Temple Lang <duncan@r-project.org> 
 License: GPL
 Depends: methods
 Imports: codetools, XML, utils
