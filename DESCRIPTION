@@ -1,14 +1,14 @@
 Package: CodeDepends
-Version: 0.5-2
+Version: 0.5-3
 Title: Analysis of R Code for Reproducible Research and Code Comprehension
 Description: Tools for analyzing R expressions
   or blocks of code and determining the dependencies between them.
   It focuses on R scripts, but can be used on the bodies of functions.
   There are many facilities including the ability to summarize  or get a high-level
-  view of code, determining dependencies betwen variables,  code improvement
+  view of code, determining dependencies between variables,  code improvement
   suggestions.
 Author: Duncan Temple Lang, Roger Peng, Deborah Nolan, Gabriel Becker
-Maintainer:  Gabriel Becker <becker.gabriel@gene.com>, Duncan Temple Lang <duncan@r-project.org> 
+Maintainer:  Gabriel Becker <becker.gabriel@gene.com> 
 License: GPL
 Depends: methods
 Imports: codetools, XML, utils
