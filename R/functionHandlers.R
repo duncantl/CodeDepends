@@ -1,12 +1,16 @@
+isNSVar = function(e) is.call(e) && asVarName(e[[1]]) %in% c("::", ":::")
 
 
-libreqhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE,  ...)  collector$library(as.character(e[[2]]))
-
-rmhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) collector$removes(sapply(e[-1], as.character))
-
-dollarhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
-    
-
+libreqhandler = function(e, collector, basedir, input, formulaInputs,
+                         update, pipe = FALSE,  ...) {
+    collector$library(as.character(e[[2]]))
+}
+rmhandler = function(e, collector, basedir, input, formulaInputs,
+                     update, pipe = FALSE, nseval = FALSE, ...) {
+    collector$removes(sapply(e[-1], as.character))
+}
+dollarhandler = function(e, collector, basedir, input, formulaInputs,
+                         update, pipe = FALSE, nseval = FALSE, ...) {
 
     ##need to handle cases like a$b$c, which translate to `$`(a$b, c), correctly.
     ## Only a is a real variable here! Identified based on MathiasHinz
@@ -17,13 +21,15 @@ dollarhandler = function(e, collector, basedir, input, formulaInputs, update, pi
     if(is(e[[2]], "name"))
         collector$vars(as.character(e[[2]]), input = input)
     else
-        getInputs(e[[2]], collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs,
+        getInputs(e[[2]], collector = collector, basedir = basedir,
+                  input = input, formulaInputs = formulaInputs,
                   update = update, pipe = pipe, nseval = nseval, ...)
 }
 
 isbrack = function(x) asVarName(x) %in% c("[", "[[")
 
-assignhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+assignhandler = function(e, collector, basedir, input, formulaInputs,
+                         update, pipe = FALSE, nseval = FALSE, ...) {
 
 
     ## Need to handle updates, e.g.
@@ -41,7 +47,8 @@ assignhandler = function(e, collector, basedir, input, formulaInputs, update, pi
     ##if it is a simple name, then it is an output,
     ## but otherwise it is a call and may have more inputs.
 
-    ## asVarName returns, e.g., "x" for x[!y], and bar from foo(bar) so it's always the right thing...
+    ## asVarName returns, e.g., "x" for x[!y], and bar from foo(bar) so it's
+    ## always the right thing...
     lhs = e[[2]]
     outvar = asVarName(lhs)
     if(!is.name(e[[2]])) {
@@ -50,7 +57,6 @@ assignhandler = function(e, collector, basedir, input, formulaInputs, update, pi
         fname = asVarName(lhs[[1]])
    
       
-  #  browser()        
         ## if this is a x$foo <- val or x[["foo"]] = val or x[i, j] <- val
         ## make certain to add the variable being updated as an input.
         ## It will also be an output. 
@@ -60,7 +66,8 @@ assignhandler = function(e, collector, basedir, input, formulaInputs, update, pi
         ## is a behavior change but it seems necessary for the
         ## dependency stuff to function correctly.
         collector$vars(outvar, input = TRUE)
-        ## this pattern holds for both x[foo] = 5 and foo(x) = 5. x is e[[2]][[2]] in both cases.
+        ## this pattern holds for both x[foo] = 5 and foo(x) = 5. x is
+        ## e[[2]][[2]] in both cases.
 
         ##   collector$update(outvar)
 
@@ -70,37 +77,34 @@ assignhandler = function(e, collector, basedir, input, formulaInputs, update, pi
             numtoskip = 2
         
         if(length(lhs) > numtoskip) {
-            lapply(numtoskip:length(lhs), function(i, ...) getInputs(lhs[[i]], ...), collector = collector, basedir = basedir, input = TRUE, formulaInputs = formulaInputs, ..., pipe = pipe, nseval = nseval, update=FALSE)
+            lapply(numtoskip:length(lhs),
+                   function(i, ...) getInputs(lhs[[i]], ...),
+                   collector = collector, basedir = basedir,
+                   input = TRUE, formulaInputs = formulaInputs, ...,
+                   pipe = pipe, nseval = nseval, update=FALSE)
         }
         collector$call(paste(fname, "<-", sep = ""))
         ## needs to modify getInputs state. a bit of a sharp edge for the refactor ~GB
         update = TRUE
         
-    
-
-    
-        ## if(as.character(e[[2]][[1]]) != "$")
-        ##     lapply(as.list(e[[2]][-c(1,2)]), getInputs, collector, basedir = basedir, input = FALSE, formulaInputs = formulaInputs, ..., update = update, pipe= pipe, nseval = nseval)
     } else {
         ## collector$set(asVarName(e[[2]]))
     }
 
     ## Do the right hand side
-    lapply(3:length(e), function(i, ...) getInputs(e[[i]], ...), collector, basedir = basedir, input = TRUE, formulaInputs = formulaInputs, update = FALSE, pipe = pipe, nseval = nseval)
+    lapply(3:length(e), function(i, ...) getInputs(e[[i]], ...),
+           collector, basedir = basedir, input = TRUE,
+           formulaInputs = formulaInputs, update = FALSE, pipe = pipe,
+           nseval = nseval)
 
-    ## if(is.name(e[[2]])) 
-    ##     collector$set(asVarName(e[[2]]))
-    ## else {
-    ##     if(is.call(e[[2]])) {
-    ##         ##XXX will get foo in foo(x)
-    ##         if(!update)
-    ##             collector$set(asVarName(e[[2]][[2]]))
-    ##         if(as.character(e[[2]][[1]]) != "$")                   
-    ##             lapply(e[[2]][-c(1,2)], getInputs, collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ..., update = update, pipe = pipe, nseval = nseval)
-    ##     } else {
-    ##         collector$set(asVarName(e[[2]][[2]]))
-    ##     }
-    ## }
+    ## if(is.name(e[[2]])) collector$set(asVarName(e[[2]])) else {
+    ##     if(is.call(e[[2]])) { ##XXX will get foo in foo(x)
+    ##     if(!update) collector$set(asVarName(e[[2]][[2]]))
+    ##     if(as.character(e[[2]][[1]]) != "$")
+    ##     lapply(e[[2]][-c(1,2)], getInputs, collector, basedir =
+    ##     basedir, input = input, formulaInputs = formulaInputs, ...,
+    ##     update = update, pipe = pipe, nseval = nseval) } else {
+    ##     collector$set(asVarName(e[[2]][[2]])) } }
     if(outvar %in% collector$results()@inputs)
         update = TRUE
 
@@ -110,7 +114,8 @@ assignhandler = function(e, collector, basedir, input, formulaInputs, update, pi
         collector$set(outvar)
 }
 
-funchandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...){
+funchandler = function(e, collector, basedir, input, formulaInputs,
+                       update, pipe = FALSE, nseval = FALSE, ...){
     tmp = eval(e)
     ans = codetools::findGlobals(tmp, FALSE)
     collector$vars(ans$variables, input = TRUE)
@@ -118,22 +123,28 @@ funchandler = function(e, collector, basedir, input, formulaInputs, update, pipe
 }
 
 
-formulahandler =  function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...){
+formulahandler =  function(e, collector, basedir, input,
+                           formulaInputs, update, pipe = FALSE,
+                           nseval = FALSE, ...){
     
     ## a formula, eg a~b
-    ## whether we count variables that appear in formulas as inputs for the expression is controlled by the formulaInputs paramter
-    ##eventually we want to be able to handle the situation where we are calling
-    ##lm(y~x + z, data=dat) where y and x are in dat but z is not, but that is
-    ## HARD to detect so for now we allow users to specify whether CodeDepends
-    ##counts all variables used by formulas (assuming they come from the global
-    ##environment/current scope) or none (assuming the fomula will be used only
-    ##within the scope of, eg, a data.frame). I think the second one is the most
-    ##common use-case in practice...
+    ## whether we count variables that appear in
+    ## formulas as inputs for the expression is controlled by the
+    ## formulaInputs paramter eventually we want to be able to handle
+    ## the situation where we are calling lm(y~x + z, data=dat) where
+    ## y and x are in dat but z is not, but that is HARD to detect so
+    ## for now we allow users to specify whether CodeDepends counts
+    ## all variables used by formulas (assuming they come from the
+    ## global environment/current scope) or none (assuming the fomula
+    ## will be used only within the scope of, eg, a data.frame). I
+    ## think the second one is the most common use-case in practice...
 
     ## XXX port this over to the new way of dealing with nseval? ~GB
     collector$call(as.character(e[[1]]))
        if(formulaInputs)
-           lapply(e[-1], getInputs, collector, basedir = basedir, input = input, formulaInputs = formulaInputs, ..., update = update, pipe = pipe, nseval = nseval)
+           lapply(e[-1], getInputs, collector, basedir = basedir,
+                  input = input, formulaInputs = formulaInputs, ...,
+                  update = update, pipe = pipe, nseval = nseval)
        else {
                                         # collect the variables and functions in the 
            col = inputCollector()
@@ -150,7 +161,9 @@ formulahandler =  function(e, collector, basedir, input, formulaInputs, update, 
 
 
 
-assignfunhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...){
+assignfunhandler = function(e, collector, basedir, input,
+                            formulaInputs, update, pipe = FALSE,
+                            nseval = FALSE, ...){
     if(is.symbol(e[[2]])) {
         warning("assign() used with symbol as first argument. Unable to statically resolve what name the value will be assigned to")
         return()
@@ -167,7 +180,8 @@ assignfunhandler = function(e, collector, basedir, input, formulaInputs, update,
 
 }
 
-fullnsehandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+fullnsehandler = function(e, collector, basedir, input, formulaInputs,
+                          update, pipe = FALSE, nseval = FALSE, ...) {
     collector$calls(as.character(e[[1]]))
     lapply(as.list(e[-1]), getInputs, collector = collector, basedir = basedir,
             input = TRUE, formulaInputs = formulaInputs, update = update,
@@ -192,7 +206,8 @@ nseafterfirst = function(e, collector, basedir, input, formulaInputs, update,
  }
 
 nsehandlerfactory = function(secount) {
-    function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+    function(e, collector, basedir, input, formulaInputs, update,
+             pipe = FALSE, nseval = FALSE, ...) {
         if(secount == 0)
             return(fullnsehandler)
         seargs = 2:(1+secount)
@@ -210,14 +225,17 @@ nsehandlerfactory = function(secount) {
 }
 
 
-filterhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+filterhandler = function(e, collector, basedir, input, formulaInputs,
+                         update, pipe = FALSE, nseval = FALSE, ...) {
     if("dplyr" %in% collector$results()@libraries)
         nseafterfirst(e, collector, basedir = basedir, input = input,
                       formulaInputs = formulaInputs, update = update,
                       pipe = pipe, nseval = nseval, ...)
     else {
         collector$calls("filter")
-        lapply(e[-1], getInputs, col, basedir = basedir, input = input, formulaInputs = formulaInputs, ..., update = update, pipe = pipe, nseval = FALSE)
+        lapply(e[-1], getInputs, collector, basedir = basedir,
+               input = input, formulaInputs = formulaInputs, ...,
+               update = update, pipe = pipe, nseval = FALSE)
     }
 }
 
@@ -228,7 +246,9 @@ pipehandler = function(e, collector, basedir, input, formulaInputs, update,
     if(is.symbol(e[[3]]))
         collector$calls(as.character(e[[3]]))
     else 
-        getInputs(e[[3]], collector = collector, basedir = basedir, input = TRUE, formulaInputs = formulaInputs, update = update, pipe = TRUE, nseval = nseval)
+        getInputs(e[[3]], collector = collector, basedir = basedir,
+                  input = TRUE, formulaInputs = formulaInputs,
+                  update = update, pipe = TRUE, nseval = nseval)
     ## left hand side. leaf only if we're to the start of the expr,
     ## which won't be a function
     if(is.symbol(e[[2]])) 
@@ -236,37 +256,62 @@ pipehandler = function(e, collector, basedir, input, formulaInputs, update,
     else
         ## pipe=false because if this is a call, nothing is being passed to it
         ## via the pipe, because this is the start
-        getInputs(e[[2]], collector = collector, basedir = basedir, input = TRUE, formulaInputs = formulaInputs, update = update, pipe = FALSE, nseval = nseval)
+        getInputs(e[[2]], collector = collector, basedir = basedir,
+                  input = TRUE, formulaInputs = formulaInputs,
+                  update = update, pipe = FALSE, nseval = nseval)
 
 }
 
-defhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+defhandler = function(e, collector, basedir, input, formulaInputs,
+                      update, pipe = FALSE, nseval = FALSE, ...) {
     if(is.symbol(e[[1]])) {
         collector$calls(as.character(e[[1]]))
         lapply(e[-1], getInputs, collector=collector, basedir = basedir,
                formulaInputs = formulaInputs, ..., update = update,
                input = input, pipe = pipe, nseval = nseval)
 
-    } else if(is.call(e[[1]]) && as.character(e[[1]][[1]]) %in% c("::", ":::"))
-      { ## case of :: or :::, etc
-        getInputs(e[[1]], collector = collector, basedir = basedir,
-                  input = input, formulaInputs = formulaInputs,
-                  update = update, pipe = pipe, nseval = nseval,
-                  ...)
-        e2 = e
-        e2[[1]] = e2[[1]][[3]] # in :: and ::: calls, 1 is the colons, 2 is lib, 3 is fun
-        getInputs(e2, collector = collector, basedir = basedir,
-                  input = input, formulaInputs=  formulaInputs,
-                  update = update, pipe = pipe, nseval = nseval,
-                  ...)
-    } else {
-        lapply(e, getInputs, collector=collector, basedir = basedir,
-               formulaInputs = formulaInputs, ..., update = update,
-               input = input, pipe = pipe, nseval = nseval)
-    }
+    } else if(isNSVar(e[[1]])) { ## case of :: or :::, etc
+          ## call the handler
+          collector$functionHandlers[[asVarName(e[[1]][[1]])]](e[[1]],
+              collector = collector, basedir = basedir, input = input,
+              formulaInputs = formulaInputs, update = update, pipe = pipe,
+              nseval = nseval, ...,
+              ## XXX special arg just for colonshandler, thats why we had
+              ## to call handler directly. not great!
+              ## TODO: look into better way!
+              iscall = TRUE)
+          
+          
+          ## colons handler takes care of the call, so this isn't actually what
+          ## we want anymore ...
+          
+          ## e2 = e e2[[1]] = e2[[1]][[3]] # in :: and ::: calls, 1 is
+          ## the colons, 2 is lib, 3 is fun getInputs(e2, collector =
+          ## collector, basedir = basedir, input = input,
+          ## formulaInputs= formulaInputs, update = update, pipe =
+          ## pipe, nseval = nseval, ...)
+          if(length(e) > 1)
+              lapply(2:length(e), function(i) getInputs(e[[i]],
+                                                        collector = collector,
+                                                        basedir = basedir,
+                                                        input = input,
+                                                        formulaInputs = formulaInputs,
+                                                        update = update,
+                                                        pipe = pipe,
+                                                        nseval = nseval,
+                                                        ...))
+          
+                                                        
+          
+      } else {
+          lapply(e, getInputs, collector=collector, basedir = basedir,
+                 formulaInputs = formulaInputs, ..., update = update,
+                 input = input, pipe = pipe, nseval = nseval)
+      }
 }
 
-groupbyhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+groupbyhandler = function(e, collector, basedir, input, formulaInputs,
+                          update, pipe = FALSE, nseval = FALSE, ...) {
     nms = names(e)
     add = which(nms=="add")
     if(length(add)) {
@@ -283,7 +328,8 @@ groupbyhandler = function(e, collector, basedir, input, formulaInputs, update, p
 
 }
 
-counthandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+counthandler = function(e, collector, basedir, input, formulaInputs,
+                        update, pipe = FALSE, nseval = FALSE, ...) {
     nms = names(e)
     srt = which(nms == "sort")
     if(length(srt)) {
@@ -298,38 +344,68 @@ counthandler = function(e, collector, basedir, input, formulaInputs, update, pip
                   pipe = pipe, nseval = nseval, ...)
 }
 
-##filter(),mutate(),mutate_each(),transmute(),rename(),slice(),summarise(),summarize_(),summarise_each(),arrange(),select(),group_by(),group_indices(),data_frame(),distinct(),do(),funs(),count()
+##filter(),mutate(),mutate_each(),transmute(),rename(),slice(),summarise(),
+##summarize_(),summarise_each(),arrange(),select(),group_by(),group_indices(),
+##data_frame(),distinct(),do(),funs(),count()
 
-colonshandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
-    collector$library( as.character(e[[2]]))
-    collector$call(as.character(e[[1]]))
-    collector$call(as.character(e[[3]]))
+colonshandler = function(e, collector, basedir, input, formulaInputs,
+                         update, pipe = FALSE, nseval = FALSE, ...,
+                         iscall = FALSE) {
+    collector$library( asVarName(e[[2]]))
+    collector$call(asVarName(e[[1]]))
+
+    nameToUse = asVarName(e[[3]]) ## replace with deparse(e) to use pkg::nm
+    if(iscall)
+        collector$call(nameToUse)
+    else
+        collector$vars(nameToUse, input = input)
 }
 
-spreadhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+spreadhandler = function(e, collector, basedir, input, formulaInputs,
+                         update, pipe = FALSE, nseval = FALSE, ...) {
     ## second and third args are nseval, rest are not.
     collector$call("spread")
     if(!pipe)
-        getInputs(e[[2]], collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs,  update = update, pipe = pipe, nseval = FALSE, ...)
+        getInputs(e[[2]], collector = collector, basedir = basedir,
+                  input = input, formulaInputs = formulaInputs,
+                  update = update, pipe = pipe, nseval = FALSE, ...)
 
-    lapply(e[3:4], getInputs, collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs,  update = update, pipe = pipe, nseval = TRUE, ...)
+    lapply(e[3:4], getInputs, collector = collector,
+           basedir = basedir, input = input,
+           formulaInputs = formulaInputs,  update = update,
+           pipe = pipe, nseval = TRUE, ...)
     if(length(e) >=5)
-        lapply(e[5:length(e)], getInputs, collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = update, pipe = pipe, nseval = FALSE, ...)
+        lapply(e[5:length(e)], getInputs, collector = collector,
+               basedir = basedir, input = input,
+               formulaInputs = formulaInputs, update = update,
+               pipe = pipe, nseval = FALSE, ...)
        
 }
 
-forhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+forhandler = function(e, collector, basedir, input, formulaInputs,
+                      update, pipe = FALSE, nseval = FALSE, ...) {
     collector$call(as.character(e[[1]]))
     collector$vars(as.character(e[[2]]), input=FALSE)
-    getInputs(e[[3]], collector = collector, basedir = basedir, input=TRUE, formulaInputs = formulaInputs,  update = update, pipe = pipe, nseval=FALSE, ...)
-    getInputs(e[[4]], collector = collector, basedir = basedir, input=input, formulaInputs = formulaInputs, update = update, pipe = pipe, nseval=FALSE, ...)
+    getInputs(e[[3]], collector = collector, basedir = basedir,
+              input=TRUE, formulaInputs = formulaInputs,
+              update = update, pipe = pipe, nseval=FALSE, ...)
+    getInputs(e[[4]], collector = collector, basedir = basedir,
+              input=input, formulaInputs = formulaInputs,
+              update = update, pipe = pipe, nseval=FALSE, ...)
 }
 
-ifforcomp = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+ifforcomp = function(e, collector, basedir, input, formulaInputs,
+                     update, pipe = FALSE, nseval = FALSE, ...) {
     collector$calls("if")
-    getInputs(e[[2]], collector = collector, basedir = basedir, input = input,  formulaInputs = formulaInputs, update = update, pipe = pipe, nseval=FALSE, ...)
+    getInputs(e[[2]], collector = collector, basedir = basedir,
+              input = input,  formulaInputs = formulaInputs,
+              update = update, pipe = pipe, nseval=FALSE, ...)
+    fhands = collector$functionHandlers
     
-    innerres = getInputs(e[[3]], inputCollector(functionHandlers = collector$functionHandlers), basedir = basedir,  formulaInputs = formulaInputs)
+    innerres = getInputs(e[[3]],
+                         inputCollector(functionHandlers = fhands),
+                         basedir = basedir,
+                         formulaInputs = formulaInputs)
     collector$vars(innerres@inputs, input=TRUE)
     collector$library(innerres@libraries)
     collector$string(innerres@strings, basedir = basedir, filep=FALSE)
@@ -344,12 +420,14 @@ dataformals = names(formals(data))[-1] # first formal is ..., those are nsevalua
 ## XXX This grabs the symbols for the datasets being laoded, and counts them as
 ## nseval. I'm not sure this is valuable to do and may be actively misleading.
 ## Could easily make it not do that, but I'll leave it as is for now.
-datahandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval = FALSE, ...) {
+datahandler = function(e, collector, basedir, input, formulaInputs,
+                       update, pipe = FALSE, nseval = FALSE, ...) {
     collector$calls(as.character(e[[1]]))
    
     for(i in 2:length(e)) {
         getInputs(e[[i]], collector = collector, basedir = basedir,
-                  input = TRUE,  formulaInputs = formulaInputs, update = update, pipe = pipe,
+                  input = TRUE,  formulaInputs = formulaInputs,
+                  update = update, pipe = pipe,
                   ## it's nseval IFF it's eaten by the dots, ie not in dataformals
                   nseval = !(is.null(names(e)) || names(e)[i] %in% dataformals),
                   ...)
@@ -370,12 +448,16 @@ datahandler = function(e, collector, basedir, input, formulaInputs, update, pipe
 
 applyhandlerfactory = function(funpos, funargname = "FUN", inmap = FALSE) {
     force(funpos)
-    applyhandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval=FALSE, ...) {
+    applyhandler = function(e, collector, basedir, input,
+                            formulaInputs, update, pipe = FALSE,
+                            nseval=FALSE, ...) {
         if(pipe)
             funpos = funpos - 1
-        
-        collector$calls(as.character(e[[1]]))
-        hasnamedfun = "FUN" %in% names(e)
+      
+        ## this is the *apply/map* function, NOT the function being applied
+        collector$calls(asVarName(e[[1]]))
+                
+        hasnamedfun = funargname %in% names(e)
         ## protect against hadley's weird formula anonymous function thing
         ##
         ## XXX There are corner cases where this is probably going to
@@ -384,14 +466,34 @@ applyhandlerfactory = function(funpos, funargname = "FUN", inmap = FALSE) {
             formulaInputs = FALSE
         
         lapply(2:length(e), function(i) {
-            if((hasnamedfun && names(e)[i] == "FUN") || (!hasnamedfun && i == funpos)) {
+            if((hasnamedfun && names(e)[i] == funargname) ||
+               (!hasnamedfun && i == funpos)) {
                 if(is.name(e[[i]])){
                     collector$calls(asVarName(e[[i]]))
+                } else if(isNSVar(e[[i]])) {
+                    handle = collector$functionHandlers[[as.character(e[[i]][[1]])]]
+                    
+                    handle(e[[i]], collector = collector,
+                           basedir = basedir, input = input,
+                           formulaInputs=formulaInputs,
+                           update = update, pipe = FALSE,
+                           nseval = FALSE, ..., iscall = TRUE)
                 } else {
-                    getInputs(e[[i]], collector = collector, basedir = basedir, formulaInputs = formulaInputs, update = update, pipe = pipe, nseval = nseval, ...)
+                    ## this isn't going to count lst$fun() as a call, but
+                    ## I'm not sure it should, depends on what we decide
+                    ## "functions called" means
+                    getInputs(e[[i]], collector = collector,
+                              basedir = basedir,
+                              formulaInputs = formulaInputs,
+                              update = update, pipe = pipe,
+                              nseval = nseval, ...)
                 }
             } else {
-                getInputs(e[[i]], collector = collector, basedir = basedir, formulaInputs = formulaInputs, update = update, pipe = pipe, nseval = nseval, ...)
+                getInputs(e[[i]], collector = collector,
+                          basedir = basedir,
+                          formulaInputs = formulaInputs,
+                          update = update, pipe = pipe,
+                          nseval = nseval, ...)
             }
         })
     }
@@ -405,9 +507,11 @@ applyhandlerfactory = function(funpos, funargname = "FUN", inmap = FALSE) {
 
 summarize_handlerfactory = function(funspos = 3) {
 
-    ## we're going to allow funspos to be a vector but assume it is contiguous, ie of the form n:m with m>n
+    ## we're going to allow funspos to be a vector but assume it is
+    ## contiguous, ie of the form n:m with m>n
 
-    ret = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval=FALSE, ...) {
+    ret = function(e, collector, basedir, input, formulaInputs,
+                   update, pipe = FALSE, nseval=FALSE, ...) {
         newcol = do.call(inputCollector, collector$collectorSettings())
         collector$calls(asVarName(e[[1]]))
         if(pipe)  {
@@ -420,24 +524,46 @@ summarize_handlerfactory = function(funspos = 3) {
         
         if( min(funspos) > 3){
             beffunspos = 3:(min(funspos)-1)
-            lapply(as.list(e[beffunspos]), getInputs, collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = update, pipe = FALSE, nseval = FALSE, ...)
+            lapply(as.list(e[beffunspos]), getInputs,
+                   collector = collector, basedir = basedir,
+                   input = input, formulaInputs = formulaInputs,
+                   update = update, pipe = FALSE, nseval = FALSE, ...)
         }
-        lapply(funspos, function (i) .funhandler(e[[i]], collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = FALSE, pipe = FALSE, nseval = FALSE, ..., iscalled=TRUE))
+        lapply(funspos, function (i) .funhandler(e[[i]],
+                                                 collector = collector,
+                                                 basedir = basedir,
+                                                 input = input,
+                                                 formulaInputs = formulaInputs,
+                                                 update = FALSE,
+                                                 pipe = FALSE,
+                                                 nseval = FALSE, ...,
+                                                 iscalled=TRUE))
         
         
         if(length(e) > max(funspos))
-            lapply(as.list(e[(max(funspos)+1):length(e)]), getInputs, collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = FALSE, pipe = FALSE, nseval = FALSE, ..., iscalled=TRUE)
+            lapply(as.list(e[(max(funspos)+1):length(e)]), getInputs,
+                   collector = collector, basedir = basedir,
+                   input = input, formulaInputs = formulaInputs,
+                   update = FALSE, pipe = FALSE, nseval = FALSE, ...,
+                   iscalled=TRUE)
     }
     ret
 }
 
-.funhandler = function(e, collector, basedir, input, formulaInputs, update, pipe, nseval, ..., iscalled = TRUE) {
+
+## ## ugh, dplyr just keeps making this harder and harder
+## ## funs(mean, "mean", mean(., blahblabla))
+.funhandler = function(e, collector, basedir, input, formulaInputs,
+                       update, pipe, nseval, ..., iscalled = TRUE) {
     if(is.call(e) && asVarName(e[[1]]) == "funs") {
         collector$calls("funs")
         if(length(e) > 1) {
-            lapply(2:length(e), function(i, ...) .funhandler(e[[i]], ...),
-                   collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs,
-                   update = update, pipe = FALSE, nseval = FALSE, iscalled = iscalled)
+            lapply(2:length(e),
+                   function(i, ...) .funhandler(e[[i]], ...),
+                   collector = collector, basedir = basedir,
+                   input = input, formulaInputs = formulaInputs,
+                   update = update, pipe = FALSE, nseval = FALSE,
+                   iscalled = iscalled)
             return()
         }
     }
@@ -447,9 +573,13 @@ summarize_handlerfactory = function(funspos = 3) {
         else
             collector$vars(asVarName(e), input=TRUE)
     }else {
-        inres = getInputs(e, collector = do.call(inputCollector, collector$collectorSettings()),
-                          basedir = basedir, input = input, formulaInputs = formulaInputs, update = update,
-                          pipe = pipe, nseval = nseval)
+        inres = getInputs(e,
+                          collector = do.call(inputCollector,
+                                              collector$collectorSettings()),
+                          basedir = basedir, input = input,
+                          formulaInputs = formulaInputs,
+                          update = update, pipe = pipe,
+                          nseval = nseval)
         collector$calls(names(inres@functions))
         collector$vars(setdiff(inres@inputs, "."), input=TRUE)
         collector$string(inres@strings, filep=FALSE)
@@ -460,22 +590,22 @@ summarize_handlerfactory = function(funspos = 3) {
         
 }
 
-funshandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval=FALSE, ...) {
+funshandler = function(e, collector, basedir, input, formulaInputs,
+                       update, pipe = FALSE, nseval=FALSE, ...) {
     collector$calls(e[[1]])
     if(length(e) > 2) {
-        lapply(2:length(e), function(i) .funhandler(e[[i]], collector = collector, basedir = basedir, input = input, formulaInputs = formulaInputs, update = update, pipe = FALSE, nseval = nseval, ...))
+        lapply(2:length(e), function(i) .funhandler(e[[i]],
+                                                    collector = collector,
+                                                    basedir = basedir,
+                                                    input = input,
+                                                    formulaInputs = formulaInputs,
+                                                    update = update,
+                                                    pipe = FALSE,
+                                                    nseval = nseval,
+                                                    ...))
     }
 }
-
     
-## ## ugh, dplyr just keeps making this harder and harder
-## ## funs(mean, "mean", mean(., blahblabla))
-## funshandler = function(e, collector, basedir, input, formulaInputs, update, pipe = FALSE, nseval=FALSE, ...) {
-##     collector$calls("funs")
-
-
-
-## }
 
 ## Add test case to inst/samples/funchandlers.R whenever ANY new entries are
 ## added to defaultFuncHandlers, even if they reuse an existing handler (they
@@ -565,6 +695,8 @@ defaultFuncHandlers = list(
     
     )
 
-isAssignment = function(e) class(e) %in% c("=", "<-") || (is.call(e) && is.symbol(e[[1]]) && as.character(e[[1]]) == "<<-")
-
+isAssignment = function(e) {
+    class(e) %in% c("=", "<-") ||
+        (is.call(e) && is.symbol(e[[1]]) && as.character(e[[1]]) == "<<-")
+}
 

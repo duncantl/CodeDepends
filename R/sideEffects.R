@@ -6,7 +6,7 @@ function(call, collector)
 {
     # generally need to match.call but file has to be matched exactly in cat.
   fn = call[[1]]
-  if(is.call(fn) && as.character(fn[[1]]) %in% c("::", ":::"))
+  if(isNSVar(fn)) 
      fn = fn[[3]]
 
   var = NULL
