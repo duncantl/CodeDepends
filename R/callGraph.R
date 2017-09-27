@@ -18,7 +18,8 @@ setMethod("makeCallGraph", "character",
           function(obj, all = FALSE, recursive = TRUE, ...) {
 
             if(length(obj) > 1) {
-              return(makeCallGraph(getFunctions(, obj), all = all))
+              funs = unlist(lapply(obj, getFunctions), recursive = FALSE)
+              return(makeCallGraph(funs, all = all))
             }
             
             if(exists(obj, mode = "function"))
