@@ -18,8 +18,13 @@ setMethod("makeCallGraph", "character",
           function(obj, all = FALSE, recursive = TRUE, ...) {
 
             if(length(obj) > 1) {
-              funs = unlist(lapply(obj, getFunctions), recursive = FALSE)
-              return(makeCallGraph(funs, all = all))
+                funs = lapply(obj, getFunctions)
+                
+#               funs = structure(unlist(funs, recursive = FALSE), packages = rep(gsub("^package:", "", obj), sapply(funs, length)))
+ #unlist(lapply(seq(along = obj), function(i) paste(gsub("^package:", "", obj[i]), names(funs[[i]]), sep = ":"))))
+               return(makeCallGraph(unlist(funs, recursive = FALSE), all = all, recursive = recursive,
+                                    names = unlist(lapply(funs, names)),
+                                    packages = rep(gsub("^package:", "", obj), sapply(funs, length))))
             }
             
             if(exists(obj, mode = "function"))
@@ -35,7 +40,7 @@ setMethod("makeCallGraph", "character",
           })
 
 setMethod("makeCallGraph", "list",
-          function(obj, all = FALSE, recursive = TRUE, ...) {
+          function(obj, all = FALSE, recursive = TRUE, funNames = names(obj), packages = attr(obj, "packages"), ...) {
                # Assume all functions.
             require(graph)
             ids = names(obj)
@@ -52,7 +57,15 @@ setMethod("makeCallGraph", "list",
                                           list(edges = match(x, ids))
                                     })
             }
-            new("graphNEL", nodes = ids, edgeL = edges, edgemode = "directed")
+            
+            g = new("graphNEL", nodes = ids, edgeL = edges, edgemode = "directed")
+
+            if(length(packages)) {
+                nodeDataDefaults(g, "package") <- ""
+                nodeData(g, names(obj), "package") <- packages
+            }
+            
+            g
           })
 
 
