@@ -8,7 +8,9 @@ function(call, collector)
   fn = call[[1]]
   if(isNSVar(fn)) 
      fn = fn[[3]]
-
+  if(is.call(fn)) ## we're in the cb$pause() realm, don't do anything for now
+     return(NULL)
+    
   var = NULL
   if(as.character(fn) == "cat" && "file" %in% names(call)) {
         # might be a literal or a call.

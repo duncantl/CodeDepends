@@ -122,3 +122,14 @@ stopifnot(identical(res15@inputs, character()))
 stopifnot(identical(res15@functions, c("%>%" = NA, map_int = NA,
                                        rnorm = NA, sample = NA,
                                        ":" = NA)))
+
+## test that we now remember package loads across expressions and that the filter
+## handler uses that
+
+## test that nested calls within pipes behave correctly wrt identifying nseval vs standard
+## eval inputs
+
+scr16 = readScript(txt = "library(dplyr); df %>% left_join(filter(df2, colname > 6))")
+res16 = getInputs(scr16)
+stopifnot(identical(res16[[2]]@inputs, c("df2", "df")))
+stopifnot(identical(res16[[2]]@nsevalVars, "colname"))

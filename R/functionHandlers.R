@@ -1,3 +1,7 @@
+## NB, most handlers, other than the pipe hander, should (optionally)
+## look at the incoming pipe value and act on it, but then should
+## set it to FALSE when recursing down.
+
 isNSVar = function(e) is.call(e) && asVarName(e[[1]]) %in% c("::", ":::")
 
 
@@ -81,7 +85,7 @@ assignhandler = function(e, collector, basedir, input, formulaInputs,
                    function(i, ...) getInputs(lhs[[i]], ...),
                    collector = collector, basedir = basedir,
                    input = TRUE, formulaInputs = formulaInputs, ...,
-                   pipe = pipe, nseval = nseval, update=FALSE)
+                   pipe = FALSE, nseval = nseval, update=FALSE)
         }
         collector$call(paste(fname, "<-", sep = ""))
         ## needs to modify getInputs state. a bit of a sharp edge for the refactor ~GB
@@ -94,7 +98,7 @@ assignhandler = function(e, collector, basedir, input, formulaInputs,
     ## Do the right hand side
     lapply(3:length(e), function(i, ...) getInputs(e[[i]], ...),
            collector, basedir = basedir, input = TRUE,
-           formulaInputs = formulaInputs, update = FALSE, pipe = pipe,
+           formulaInputs = formulaInputs, update = FALSE, pipe = FALSE,
            nseval = nseval)
 
     ## if(is.name(e[[2]])) collector$set(asVarName(e[[2]])) else {
@@ -144,12 +148,12 @@ formulahandler =  function(e, collector, basedir, input,
        if(formulaInputs)
            lapply(e[-1], getInputs, collector, basedir = basedir,
                   input = input, formulaInputs = formulaInputs, ...,
-                  update = update, pipe = pipe, nseval = nseval)
+                  update = update, pipe = FALSE, nseval = nseval)
        else {
                                         # collect the variables and functions in the 
            col = inputCollector()
          lapply(e[-1], getInputs, col, basedir = basedir, input = input,
-                formulaInputs = formulaInputs, ..., update = update, pipe = pipe,
+                formulaInputs = formulaInputs, ..., update = update, pipe = FALSE,
                 nseval = nseval)
          vals = col$results()
          ## format of vals@functions is named vector of NA with functions as the names
@@ -174,7 +178,7 @@ assignfunhandler = function(e, collector, basedir, input,
         else
            collector$set(structure(as.character(NA), names = deparse(e[[2]])))
         getInputs(e[[3]], collector = collector, basedir = basedir, input = TRUE,
-                  formulaInputs = formulaInputs, update = update, pipe = pipe,
+                  formulaInputs = formulaInputs, update = update, pipe = FALSE,
                   nseval = nseval, ... )
     }
 
@@ -185,7 +189,7 @@ fullnsehandler = function(e, collector, basedir, input, formulaInputs,
     collector$calls(as.character(e[[1]]))
     lapply(as.list(e[-1]), getInputs, collector = collector, basedir = basedir,
             input = TRUE, formulaInputs = formulaInputs, update = update,
-            pipe = pipe, nseval = TRUE)
+            pipe = FALSE, nseval = TRUE)
 }
 
 nseafterfirst = function(e, collector, basedir, input, formulaInputs, update,
@@ -202,7 +206,7 @@ nseafterfirst = function(e, collector, basedir, input, formulaInputs, update,
      }
      lapply(e[nseseq], getInputs, collector = collector, basedir = basedir,
             input = TRUE, formulaInputs = formulaInputs, update = update,
-            pipe = pipe, nseval = TRUE)
+            pipe = FALSE, nseval = TRUE)
  }
 
 nsehandlerfactory = function(secount) {
@@ -216,26 +220,34 @@ nsehandlerfactory = function(secount) {
         lapply(seargs, function(i) getInputs(e[[i]], collector = collector,
                                              basedir = basedir, input = input,
                                              formulaInputs = formulaInputs,
-                                             update = update, pipe = pipe,
+                                             update = update, pipe = FALSE,
                                              nseval = FALSE, ...))
         lapply(e[-seq(1, max(seargs +1))], getInputs, collector = collector,
                basedir = basedir, input = input, formulaInputs = formulaInputs,
-               update = update, pipe = pipe, nseval = TRUE, ...)
+               update = update, pipe = FALSE, nseval = TRUE, ...)
     }
 }
 
 
 filterhandler = function(e, collector, basedir, input, formulaInputs,
                          update, pipe = FALSE, nseval = FALSE, ...) {
-    if("dplyr" %in% collector$results()@libraries)
-        nseafterfirst(e, collector, basedir = basedir, input = input,
-                      formulaInputs = formulaInputs, update = update,
-                      pipe = pipe, nseval = nseval, ...)
-    else {
+    ##  if("dplyr" %in% collector$results()@libraries)
+    if("dplyr" %in% collector$pkgLoadHistory()) {
+        if(pipe ) {
+            fullnsehandler(e, collector, basedir = basedir, input = input,
+                           formulaInputs = formulaInputs, update = update,
+                           pipe = FALSE, nseval = nseval, ...)
+        } else {
+            
+            nseafterfirst(e, collector, basedir = basedir, input = input,
+                          formulaInputs = formulaInputs, update = update,
+                          pipe = FALSE, nseval = nseval, ...)
+        }
+    } else {
         collector$calls("filter")
         lapply(e[-1], getInputs, collector, basedir = basedir,
                input = input, formulaInputs = formulaInputs, ...,
-               update = update, pipe = pipe, nseval = FALSE)
+               update = update, pipe = FALSE, nseval = FALSE)
     }
 }
 
@@ -268,13 +280,13 @@ defhandler = function(e, collector, basedir, input, formulaInputs,
         collector$calls(as.character(e[[1]]))
         lapply(e[-1], getInputs, collector=collector, basedir = basedir,
                formulaInputs = formulaInputs, ..., update = update,
-               input = input, pipe = pipe, nseval = nseval)
+               input = input, pipe = FALSE, nseval = nseval)
 
     } else if(isNSVar(e[[1]])) { ## case of :: or :::, etc
           ## call the handler
           collector$functionHandlers[[asVarName(e[[1]][[1]])]](e[[1]],
               collector = collector, basedir = basedir, input = input,
-              formulaInputs = formulaInputs, update = update, pipe = pipe,
+              formulaInputs = formulaInputs, update = update, pipe = FALSE,
               nseval = nseval, ...,
               ## XXX special arg just for colonshandler, thats why we had
               ## to call handler directly. not great!
@@ -297,7 +309,7 @@ defhandler = function(e, collector, basedir, input, formulaInputs,
                                                         input = input,
                                                         formulaInputs = formulaInputs,
                                                         update = update,
-                                                        pipe = pipe,
+                                                        pipe = FALSE,
                                                         nseval = nseval,
                                                         ...))
           
@@ -306,7 +318,7 @@ defhandler = function(e, collector, basedir, input, formulaInputs,
       } else {
           lapply(e, getInputs, collector=collector, basedir = basedir,
                  formulaInputs = formulaInputs, ..., update = update,
-                 input = input, pipe = pipe, nseval = nseval)
+                 input = input, pipe = FALSE, nseval = nseval)
       }
 }
 
@@ -368,17 +380,17 @@ spreadhandler = function(e, collector, basedir, input, formulaInputs,
     if(!pipe)
         getInputs(e[[2]], collector = collector, basedir = basedir,
                   input = input, formulaInputs = formulaInputs,
-                  update = update, pipe = pipe, nseval = FALSE, ...)
+                  update = update, pipe = FALSE, nseval = FALSE, ...)
 
     lapply(e[3:4], getInputs, collector = collector,
            basedir = basedir, input = input,
            formulaInputs = formulaInputs,  update = update,
-           pipe = pipe, nseval = TRUE, ...)
+           pipe = FALSE, nseval = TRUE, ...)
     if(length(e) >=5)
         lapply(e[5:length(e)], getInputs, collector = collector,
                basedir = basedir, input = input,
                formulaInputs = formulaInputs, update = update,
-               pipe = pipe, nseval = FALSE, ...)
+               pipe = FALSE, nseval = FALSE, ...)
        
 }
 
@@ -388,10 +400,10 @@ forhandler = function(e, collector, basedir, input, formulaInputs,
     collector$vars(as.character(e[[2]]), input=FALSE)
     getInputs(e[[3]], collector = collector, basedir = basedir,
               input=TRUE, formulaInputs = formulaInputs,
-              update = update, pipe = pipe, nseval=FALSE, ...)
+              update = update, pipe = FALSE, nseval=FALSE, ...)
     getInputs(e[[4]], collector = collector, basedir = basedir,
               input=input, formulaInputs = formulaInputs,
-              update = update, pipe = pipe, nseval=FALSE, ...)
+              update = update, pipe = FALSE, nseval=FALSE, ...)
 }
 
 ifforcomp = function(e, collector, basedir, input, formulaInputs,
@@ -399,7 +411,7 @@ ifforcomp = function(e, collector, basedir, input, formulaInputs,
     collector$calls("if")
     getInputs(e[[2]], collector = collector, basedir = basedir,
               input = input,  formulaInputs = formulaInputs,
-              update = update, pipe = pipe, nseval=FALSE, ...)
+              update = update, pipe = FALSE, nseval=FALSE, ...)
     fhands = collector$functionHandlers
     
     innerres = getInputs(e[[3]],
@@ -420,6 +432,13 @@ dataformals = names(formals(data))[-1] # first formal is ..., those are nsevalua
 ## XXX This grabs the symbols for the datasets being laoded, and counts them as
 ## nseval. I'm not sure this is valuable to do and may be actively misleading.
 ## Could easily make it not do that, but I'll leave it as is for now.
+
+## XXX how do we deal with datasets that are in packages. The code below fails
+## in the case of, e.g.
+## library(ggplot2)
+## data(diamonds)
+##
+## data(diamonds, package="ggplot2") DOES work, however.
 datahandler = function(e, collector, basedir, input, formulaInputs,
                        update, pipe = FALSE, nseval = FALSE, ...) {
     collector$calls(as.character(e[[1]]))
@@ -485,14 +504,14 @@ applyhandlerfactory = function(funpos, funargname = "FUN", inmap = FALSE) {
                     getInputs(e[[i]], collector = collector,
                               basedir = basedir,
                               formulaInputs = formulaInputs,
-                              update = update, pipe = pipe,
+                              update = update, pipe = FALSE,
                               nseval = nseval, ...)
                 }
             } else {
                 getInputs(e[[i]], collector = collector,
                           basedir = basedir,
                           formulaInputs = formulaInputs,
-                          update = update, pipe = pipe,
+                          update = update, pipe = FALSE,
                           nseval = nseval, ...)
             }
         })
