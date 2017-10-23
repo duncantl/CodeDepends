@@ -49,7 +49,8 @@ makeCallGraph(obj, all = FALSE, ...)
   }
 
     # Two packages
-   gg = makeCallGraph(c("package:CodeDepends", "package:codetools"))
+    library(codetools)
+    gg = makeCallGraph(c("package:CodeDepends", "package:codetools"))
 }
 \keyword{hplot}
 \keyword{programming}
