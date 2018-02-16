@@ -272,7 +272,7 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaI
 
    }
   
- collector$results(reset = reset)
+ collector$results(resetState = reset)
 }
 
 #setMethod("getInputs", "expression", getInputs.language)
