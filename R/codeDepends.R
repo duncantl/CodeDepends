@@ -49,7 +49,13 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
     sideEffects = character()
     nsevalVars = character()
     code = NULL
-    
+    ## this one doesn't get blown away by reset, "libraries" still does 
+    ## we need this to handle dplyr, etc based code in a script, because
+    ## the script getInput methods lapplys getInputs with reset=TRUE, so
+    ## we lose package info outside of the individual expression.
+    ##
+    ## FIXME we need a better solution to design mismatch generally, I think . ~G
+    allpackages = libraries
     
     Set = function(name) {
             set <<- c(set, name)
@@ -95,6 +101,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
            libraries <<- c(libraries, name)
            if(checkLibrarySymbols)
                libSymbols <<- c(libSymbols, librarySymbols(name))
+           allpackages <<- libraries
        },
        addInfo = function(funcNames = character(), modelVars = character()) {
            nsevalVars <<- c(nsevalVars,  modelVars)
@@ -126,6 +133,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
        reset = reset,
        code = function(name) code <<- name,
        nsevals = function(name) nsevalVars <<- c(nsevalVars, name),
+       pkgLoadHistory = function() allpackages, 
 #       addInfo = addInfo,
        results = function(resetState = FALSE) {
                       funcs = unique(functions)
@@ -264,7 +272,7 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaI
 
    }
   
- collector$results(reset = reset)
+ collector$results(resetState = reset)
 }
 
 #setMethod("getInputs", "expression", getInputs.language)
