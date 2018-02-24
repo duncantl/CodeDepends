@@ -408,11 +408,9 @@ ifforcomp = function(e, collector, basedir, input, formulaInputs,
                          formulaInputs = formulaInputs)
     collector$vars(innerres@inputs, input=TRUE)
     collector$library(innerres@libraries)
-    collector$string(innerres@strings, basedir = basedir, filep=FALSE)
-    collector$string(innerres@files, basedir=basedir, filep=TRUE)
+    collector$string(innerres@strings, basedir = basedir, filep = FALSE)
+    collector$string(innerres@files, basedir = basedir, filep = TRUE)
     collector$calls(innerres@functions)
-    
-
 }
 
 dataformals = names(formals(data))[-1] # first formal is ..., those are nsevaluated
