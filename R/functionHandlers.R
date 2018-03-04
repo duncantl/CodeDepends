@@ -195,7 +195,7 @@ fullnsehandler = function(e, collector, basedir, input, formulaInputs,
 nseafterfirst = function(e, collector, basedir, input, formulaInputs, update,
     pipe = FALSE, nseval = FALSE, ...) {
      collector$calls(as.character(e[[1]]))
-     if(!pipe) {
+     if(!pipe && length(e) > 1) {
          ## first argument
          getInputs(e[[2]],  collector = collector, basedir = basedir, input = TRUE,
                    formulaInputs = formulaInputs, update = update, pipe = FALSE,
