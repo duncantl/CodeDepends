@@ -13,7 +13,7 @@ License: GPL
 URL: https://github.com/duncantl/CodeDepends
 BugReports: https://github.com/duncantl/CodeDepends/issues
 Depends: methods
-Imports: codetools, XML, utils
+Imports: codetools, graph, XML, utils
 Suggests: graph, Rgraphviz, RUnit, knitr,  highlight, RJSONIO, RCurl
 VignetteBuilder: knitr
 Collate: classes.R librarySymbols.R functionHandlers.R codeDepends.R sectionDepends.R sweave.R xml.R 
