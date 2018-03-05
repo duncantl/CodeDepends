@@ -90,8 +90,8 @@ setMethod("plot", "CallGraph",
                     attrs = list(), nodeAttrs = list(), edgeAttrs = list(), 
                     recipEdges = c("combined", "distinct"), colors= c("red", "blue"))
           {
-              ids = nodes(g)
-              pkg = unlist(nodeData(g, , "package"))
+              ids = nodes(x)
+              pkg = unlist(nodeData(x, , "package"))
               nodeAttrs$color = structure(colors[factor(pkg)], names = ids)
 
               callNextMethod(x, y, ..., name = name, subGList = subGList, attrs = attrs, nodeAttrs = nodeAttrs, edgeAttrs = edgeAttrs, recipEdges = recipEdges)
