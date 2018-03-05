@@ -2,7 +2,7 @@ separateExpressionBlocks =
   #
   # This allows us to take a script that is made up of
   # blocks and unravel them into a list of individual top-level
-  # calls. It does not unrevale the individual calls, just the
+  # calls. It does not unravel the individual calls, just the
   # top-level blocks. And it leaves top-level calls outside of {}
   # alone.
   #
