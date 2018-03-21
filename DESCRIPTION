@@ -10,9 +10,11 @@ Description: Tools for analyzing R expressions
 Author: Duncan Temple Lang, Roger Peng, Deborah Nolan, Gabriel Becker
 Maintainer:  Gabriel Becker <becker.gabriel@gene.com> 
 License: GPL
+URL: https://github.com/duncantl/CodeDepends
+BugReports: https://github.com/duncantl/CodeDepends/issues
 Depends: methods
-Imports: codetools, XML, utils
-Suggests: graph, Rgraphviz, RUnit, knitr,  highlight, RJSONIO, RCurl
+Imports: codetools, graph, XML, utils
+Suggests: Rgraphviz, RUnit, knitr,  highlight, RJSONIO, RCurl
 VignetteBuilder: knitr
 Collate: classes.R librarySymbols.R functionHandlers.R codeDepends.R sectionDepends.R sweave.R xml.R 
          jss.R frags.R codeTypes.R gc.R graph.R parallel.R 

@@ -9,10 +9,9 @@ removed}
   can add code to the relevant code block to remove the variable. 
 }
 \usage{
-findWhenUnneeded(var, frags, info = lapply(frags, getInputs),
-simplify, index = TRUE, end = NA, redefined = FALSE)
-addRemoveIntermediates(doc, frags = readScript(doc), info =
-getInputs(frags), vars = getVariables(info))
+findWhenUnneeded(var, frags, info = lapply(frags, getInputs), simplify,
+                  index = TRUE, end = NA, redefined = FALSE)
+addRemoveIntermediates(doc, frags = readScript(doc), info = getInputs(frags), vars = getVariables(info))
 }
 \arguments{
 \item{var}{the name of the variable(s) whose final } \item{doc}{the

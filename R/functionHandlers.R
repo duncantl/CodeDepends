@@ -215,7 +215,7 @@ fullnsehandler = function(e, collector, basedir, input, formulaInputs,
 nseafterfirst = function(e, collector, basedir, input, formulaInputs, update,
     pipe = FALSE, nseval = FALSE, ...) {
      collector$calls(as.character(e[[1]]))
-     if(!pipe) {
+     if(!pipe && length(e) > 1) {
          ## first argument
          getInputs(e[[2]],  collector = collector, basedir = basedir, input = TRUE,
                    formulaInputs = formulaInputs, update = update, pipe = FALSE,
@@ -440,11 +440,9 @@ ifforcomp = function(e, collector, basedir, input, formulaInputs,
                          formulaInputs = formulaInputs)
     collector$vars(innerres@inputs, input=TRUE)
     collector$library(innerres@libraries)
-    collector$string(innerres@strings, basedir = basedir, filep=FALSE)
-    collector$string(innerres@files, basedir=basedir, filep=TRUE)
+    collector$string(innerres@strings, basedir = basedir, filep = FALSE)
+    collector$string(innerres@files, basedir = basedir, filep = TRUE)
     collector$calls(innerres@functions)
-    
-
 }
 
 dataformals = names(formals(data))[-1] # first formal is ..., those are nsevaluated
