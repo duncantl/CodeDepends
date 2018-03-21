@@ -133,3 +133,16 @@ scr16 = readScript(txt = "library(dplyr); df %>% left_join(filter(df2, colname >
 res16 = getInputs(scr16)
 stopifnot(identical(res16[[2]]@inputs, c("df2", "df")))
 stopifnot(identical(res16[[2]]@nsevalVars, "colname"))
+
+
+## filter regression test and test differentiation heuristic
+
+scr17 = readScript(txt = "library(dplyr); filter(df, x>5)")
+res17 = getInputs(scr17)
+stopifnot(identical(res17[[2]]@inputs, "df"))
+stopifnot(identical(res17[[2]]@nsevalVars, "x"))
+
+scr18 = readScript(txt = "filter(df, x>5)")
+res18 = getInputs(scr18)
+stopifnot(identical(res18[[1]]@inputs, c("df", "x")))
+stopifnot(length(res18[[1]]@nsevalVars) == 0)

@@ -11,8 +11,28 @@ libreqhandler = function(e, collector, basedir, input, formulaInputs,
 }
 rmhandler = function(e, collector, basedir, input, formulaInputs,
                      update, pipe = FALSE, nseval = FALSE, ...) {
-    collector$removes(sapply(e[-1], as.character))
+    ## this will be null if there are no named arguments
+    argnames = names(e[-1])
+    if(is.null(argnames))
+        collector$removes(sapply(e[-1], as.character))
+    else if (identical(argnames, "list")) { ## the other args are too complicated for now
+        listargexp = e[-1][["list"]]
+        newcollector = inputCollector(functionHandlers = collector$collectorSettings()$functionHandlers,
+                                      funcsAsInputs = FALSE, checkLibrarySymbols = FALSE)
+        listinout = getInputs(listargexp, collector = newcollector)
+        if(length(listinout@inputs) > 0) {
+            warning(paste("unable to track dynamically specified removes in expression ", e))
+            return()
+        } else {
+            collector$removes(listinout@strings)
+        }
+    } else { ## deals with environments other than the default
+        ## TODO: something here maybe, someday
+        message("Note: CodeDepends ignoring rm call which specifies non-default environment")
+        NULL
+    }
 }
+
 dollarhandler = function(e, collector, basedir, input, formulaInputs,
                          update, pipe = FALSE, nseval = FALSE, ...) {
 

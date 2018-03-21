@@ -70,8 +70,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
                 vars <<- c(vars, name[ !( name %in% c(BuiltinFunctions, libSymbols) ) ] ) #BuiltinFunctions ) ])  # || name %in% set
             else
                 ##Variables can't be an input if they are already an output ~GB
-                vars <<- c(vars, name[ !( name %in% c(BuiltinFunctions, set, libSymbols) ) ] ) #BuiltinFunctions  || name %in% set )])  # || name %in% set
-            
+                vars <<- c(vars, name[ !( name %in% c(BuiltinFunctions, set, libSymbols) ) ] )             
         }
         else
             Set(name)
