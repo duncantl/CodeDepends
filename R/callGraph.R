@@ -24,28 +24,55 @@ setMethod("makeCallGraph", "function",
 
 setMethod("makeCallGraph", "character",
           function(obj, all = FALSE, recursive = TRUE, ...) {
+    
+    path = search()
+    ispkg = grepl("^package:", obj)
+    ## we have a vector (length >=1) of package with 
+    ## the 'package:' prefix
+    if(all(ispkg)) {
+        ## this will work even if obj is length 1 and I don't
+        ## want to put the logic in 2 places...
+        funs = lapply(obj, getFunctions)
+        
+        return(makeCallGraph(unlist(funs, recursive = FALSE), all = all, recursive = recursive,
+                             names = unlist(lapply(funs, names)),
+                             packages = rep(gsub("^package:", "", obj), sapply(funs, length))))
+    } else if(any(ispkg)) { # mix of packages and functions. weird but why not
+        funlst = as.list(obj)
+        funlst[ispkg] = lapply(obj[ispkg], getFunctions)
+        ## the following will error if there is no function found
+        ## of that name, so no need to further check exists.
+        funlst[!ispkg] = lapply(obj[!ispkg],function(x) structure(get(x, mode= "function"), names = x))
+        ## ugh this name and package vector munging stuff is painful :-/
+        pkgnames = as.list(rep("", times = length(obj)))
+        
+        pkgnames[ispkg] = mapply(function(nm, funs) rep(nm, times = length(funs)),
+                                 nm = gsub("^packages:", "", obj[ispkg]),
+                                 funs = funlst[ispkg], SIMPLIFY=FALSE)
+        pkgnames = unlist(pkgnames)
+        names(funlst)[!ispkg] = obj[!ispkg]
+        funlst = unlist(funlst, recursive = FALSE)
+        return(makeCallGraph(funlst, all = all, recursive = recursive, names = names(funlst),
+                             packages = pkgnames))
+    } else if (length(obj) > 1) {
+        funs = lapply(obj, get, mode="function")
+        names(funs) = obj
+        return(makeCallGraph(funs, all = all, recursive = recursive,
+                             names = obj, packages = rep("", times = length(obj))))
+    }
+    
+    if(exists(obj, mode = "function"))
+        return(makeCallGraph(structure(list(get(obj, mode = "function")), names = obj), all = all, recursive = recursive,
+                             packages = "", ...))
+    
 
-            if(length(obj) > 1) {
-                funs = lapply(obj, getFunctions)
-                
-#               funs = structure(unlist(funs, recursive = FALSE), packages = rep(gsub("^package:", "", obj), sapply(funs, length)))
- #unlist(lapply(seq(along = obj), function(i) paste(gsub("^package:", "", obj[i]), names(funs[[i]]), sep = ":"))))
-               return(makeCallGraph(unlist(funs, recursive = FALSE), all = all, recursive = recursive,
-                                    names = unlist(lapply(funs, names)),
-                                    packages = rep(gsub("^package:", "", obj), sapply(funs, length))))
-            }
-            
-            if(exists(obj, mode = "function"))
-              return(makeCallGraph(structure(list(get(obj, mode = "function")), names = obj), all = all, recursive = recursive, ...))
+    ## if( !is.na(w <- match(obj, path)) || !is.na(w <- match(obj, gsub("^package:", "", path)))) {
+    ##     obj = getFunctions(w)
+    ##     return(makeCallGraph(obj, recursive = recursive, ...))
+    ## }
 
-            path = search()
-            if( !is.na(w <- match(obj, path)) || !is.na(w <- match(obj, gsub("^package:", "", path)))) {
-               obj = getFunctions(w)
-               return(makeCallGraph(obj, recursive = recursive, ...))
-            }
-
-            stop("Don't know how to make a call graph from this string: ", obj)
-          })
+    stop("Don't know how to make a call graph from this string: ", obj)
+})
 
 setMethod("makeCallGraph", "list",
           function(obj, all = FALSE, recursive = TRUE, funNames = names(obj), packages = attr(obj, "packages"), ...) {
