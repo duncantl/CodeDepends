@@ -644,6 +644,10 @@ funshandler = function(e, collector, basedir, input, formulaInputs,
 }
     
 
+noophandler = function(e, ...) invisible(NULL)
+
+
+
 ## Add test case to inst/samples/funchandlers.R whenever ANY new entries are
 ## added to defaultFuncHandlers, even if they reuse an existing handler (they
 ## may not always).
@@ -727,6 +731,7 @@ defaultFuncHandlers = list(
     mutate_if = summarize_handlerfactory(3:4), #mutate_if, tbl, .predicate, .funs 
     vars = fullnsehandler, 
     "_assignment_" = assignhandler,
+    "_InlineNativeSymbol_" = noophandler,
     "_default_" = defhandler
     
     

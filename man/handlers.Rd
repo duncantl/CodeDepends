@@ -20,21 +20,48 @@
 \alias{funshandler}
 \alias{applyhandlerfactory}
 \alias{summarize_handlerfactory}
+\alias{noophandler}
 \alias{defhandler}
 \alias{defaultFuncHandlers}
-\title{Function handlers and handler factories}
+\alias{functionhandlers}
+\title{Specifying custom processing behavior, Function handlers and handler factories}
 \description{
-  These functions act as handlers for individual call expressions, or in
-  the case of factories, return functions which do.
+  Custom behavior when processing calls to certain functions is
+  implemented by specifying \emph{function handlers} for those
+  functions. This can be used to alter CodeDepends' behavior when it
+  sees these functions, or if desired, to ignore them entirely when
+  processing the parent expression.
+
+  Function handlers should never be called directly by end users.
+  
+  CodeDepends attempts to provide reasonable defaults, in the form of
+  the \code{defaultFuncHandlers} list, which should be suitable for most
+  users.
+
 }
 \details{
 
+  Custom handling of functions and, rarely, some types of non functions
+  (currently only inlined \code{NativeSymbol} objects) by the
+  \code{getInputs} function is specified via function handlers, which
+  are passed in a named list to \code{inputCollector} when creating a
+  collector for use by \code{getInputs}.
+  
   Function handlers should only be used to construct an input collector
   (i.e., as an argument to \code{inputCollector}). They should not ever
   be called directly by end users.
 
   When creating new function handlers, they should accept the arguments
-  specified above (other than those to the factories).
+  specified above (other than those to the factories). The first
+  argument, e, will be an expression representing a call to the function
+  the handler is specified for, and second \code{collector} will be the
+  collector object. Handlers are expected to recursively process all
+  aspects of the call expression to the extent desired. This will often
+  be done by calling getInputs again on, e.g., some or all arguments
+  passed into the function call.
+
+  Function handlers are also expected to respect the \code{pipe} and
+  \code{nseval} arguments they receive. 
 }
 \arguments{
   \item{e}{The (sub)expression being processed. This will be a call to

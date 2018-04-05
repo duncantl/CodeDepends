@@ -15,6 +15,8 @@ isFile =
 function(val, basedir = ".")
   file.exists(val) || file.exists(paste(basedir, val, sep = .Platform$file.sep))  
 
+is.native = function(x) inherits(x, "NativeSymbol")
+
 #########################################################################################
 
 BuiltinFunctions =
@@ -171,12 +173,15 @@ function(x)
 
 
 setGeneric("getInputs",
-           function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaInputs = FALSE, ...) {
-             standardGeneric("getInputs")
-           })
+           function(e, collector = inputCollector(), basedir = ".",
+                    reset = FALSE, formulaInputs = FALSE, ...) {
+    standardGeneric("getInputs")
+})
 
 getInputs.language =          
-function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaInputs = FALSE, input = TRUE,  ...,  pipe = FALSE, update = FALSE, nseval=FALSE)
+    function(e, collector = inputCollector(), basedir = ".",
+             reset = FALSE, formulaInputs = FALSE, input = TRUE,  ...,
+             pipe = FALSE, update = FALSE, nseval=FALSE)
 {
     ## scoping state hackery
     if(is.null(dynGet("getinputstoplevel", ifnotfound = NULL))) {
@@ -265,6 +270,13 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaI
      lapply(e, getInputs, collector = collector, basedir = basedir, input = input,
             formulaInputs = formulaInputs, ..., update = update, pipe = pipe,
             nseval = nseval)
+   } else if(is.native(e)) {
+       collector$functionHandlers[["_InlineNativeSymbol_"]](e, collector,
+           input = input, basedir = basedir,
+           formulaInputs = formulaInputs,
+           update = update, pipe = pipe,
+           nseval = nseval) 
+       
    } else {
 
      stop("don't know about ", class(e))
@@ -326,14 +338,23 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaI
 
 setMethod("getInputs", "function",
             function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaInputs = FALSE, ...) {
-              expr = body(e)
-              if(as.character(expr[[1]]) == "{")
-                 expr = expr[-1]
-              vars = new("ScriptNodeInfo", outputs = names(formals(e))) #??? outputs - shouldn't this be inputs?
-              scr = readScript(txt = as.list(body(e)))
-              new("ScriptInfo", c(vars, getInputs(scr, collector = collector, basedir = basedir, reset = reset, formulaInputs = formulaInputs, ...)))
-              
-            })
+           
+    ## create dummy node which declares the formal arguments so they
+    ## don't show up as globals later. the call itself "outputs" these
+    ## "variables"
+    vars = new("ScriptNodeInfo", outputs = names(formals(e)))
+    exprs = as.list(body(e))
+    ## do we really want to keep the "{" around? Currently a test fails
+    ## if we remove it (length of output) but the test could be changed...
+    if(is.name(exprs[[1]]) && as.character(exprs[[1]]) == "{") {
+        scr = readScript(txt = exprs)
+    } else {
+        scr = body(e)
+    }
+
+    new("ScriptInfo", c(vars, getInputs(scr, collector = collector, basedir = basedir, reset = reset, formulaInputs = formulaInputs, ...)))
+    
+})
 
 
 

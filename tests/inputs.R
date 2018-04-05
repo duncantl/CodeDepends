@@ -16,6 +16,7 @@ stopifnot(identical(res10b@inputs, c("x", "y")))
 
 ## regression tests for passing functions directly to getInputs
 
+## function with {} and multiple expressions
 f = function(a = 5, b, c = 7) {
     d = a + b + 5
     df = data.frame(a = a, b = b)
@@ -32,6 +33,13 @@ stopifnot(length(res11) == 6,
           identical(res11[[5]]@nsevalVars, c("b", "a"))
           )
 
+## function with single expressoin (call) with no {} 
+fsmall = function(a = 5, b, c = 7) a+b+c
+
+res11b = getInputs(fsmall)
+stopifnot(length(res11b) == 2,
+          identical(res11b[[1]]@outputs, c("a", "b", "c")),
+          identical(res11b[[2]]@inputs, c("a", "b", "c")))
 
 ## does it know where functions that live in base packages come from (ie do they get FALSE)
 ## also does passing expressions directly to readScript work?
@@ -45,6 +53,7 @@ stopifnot(identical(res12[[1]]@functions, c("+" = FALSE, rnorm = FALSE, Rcmd = F
 
 
 ## do functions called via the *apply statements show up in funs rather than inputs?
+## including when specified out of order via FUN argument
 
 res13 = getInputs(quote(y <- lapply(x, mean, na.rm=narm)))
 stopifnot(identical(res13@outputs, "y"),
@@ -67,6 +76,10 @@ stopifnot(identical(res15@outputs, "y"),
           identical(res15@inputs, c( "stuff", "things")),
           identical(res15@functions, c(mapply = NA, mean = NA)))
 
+res13c = getInputs(quote(y <- sapply(x, mean, na.rm=narm)))
+stopifnot(identical(res13c@outputs, "y"),
+          identical(res13c@inputs, c("x", "narm")),
+          identical(res13c@functions, c(sapply = NA, mean = NA)))
 
 
 ## do we catch updates correctly in all their various forms
@@ -146,3 +159,18 @@ scr18 = readScript(txt = "filter(df, x>5)")
 res18 = getInputs(scr18)
 stopifnot(identical(res18[[1]]@inputs, c("df", "x")))
 stopifnot(length(res18[[1]]@nsevalVars) == 0)
+
+
+## regression test for handling of inlined NativeSymbols by default
+## handler, which includes Rcpp "functions" compiled
+## from R
+##
+## Can't figure out how to get this not to barf during R CMD check :(
+
+## library(Rcpp)
+## sourceCpp( system.file("unitTests/rcppfun.cpp", package="CodeDepends"))
+## res19 = getInputs(convolve3cpp)
+
+
+## stopifnot(identical(res19[[1]]@outputs, c("a", "b")),
+##           identical(res19[[2]]@inputs, c("a", "b")))
