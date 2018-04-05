@@ -229,20 +229,32 @@ nseafterfirst = function(e, collector, basedir, input, formulaInputs, update,
             pipe = FALSE, nseval = TRUE)
  }
 
-nsehandlerfactory = function(secount) {
+## except is for the case of function(sevar, sevar, ..., sevar, sevar)
+## where the ... is nse. Have to be specified as a full list of argument names
+nsehandlerfactory = function(secount, except = character()) {
+    if(secount == 0 && length(except) == 0)
+        return(fullnsehandler)
+    
     function(e, collector, basedir, input, formulaInputs, update,
              pipe = FALSE, nseval = FALSE, ...) {
-        if(secount == 0)
-            return(fullnsehandler)
-        seargs = 2:(1+secount)
-        if(pipe)
-            seargs = seargs[-1] #pipe gobbles the first arg
+        if(secount > 0) {
+            seargs = 2:(1+secount)
+            if(pipe)
+                seargs = head(seargs, -1) # pipe uses up one so we really ahve 1 less
+        } else {
+            seargs = numeric()
+        }
+        if(length(except) > 0) {
+            argnames = names(e)[-1] # the -1 is becuase the function is e[[1]]
+            ## the 1 + here is to undo the [-1] above, get back to e indexing space
+            seargs = c(seargs, 1 + which(nzchar(argnames) & argnames %in% except))
+        }
         lapply(seargs, function(i) getInputs(e[[i]], collector = collector,
                                              basedir = basedir, input = input,
                                              formulaInputs = formulaInputs,
                                              update = update, pipe = FALSE,
                                              nseval = FALSE, ...))
-        lapply(e[-seq(1, max(seargs +1))], getInputs, collector = collector,
+        lapply(e[-c(1, seargs)], getInputs, collector = collector,
                basedir = basedir, input = input, formulaInputs = formulaInputs,
                update = update, pipe = FALSE, nseval = TRUE, ...)
     }
@@ -685,6 +697,7 @@ defaultFuncHandlers = list(
     data_frame = fullnsehandler,
     distinct =  nseafterfirst,
     do = nseafterfirst,
+    gather = nsehandlerfactory(3, except = c("na.rm", "convert", "factor_key")),
     ##   funs = funshandler, #fullnsehandler,
     count = counthandler,
     tally = counthandler,
