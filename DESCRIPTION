@@ -22,4 +22,3 @@ Collate: classes.R librarySymbols.R functionHandlers.R codeDepends.R sectionDepe
          refScript.R sideEffects.R 
          highlightCode.R freeVariables.R
          convenienceFuns.R
-
