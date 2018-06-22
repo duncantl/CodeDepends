@@ -1,9 +1,13 @@
-import(graph)
+#import(graph)
+import(graphics)
+importClassFrom(graph, graphNEL)
+importMethodsFrom(graph, plot)
+importFrom(graph, nodes, nodeData, "nodeData<-", "nodeDataDefaults<-")
 import(XML)
 import(codetools)
 import(methods)
-importFrom(utils, find)
-import(graphics)
+importFrom(utils, find, head)
+
 
 
                                         # getVariableInputs

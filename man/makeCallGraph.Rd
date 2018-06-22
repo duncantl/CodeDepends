@@ -2,6 +2,7 @@
 \alias{makeCallGraph}
 \alias{makeCallGraph,list-method}
 \alias{makeCallGraph,character-method}
+\alias{makeCallGraph,function-method}
 \title{Create a graph representing which functions call other functions}
 \description{
   This function and its methods provide facilities for constructing
