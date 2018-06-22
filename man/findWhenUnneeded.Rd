@@ -10,8 +10,10 @@ removed}
 }
 \usage{
 findWhenUnneeded(var, frags, info = lapply(frags, getInputs), simplify,
-                  index = TRUE, end = NA, redefined = FALSE)
-addRemoveIntermediates(doc, frags = readScript(doc), info = getInputs(frags), vars = getVariables(info))
+                 index = TRUE, end = NA, redefined = FALSE)
+addRemoveIntermediates(doc, frags = readScript(doc),
+                       info = getInputs(frags),
+                       vars = getVariables(info))
 }
 \arguments{
 \item{var}{the name of the variable(s) whose final } \item{doc}{the
