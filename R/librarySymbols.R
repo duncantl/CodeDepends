@@ -18,13 +18,14 @@ librarySymbols = function(nm, ..., verbose=FALSE, attach=FALSE)
 
 
 stripVrDeps = function(txt) {
+    
     gsub("[[:space:]]\\(.*", "", txt)
 }
 
 
 getDeps = function(name, verbose=FALSE, found = character())
     {
-        name = stripVrDeps(name)
+     
         deps = character()
         if(length(name) > 1)
             {
@@ -52,9 +53,11 @@ getDeps = function(name, verbose=FALSE, found = character())
         if(!length(dline))
             return(character())
         depline = pinfo[grepl("^Depends:", pinfo)]
-        rawdeps = unlist(strsplit(gsub("^Depends:[^[:alpha:]]*", "", depline), split = "\\s*,\\s*"))
-        deps = stripVrDeps(rawdeps)
-        deps = deps[!grepl("R .*", deps) & ! (deps %in% found) ]
+        deps = unlist(strsplit(gsub("^Depends:[^[:alpha:]]*", "", depline), split = "\\s*,\\s*"))
+        deps = deps[!grepl("R .*", deps)]
+        deps = stripVrDeps(deps)
+        deps = deps[! (deps %in% found) ]
+      
         newdeps = getDeps(deps, verbose=verbose, found = c(deps, found))
         while(length(newdeps))
             {
