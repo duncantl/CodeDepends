@@ -13,10 +13,18 @@ librarySymbols = function(nm, ..., verbose=FALSE, attach=FALSE)
                 names(ret) = rep(x, times = length(ret))
                 ret
             }))
+        allsyms
     }
+
+
+stripVrDeps = function(txt) {
+    gsub("[[:space:]]\\(.*", "", txt)
+}
+
 
 getDeps = function(name, verbose=FALSE, found = character())
     {
+        name = stripVrDeps(name)
         deps = character()
         if(length(name) > 1)
             {
@@ -35,7 +43,7 @@ getDeps = function(name, verbose=FALSE, found = character())
         if(length(grep("R .*", name)))
             {
                 if(verbose)
-                    print(sprintf("skipping R version dependency: %s", name))
+                    message(sprintf("skipping R version dependency: %s", name))
                 return(character())
             }
         cd = sprintf("library(help='%s')", name)
@@ -44,7 +52,8 @@ getDeps = function(name, verbose=FALSE, found = character())
         if(!length(dline))
             return(character())
         depline = pinfo[grepl("^Depends:", pinfo)]
-        deps = unlist(strsplit(gsub("^Depends:[^[:alpha:]]*", "", depline), split = "\\s*,\\s*"))
+        rawdeps = unlist(strsplit(gsub("^Depends:[^[:alpha:]]*", "", depline), split = "\\s*,\\s*"))
+        deps = stripVrDeps(rawdeps)
         deps = deps[!grepl("R .*", deps) & ! (deps %in% found) ]
         newdeps = getDeps(deps, verbose=verbose, found = c(deps, found))
         while(length(newdeps))

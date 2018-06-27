@@ -28,7 +28,9 @@ inputCollector =
   #  Would like them to be relative to the  location of the script.
   #  Need to call isFile() with basedir correctly
   #
-function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrarySymbols = FALSE, funcsAsInputs = checkLibrarySymbols)
+    function(..., functionHandlers = list(...), inclPrevOutput = FALSE,
+             checkLibrarySymbols = FALSE,
+             funcsAsInputs = checkLibrarySymbols)
 {
     cust = names(functionHandlers)
     functionHandlers = c(functionHandlers,
@@ -77,13 +79,15 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
         else
             Set(name)
     }
-    reset = function() {
+    reset = function(full = FALSE) {
         libraries <<- character()
-        if(checkLibrarySymbols)
-            libSymbols <<- corePkgSyms
-        else
-            libSymbols <<- character()
-        
+        if(full) {
+            if(checkLibrarySymbols)
+                libSymbols <<- corePkgSyms
+            else
+                libSymbols <<- character()
+            allpackages <<- character()
+        }
         files <<- character()
         strings <<- character()
         vars <<- character()
@@ -102,7 +106,7 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
            libraries <<- c(libraries, name)
            if(checkLibrarySymbols)
                libSymbols <<- c(libSymbols, librarySymbols(name))
-           allpackages <<- libraries
+           allpackages <<- c(allpackages, libraries)
        },
        addInfo = function(funcNames = character(), modelVars = character()) {
            nsevalVars <<- c(nsevalVars,  modelVars)
@@ -124,8 +128,9 @@ function(..., functionHandlers = list(...), inclPrevOutput = FALSE, checkLibrary
        calls = function(name) {
            functions <<- c(functions, name)
            
-           if(funcsAsInputs)
+           if(funcsAsInputs) {
                Vars(name, TRUE)
+           }
        },
        
        removes = function(name) removes <<- c(removes, name),
