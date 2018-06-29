@@ -237,6 +237,7 @@ nsehandlerfactory = function(secount, except = character()) {
     
     function(e, collector, basedir, input, formulaInputs, update,
              pipe = FALSE, nseval = FALSE, ...) {
+        collector$calls(asVarName(e[[1]]))
         if(secount > 0) {
             seargs = 2:(1+secount)
             if(pipe)
@@ -254,10 +255,38 @@ nsehandlerfactory = function(secount, except = character()) {
                                              formulaInputs = formulaInputs,
                                              update = update, pipe = FALSE,
                                              nseval = FALSE, ...))
+        inds = seq(2:length(e))
         lapply(e[-c(1, seargs)], getInputs, collector = collector,
                basedir = basedir, input = input, formulaInputs = formulaInputs,
                update = update, pipe = FALSE, nseval = TRUE, ...)
     }
+}
+
+nseonlyhandlerfactory = function(nsevars = character(), nsepos = numeric()) {
+    if(!length(nsevars) && !length(nsepos))
+        return(defhandler)
+
+    
+    function(e, collector, basedir, input, formulaInputs, update,
+             pipe = FALSE, nseval = FALSE, ...) {
+        collector$call(asVarName(e[[1]]))
+        ## 1 is the function name
+        stopifnot(length(e) > 1)
+        allinds = 2: length(e)
+        seargs = allinds[-unique(c(nsepos - 1 , which(names(e)[-1] %in% nsevars)))]
+        lapply(seargs, function(i) getInputs(e[[i]], collector = collector,
+                                             basedir = basedir, input = input,
+                                             formulaInputs = formulaInputs,
+                                             update = update, pipe = FALSE,
+                                             nseval = FALSE, ...))
+        nseargs = allinds[unique(c(nsepos - 1, which(names(e)[-1] %in% nsevars)))]
+        lapply(nseargs, function(i) getInputs(e[[i]], collector = collector,
+                                             basedir = basedir, input = input,
+                                             formulaInputs = formulaInputs,
+                                             update = update, pipe = FALSE,
+                                             nseval = TRUE, ...))
+    }
+
 }
 
 
@@ -690,6 +719,7 @@ defaultFuncHandlers = list(
     summarise =  nseafterfirst,
     summarize =  nseafterfirst,
     summarise_each = nsehandlerfactory(2),
+    summarize_each = nsehandlerfactory(2),
     arrange =  nseafterfirst,
     select =  nseafterfirst,
     group_by = groupbyhandler,
@@ -698,6 +728,7 @@ defaultFuncHandlers = list(
     distinct =  nseafterfirst,
     do = nseafterfirst,
     gather = nsehandlerfactory(3, except = c("na.rm", "convert", "factor_key")),
+    separate = nseonlyhandlerfactory(nsepos = 2),
     ##   funs = funshandler, #fullnsehandler,
     count = counthandler,
     tally = counthandler,
