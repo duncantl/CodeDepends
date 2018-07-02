@@ -293,7 +293,7 @@ nseonlyhandlerfactory = function(nsevars = character(), nsepos = numeric()) {
 filterhandler = function(e, collector, basedir, input, formulaInputs,
                          update, pipe = FALSE, nseval = FALSE, ...) {
     ##  if("dplyr" %in% collector$results()@libraries)
-    if("dplyr" %in% collector$pkgLoadHistory()) {
+    if(any(c("dplyr", "tidyverse") %in% collector$pkgLoadHistory())) {
         if(pipe ) {
             fullnsehandler(e, collector, basedir = basedir, input = input,
                            formulaInputs = formulaInputs, update = update,

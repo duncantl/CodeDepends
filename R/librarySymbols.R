@@ -5,6 +5,7 @@ librarySymbols = function(nm, ..., verbose=FALSE, attach=FALSE)
     {
         deps = getDeps(nm, found = corePkgs , verbose = verbose)
         libs = c(nm, deps)
+        libs = gsub("([[:space:]]|\\n)+", "", libs)
         #we load but DON'T attach the library and all its dependencies to resolve its symbols
         allsyms = unlist(lapply(libs, function(x)
             {
@@ -19,7 +20,8 @@ librarySymbols = function(nm, ..., verbose=FALSE, attach=FALSE)
 
 stripVrDeps = function(txt) {
     
-    gsub("[[:space:]]\\(.*", "", txt)
+    txt = gsub("[[:space:]]\\(.*", "", txt)
+    gsub("[^[:alnum:]_.]", "", txt)
 }
 
 
