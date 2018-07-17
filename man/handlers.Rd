@@ -24,6 +24,7 @@
 \alias{defhandler}
 \alias{defaultFuncHandlers}
 \alias{functionhandlers}
+\alias{nseonlyhandlerfactory}
 \title{Specifying custom processing behavior, Function handlers and handler factories}
 \description{
   Custom behavior when processing calls to certain functions is
