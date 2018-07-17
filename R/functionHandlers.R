@@ -41,7 +41,7 @@ dollarhandler = function(e, collector, basedir, input, formulaInputs,
     ## https://github.com/duncantl/CodeDepends/issues/4
     ## make sure that @ or $ is listed in the called functions
     if(is(e[[1]], "name"))
-        collector$call(as.character(e[[1]]))
+        collector$calls(as.character(e[[1]]))
     if(is(e[[2]], "name"))
         collector$vars(as.character(e[[2]]), input = input)
     else
@@ -107,7 +107,7 @@ assignhandler = function(e, collector, basedir, input, formulaInputs,
                    input = TRUE, formulaInputs = formulaInputs, ...,
                    pipe = FALSE, nseval = nseval, update=FALSE)
         }
-        collector$call(paste(fname, "<-", sep = ""))
+        collector$calls(paste(fname, "<-", sep = ""))
         ## needs to modify getInputs state. a bit of a sharp edge for the refactor ~GB
         update = TRUE
         
@@ -164,7 +164,7 @@ formulahandler =  function(e, collector, basedir, input,
     ## think the second one is the most common use-case in practice...
 
     ## XXX port this over to the new way of dealing with nseval? ~GB
-    collector$call(as.character(e[[1]]))
+    collector$calls(as.character(e[[1]]))
        if(formulaInputs)
            lapply(e[-1], getInputs, collector, basedir = basedir,
                   input = input, formulaInputs = formulaInputs, ...,
@@ -269,7 +269,7 @@ nseonlyhandlerfactory = function(nsevars = character(), nsepos = numeric()) {
     
     function(e, collector, basedir, input, formulaInputs, update,
              pipe = FALSE, nseval = FALSE, ...) {
-        collector$call(asVarName(e[[1]]))
+        collector$calls(asVarName(e[[1]]))
         ## 1 is the function name
         stopifnot(length(e) > 1)
         allinds = 2: length(e)
@@ -425,11 +425,11 @@ colonshandler = function(e, collector, basedir, input, formulaInputs,
                          update, pipe = FALSE, nseval = FALSE, ...,
                          iscall = FALSE) {
     collector$library( asVarName(e[[2]]))
-    collector$call(asVarName(e[[1]]))
+    collector$calls(asVarName(e[[1]]))
 
     nameToUse = asVarName(e[[3]]) ## replace with deparse(e) to use pkg::nm
     if(iscall)
-        collector$call(nameToUse)
+        collector$calls(nameToUse)
     else
         collector$vars(nameToUse, input = input)
 }
@@ -437,7 +437,7 @@ colonshandler = function(e, collector, basedir, input, formulaInputs,
 spreadhandler = function(e, collector, basedir, input, formulaInputs,
                          update, pipe = FALSE, nseval = FALSE, ...) {
     ## second and third args are nseval, rest are not.
-    collector$call("spread")
+    collector$calls("spread")
     if(!pipe)
         getInputs(e[[2]], collector = collector, basedir = basedir,
                   input = input, formulaInputs = formulaInputs,
@@ -457,7 +457,7 @@ spreadhandler = function(e, collector, basedir, input, formulaInputs,
 
 forhandler = function(e, collector, basedir, input, formulaInputs,
                       update, pipe = FALSE, nseval = FALSE, ...) {
-    collector$call(as.character(e[[1]]))
+    collector$calls(as.character(e[[1]]))
     collector$vars(as.character(e[[2]]), input=FALSE)
     getInputs(e[[3]], collector = collector, basedir = basedir,
               input=TRUE, formulaInputs = formulaInputs,
