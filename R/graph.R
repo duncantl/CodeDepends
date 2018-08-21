@@ -63,7 +63,7 @@ function(doc, frags = readScript(doc), info = getInputs(frags), vars = getVariab
 makeScriptNodeNames =
 function(info)
 {
-  ids =sapply(seq(along = info),
+  ids =sapply(seq(along.with = info),
                 function(i) {
                    vars = getVariables(info[[i]])
                    if(length(vars))
@@ -113,7 +113,7 @@ getTimelines =
 function(doc, info = getInputs(doc), vars = getVariables(info))
 {
     # loop over each block/time step
-  ans = lapply(seq(along = info),
+  ans = lapply(seq(along.with = info),
                 function(i) {
                        # then each variable
                     rest = info[seq(i, length(info))]
