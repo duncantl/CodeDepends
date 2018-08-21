@@ -76,7 +76,7 @@ evalFrags =
 function(frags, env = new.env(), nestedEnvironments = FALSE, verbose = FALSE)
 {
    envs = list(env)
-   ans = lapply(seq(along = frags), function(i) {
+   ans = lapply(seq(along.with = frags), function(i) {
            if(nestedEnvironments)
                    e = envs[[i + 1]] <<- new.env(parent = envs[[i]])
            else

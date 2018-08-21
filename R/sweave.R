@@ -5,7 +5,7 @@
 ## function(doc, txt = readLines(doc))
 ## {
 ##   pos = c(grep("(^<<[^>]>>=|^@)", txt), length(txt))
-##   lapply(seq(along = pos[ - length(pos) ]),
+##   lapply(seq(along.with = pos[ - length(pos) ]),
 ##           function(j) {
 ##              parse(text = txt[ pos[j]: pos[j+1]])
 ##           })

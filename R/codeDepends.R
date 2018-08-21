@@ -321,7 +321,7 @@ identifyLocalFunctions =
 function(nodes)
 {
   defs = character()
-  for(i in seq(along = nodes)) {
+  for(i in seq(along.with = nodes)) {
      tmp = nodes[[i]]
      if(length(tmp@functions) && any(w <- is.na(tmp@functions))) {
         tmp@functions[w] = names(tmp@functions[w]) %in% defs

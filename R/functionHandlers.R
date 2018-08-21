@@ -220,9 +220,9 @@ nseafterfirst = function(e, collector, basedir, input, formulaInputs, update,
          getInputs(e[[2]],  collector = collector, basedir = basedir, input = TRUE,
                    formulaInputs = formulaInputs, update = update, pipe = FALSE,
                    nseval = FALSE, ...)
-         nseseq = seq(along = e)[-c(1:2)]
+         nseseq = seq(along.with = e)[-c(1:2)]
      } else {
-         nseseq = seq(along = e)[-1]
+         nseseq = seq(along.with = e)[-1]
      }
      lapply(e[nseseq], getInputs, collector = collector, basedir = basedir,
             input = TRUE, formulaInputs = formulaInputs, update = update,
