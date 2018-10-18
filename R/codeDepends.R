@@ -347,7 +347,8 @@ setMethod("getInputs", "function",
     ## create dummy node which declares the formal arguments so they
     ## don't show up as globals later. the call itself "outputs" these
     ## "variables"
-    vars = new("ScriptNodeInfo", outputs = names(formals(e)))
+    v = names(formals(e))                
+    vars = new("ScriptNodeInfo", outputs = if(length(v)) v else character())
     exprs = as.list(body(e))
     ## do we really want to keep the "{" around? Currently a test fails
     ## if we remove it (length of output) but the test could be changed...
