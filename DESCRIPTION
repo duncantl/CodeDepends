@@ -13,6 +13,7 @@ License: GPL
 URL: https://github.com/duncantl/CodeDepends
 BugReports: https://github.com/duncantl/CodeDepends/issues
 Depends: methods
+biocViews:
 Imports: codetools, graph, XML, utils
 Suggests: Rgraphviz, RUnit, knitr,  highlight, RJSONIO, RCurl, Rcpp
 VignetteBuilder: knitr
