@@ -179,11 +179,11 @@ setAs("DetailedVariableTimeline", "matrix",  #??? Was this really DetailedVariab
 
 plot.DetailedVariableTimeline =
 function(x, var.srt = 0, var.mar = round(max(4, .5*max(nchar(levels(x$var))))), var.cex = 1,
-           main = attr(x, "scriptName"), ...)
+           main = attr(x, "scriptName"), mar = c(5, var.mar, 4, 1) + .1, ...)
 {
   old = par(no.readonly = TRUE)
-  on.exit(par(old))
-  par(mar = c(5, var.mar, 4, 1) + .1)
+  on.exit(par(old$mar))
+  par(mar)
   numVars = length(levels(x$var))
   plot(1, type = "n", xlim = attr(x, "range"), ylim = c(1, numVars),
          yaxt = "n",  xlab = "Step", ylab = "", main = main, ...)
