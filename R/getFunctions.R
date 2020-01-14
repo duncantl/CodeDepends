@@ -9,7 +9,8 @@ getFunctionGlobals =
     # getFunctionGlobals("../tests/getFunctionDefsEg.R")
     #
     #
-function(sc, funs = getFunctionDefs(sc, envir), envir = globalenv())
+function(sc, funs = getFunctionDefs(sc, envir), envir = globalenv(),
+         getGlobals = function(x) codetools::findGlobals(x, FALSE) )
 {
     ans = lapply(funs, function(x) getGlobals(x)$variables)
     ans[sapply(ans, length) > 0]
