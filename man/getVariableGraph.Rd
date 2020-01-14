@@ -41,7 +41,6 @@ getVariableGraph(var, sc, asGraph = TRUE, globals = TRUE, idx = getVariableDepen
   \code{\link{getFunctionGlobals}}
 }
 \examples{
-
 f = system.file("samples", "varGraphEg2.R", package = "CodeDepends")
 sc = readScript(f)
 g1 = getVariableGraph("r", sc, functionGlobals = NULL)
