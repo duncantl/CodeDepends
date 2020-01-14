@@ -81,3 +81,7 @@ export(getGlobalInputs)
 
 export(getVarDependsGraph, getVariableGraph)
 
+export(getPackages)
+exportMethods(getPackages)
+
+export(getToplevelVariables)
