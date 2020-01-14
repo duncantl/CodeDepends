@@ -11,9 +11,9 @@
 }
 \usage{
 getVariableDepends(vars, frags, info = lapply(frags, getInputs, ...),
-checkLibraries = FALSE, asIndex = FALSE, functions = TRUE, ...)
+checkLibraries = FALSE, asIndex = FALSE, functions = TRUE, functionGlobals = NULL, ...)
 getSectionDepends(sect, frags, info = lapply(frags, getInputs, ...), index =
-FALSE, ...)
+FALSE, functionGlobals = NULL, ...)
 }
 \arguments{
   \item{vars}{the names of the variables of interest}
@@ -32,6 +32,9 @@ FALSE, ...)
   \item{functions}{passed to \code{getVariables}. What kind of functions
     should be counted as variables (\code{TRUE} is local functions only,
     the default)}
+  \item{functionGlobals}{a named list of character vectors identifying
+    the functions that use global variables and the names of those
+    global variables. See \code{\link{getFunctionGlobals}}.}
   \item{...}{passed to \code{getInputs}. Ignored if \code{info} is
     explicitly specified.} 
 }
