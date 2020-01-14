@@ -74,3 +74,10 @@ export(asVarName)
 exportPattern("^[^.]+handler(factory){0,1}$")
 export(nseafterfirst)
 
+
+
+export(getFunctionGlobals, getFunctionDefs)
+export(getGlobalInputs)
+
+export(getVarDependsGraph, getVariableGraph)
+
