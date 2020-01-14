@@ -132,27 +132,36 @@ function(functions, local = TRUE)
 
 getSectionDepends =
   #' @param sect number
-function(sect, frags, info = lapply(frags, getInputs, ...), index = FALSE, ...)
+function(sect, frags, info = lapply(frags, getInputs, ...), index = FALSE, functionGlobals = NULL, ...)
 {
     if(missing(frags) && !index)
         stop("frags must be specified if index is FALSE")
+    
     target = info[[sect]]
     
     ## Linear or not ? i.e. can we go forward in the document to find the definition of a var.
     ## And when we return the list here, the order may be important.
     
     inputs = c(target@inputs, getLocalFunctions(target@functions, TRUE))
-    
+
+    undef = character()
     if(length(inputs) == 0)
         i = integer()
-    else
-        i = getDepends(inputs, info[1:(sect - 1)])
+    else {
+        i = getDepends(inputs, info[1:(sect - 1)], functionGlobals)
+        undef = attr(i, "Undefined")
+    }
     
     i = c(rev(i), sect)
-    if(index)
-        i
-    else
-        frags[i]
+    tmp = if(index)
+             i
+          else
+             frags[i]
+    
+    if(length(undef))
+        attr(tmp, "Undefined") = undef
+    
+    tmp
 }
 
 getVariableDepends =
@@ -162,16 +171,21 @@ getVariableDepends =
   #
     function(vars, frags = list(), info = lapply(frags, getInputs, ...),
              checkLibraries = FALSE, asIndex = FALSE, functions = TRUE,
+             functionGlobals = NULL,
              ...)
 {
-    if(length(frags) ==0 && missing(info))
+    if(length(frags) == 0 && missing(info))
         stop("one of frags and info must be specified when calling getVariableDepends.")
     else if(missing(frags) && !asIndex)
         stop("frags must be specified if asIndex is FALSE when calling getVariableDepends")
             
     defs = sapply(info, function(v) any(vars %in% getVariables(v, functions = functions)))
     
-    ans = lapply(which(defs), getSectionDepends, frags, info, TRUE, ...)
+    ans = lapply(which(defs), getSectionDepends, frags, info, index = TRUE, functionGlobals, ...)
+    undef = unlist(lapply(ans, attr, "Undefined"))
+# Flag/Reminder to myself for now.    Should remove later on.
+    if(length(undef) > 0) warning("undefined variables found: ", paste(undef, collapse = ", "))
+    
     if(length(unlist(ans)) == 0)
         return(NULL)
     
@@ -187,10 +201,15 @@ getVariableDepends =
         }
     }
     
-    if(asIndex)
+    tmp = if(asIndex)
         idx
     else
         frags[idx]
+
+    if(length(undef)) 
+        attr(tmp, "Undefined") = undef
+    
+    tmp
 }  
 
 
@@ -345,7 +364,7 @@ getDepends =
   #
   # Used by getSectionDepends
   #
-function(var, otherSections)
+function(var, otherSections, functionGlobals = NULL)
 {
   index = integer()
   i = length(otherSections)
@@ -360,13 +379,37 @@ function(var, otherSections)
          # only outputs, and not updates. We still need to keep looking for the updates.
          # So remove all the var[found] which are in the outputs
          # in other words, include all the var[found] that are not in the  outputs.
-       var = c(var[!found], setdiff(var[found], src@outputs), src@inputs)
+       inputs = getGlobalInputs(src, functionGlobals)
+       var = unique(c(var[!found], setdiff(var[found], src@outputs), inputs))
      }
      i = i-1
-  }
+ }
+  
+  if(length(var)) 
+      attr(index, "Undefined") = var
+  
+  
   index
-}  
+}
 
+getGlobalInputs =
+    #
+    # combine inputs from info and any global variables that are needed due to a call to a function
+    # that uses global variables.
+function(info, functionGlobals = NULL)    
+{
+    ans = info@inputs
+    if(length(functionGlobals) == 0)
+        return(ans)
+
+    i = match(names(info@functions), names(functionGlobals), 0)
+    if(any(i > 0))
+          # !!! should this add the names of the functions?
+        ans = c(ans, unlist(functionGlobals[i])) # , names(functionGlobals)[i])
+
+
+    ans
+}
 
 ####################################
 #
