@@ -20,7 +20,9 @@ setGeneric("readScript", signature = c("doc", "txt"),
             function(doc, type = NA, txt = readLines(doc), ...)
              standardGeneric("readScript"))
 
-tmp =
+
+
+xxxtmp =
 function(doc, type = NA, txt = readLines(doc), ...)
 {
   if(is.na(type) ) 
@@ -44,10 +46,10 @@ function(doc, type = NA, txt = readLines(doc), ...)
 ##setMethod("readScript", c("missing", txt = "character"),
 setMethod("readScript", c("missing", txt = "ANY"),
           function(doc, type = NA, txt = readLines(doc), ...)
-            tmp(type = type, txt = txt, ...)
+            xxxtmp(type = type, txt = txt, ...)
          )
 
-setMethod("readScript", "character", tmp)
+setMethod("readScript", "character", xxxtmp)
 
 setMethod("readScript", "XMLInternalDocument",
            function(doc, type = NA, txt = readLines(doc), ...) {
@@ -57,7 +59,7 @@ setMethod("readScript", "XMLInternalDocument",
 setOldClass("connection")
 setOldClass(c("url", "connection"))
 setOldClass(c("file", "connection"))
-setMethod("readScript", "connection", tmp)
+setMethod("readScript", "connection", xxxtmp)
 
 
 
