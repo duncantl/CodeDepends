@@ -1,6 +1,8 @@
 library(CodeDepends)
 sc = readScript("varGraphEg2.R")
-gfs = getFunctionGlobals(sc)          
+gfs = getFunctionGlobals(sc)
+# Or use getGlobals from CodeAnalysis for improved version.
+gfs2 = getFunctionGlobals(sc, getGlobals = CodeAnalysis::getGlobals)          
 gg = getVariableGraph("r", sc, functionGlobals = gfs)
 
 
