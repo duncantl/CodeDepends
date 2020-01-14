@@ -33,6 +33,12 @@ getFunctionDefs(sc, envir = globalenv(), source = getSourceFunctions(sc, envir, 
 Duncan Temple Lang
 }
 \examples{
+f = system.file("samples", "varGraphEg2.R", package = "CodeDepends")
+getFunctionDefs(f)
+
+f = system.file("samples", "sourceEg.R", package = "CodeDepends")
+getFunctionDefs(f)
 }
+% getFunctionDefs(f, byFile = TRUE)
 \concept{static code analysis}
 
