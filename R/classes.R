@@ -35,9 +35,28 @@ setAs("Script", "ScriptInfo",
       function(from)
         getInputs(from))
 
+setAs("expression", "ScriptInfo",
+      function(from)
+      new("ScriptInfo", lapply(from, getInputs)))
+
+setAs("character", "ScriptInfo",
+      function(from)
+      as(as(from, "Script"), "ScriptInfo"))
+
+setAs("character", "Script",
+     function(from) {
+         readScript(from)
+     })
+
+setAs("character", "ScriptNodeInfo",
+      function(from) {
+          as(parse(text = from), "ScriptNodeInfo")
+      })
+
 setAs("expression", "ScriptNodeInfo",
       function(from)
         getInputs(from))
+
 setAs("language", "ScriptNodeInfo",
       function(from)
         getInputs(from))
@@ -57,3 +76,5 @@ setMethod("[", signature(x = "Script", i = "vector", j = "missing"),
 setMethod("$", "Script",
           function(x, name)
             invisible( sourceVariable(name, x)) )
+
+

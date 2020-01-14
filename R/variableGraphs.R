@@ -30,7 +30,7 @@ function(var, sc, asGraph = TRUE, globals = TRUE,
 }
 
 createVarGraph =
-function(cmds, script = NULL, globals = TRUE, functionGlobals = getFunctionGlobals(sc))
+function(cmds, script = NULL, globals = TRUE, functionGlobals = getFunctionGlobals(cmds))
 {
     info = lapply(cmds, getInputs)
     do.call(rbind, lapply(info, inputOutputEdges, globals, functionGlobals))
@@ -39,7 +39,7 @@ function(cmds, script = NULL, globals = TRUE, functionGlobals = getFunctionGloba
 inputOutputEdges =
 function(info, globals, functionGlobals = NULL)
 {
-    ins =  CodeDepends:::getGlobalInputs(info, functionGlobals) # unique(info@inputs)
+    ins = getGlobalInputs(info, functionGlobals) # unique(info@inputs)
     if(FALSE && length(functionGlobals)) {
 #        browser()
         i = match(names(info@functions), names(functionGlobals), 0)
