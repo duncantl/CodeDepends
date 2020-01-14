@@ -182,7 +182,7 @@ getVariableDepends =
     defs = sapply(info, function(v) any(vars %in% getVariables(v, functions = functions)))
     
     ans = lapply(which(defs), getSectionDepends, frags, info, index = TRUE, functionGlobals, ...)
-    undef = unlist(lapply(ans, attr, "Undefined"))
+    undef = unique(unlist(lapply(ans, attr, "Undefined")))
 # Flag/Reminder to myself for now.    Should remove later on.
     if(length(undef) > 0) warning("undefined variables found: ", paste(undef, collapse = ", "))
     
