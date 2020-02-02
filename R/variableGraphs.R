@@ -17,6 +17,8 @@
 #
 
 
+# See existing makeVariableGraph()
+
 getVariableGraph = getVarDependsGraph =
 function(var, sc, asGraph = TRUE, globals = TRUE,
          idx = getVariableDepends(var, sc, asIndex = TRUE, functionGlobals = functionGlobals),
