@@ -10,6 +10,17 @@
 <title>Issues</title>
 
 <item>
+makeCallGraph(): Colors identifying packages when plot the graph.
+Working on it.
+</item>
+<item>
+makeCallGraph() doesn't seem to respect pkg::fun - or is that the instances we test are in S4 methods.
+</item>
+<item>
+makeCallGraph() doesn't seem to recognize S4 methods.
+</item>
+
+<item>
 sourceVariable() needs to find all of the functions
 that are called in any function that is defined in the dependencies.
 </item>
