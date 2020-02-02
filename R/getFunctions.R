@@ -9,10 +9,25 @@ getFunctionGlobals =
     # getFunctionGlobals("../tests/getFunctionDefsEg.R")
     #
     #
-function(sc, funs = getFunctionDefs(sc, envir), envir = globalenv(),
+function(sc, recursive = TRUE, funs = getFunctionDefs(sc, envir), envir = globalenv(),
          getGlobals = function(x) codetools::findGlobals(x, FALSE) )
 {
-    ans = lapply(funs, function(x) getGlobals(x)$variables)
+    globals = lapply(funs, getGlobals)
+    ans = lapply(globals, `[[`, "variables")
+
+    if(recursive) {
+        # Go through each target function and see what functions it calls in this set
+        # and then append those functions' global variables to those of the target function.
+        funs = lapply(globals, function(x) intersect(x$functions, names(globals)))
+           # Need to order these via calls, so a call graph to start with the
+           # one at the end of the chain, i.e., that doesn't call others.
+        o = order(sapply(funs, length))
+        for(i in names(globals)[o]) {
+            m = match(unique(funs[[i]]), names(ans), 0)
+            ans[[i]] = unique(unlist(c(ans[[i]], unique(ans[m]))))
+        }
+    }
+    
     ans[sapply(ans, length) > 0]
 }
 
@@ -25,7 +40,7 @@ function(sc, envir = globalenv(), source = getSourceFunctions(sc, envir, byFile 
     if(is.character(sc))
         sc = readScript(sc)
     
-    isFun = sapply(sc, function(x) is.call(x) && class(x) %in% c("=", "<-") && is.name(x[[2]])
+    isFun = sapply(sc, function(x) is.call(x) && class(x) %in% c("=", "<-") && (is.name(x[[2]]) || is.character(x[[2]])) 
                                       && is.call(x[[3]]) && is.name(x[[3]][[1]]) && x[[3]][[1]] == "function")
 
     funs = list()    

@@ -18,13 +18,18 @@
   the implicit dependencies on global variables.
 }
 \usage{
-getFunctionGlobals(sc, funs = getFunctionDefs(sc, envir), envir = globalenv(), getGlobals = function(x) codetools::findGlobals(x, FALSE))
+getFunctionGlobals(sc, recursive = TRUE, funs = getFunctionDefs(sc, envir),
+                    envir = globalenv(),
+                    getGlobals = function(x) codetools::findGlobals(x, FALSE))
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
-  \item{sc}{R code as a language, \code{\link{Script-class}}, or \code{\link{ScriptInfo-class}} object.}
+\item{sc}{R code as a language, \code{\link{Script-class}}, or \code{\link{ScriptInfo-class}} object.}
 \item{funs}{the list of all the functions in the R code.
  These are found via static analysis to avoid having to
+\code{recursive}{a logical value which controls whether for each
+  function,  we also include the
+  global variables used by the other functions it calls.}
  \code{\link[base]{source}} code that may perform computations
  other than defining functions.
 }
@@ -54,6 +59,16 @@ Duncan Temple Lang
 \examples{
 f = system.file("samples", "varGraphEg2.R", package = "CodeDepends")
 getFunctionGlobals(f)
+
+
+\dontrun{
+    # Because CodeAnalysis might not be available.
+ f = system.file("samples", "globalVarFuns.R", package = "CodeDepends")
+ getFunctionGlobals(f, getGlobals = CodeAnalysis::getGlobals)
 }
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
+}
+\keyword{debugging}
+\keyword{programming}
+\concept{static code analysis}
+\concept{global variables}
 
