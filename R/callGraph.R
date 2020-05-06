@@ -80,7 +80,10 @@ setMethod("makeCallGraph", "list",
             require(graph)
             ids = funNames
             edges = lapply(obj, function(f) {
-                                  calls = findGlobals(f, merge = FALSE)$functions
+                                  calls <- character(0)
+                                  if (typeof(f) == "closure") {
+                                      calls <- findGlobals(f, merge = FALSE)$functions
+                                  }
                                   if(all)
                                     return(calls)
                                   list(edges = match(calls[calls %in% ids], ids))
