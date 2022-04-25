@@ -1,5 +1,5 @@
 Package: CodeDepends
-Version: 0.6.6
+Version: 0.6.6.1
 Title: Analysis of R Code for Reproducible Research and Code Comprehension
 Description: Tools for analyzing R expressions
   or blocks of code and determining the dependencies between them.
