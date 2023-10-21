@@ -4,10 +4,23 @@
 <topics xmlns:r="http://www.r-project.org">
 <title>CodeDepends</title>
 
+
+
 <topic>
 <title>CodeDepends</title>
 <items>
 <title>Issues</title>
+
+<item>
+highlighting of code and identifying variables.
+A different mode (e.g., right click or a different plot)
+to point at a LHS variable and show the earlier commands
+that are needed to create this.
++ Make the other commands disappear so can focus on these commands.
+</item>
+<item>
+Link highlighted code to time variable plot and/or variable dependency plot.
+</item>
 
 <item>
 makeCallGraph(): Colors identifying packages when plot the graph.
@@ -28,7 +41,7 @@ that are called in any function that is defined in the dependencies.
 <item status="verify">
 Fix getInputs so that it doesn't add the elements on the RHS to updates.
 See ~/Projects/CaseStudies/BML/BML.Rdb. and sc[[45]]@outputs and specifically
-adding grid to the updates..
+adding grid to the updates.
 </item>
 
 <item status="verify">
