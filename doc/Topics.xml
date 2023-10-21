@@ -11,12 +11,12 @@ filter
 </para>
 </section>
 <section>
-<title>Reproducabilit</title>
+<title>Reproducability</title>
 <para>
 For a reviewer, provide a high-level view of the
 tasks in the analysis. This  is like a flow chart
 but automatically produced via tools but also
-annotated by the athor. 
+annotated by the author. 
 </para>
 <para>
 Similarly, allow the viewer to click on a section or
