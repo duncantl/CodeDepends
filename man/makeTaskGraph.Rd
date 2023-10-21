@@ -2,7 +2,7 @@
 \alias{makeTaskGraph}
 \title{Create a graph connecting the tasks within a script}
 \description{
-  This function create a graph connecting the high-level
+  This function creates a graph connecting the high-level
   tasks within a script. The tasks are blocks of code that
   perform a step in the process.
   Each code block has input and output variables.
