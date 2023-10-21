@@ -25,6 +25,10 @@ getFunctionGlobals(sc, recursive = TRUE, funs = getFunctionDefs(sc, envir),
 
 \arguments{
 \item{sc}{R code as a language, \code{\link{Script-class}}, or \code{\link{ScriptInfo-class}} object.}
+\item{recursive}{a scalar logical controlling whether to also process the
+  functions that are used as global variables in \code{funs}
+  and to also find the global variables used by these.
+}
 \item{funs}{the list of all the functions in the R code.
  These are found via static analysis to avoid having to
 \code{recursive}{a logical value which controls whether for each
