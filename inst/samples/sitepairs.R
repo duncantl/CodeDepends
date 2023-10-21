@@ -110,5 +110,5 @@ sitepairs <- sitepairs[use, ]
 keep <- sitepairs$nobs > 0
 sitepairs <- sitepairs[keep, ]
 
-.saveRDS(sitepairs, file = "sitepairs.rds")
+saveRDS(sitepairs, file = "sitepairs.rds")
 
