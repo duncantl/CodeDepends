@@ -33,9 +33,7 @@ sourceVariable(vars, doc, frags = readScript(doc), eval = TRUE, env = globalenv(
     for functions that are not currently available and if there are any
     whether we add calls to load libraries in \code{\link{getVariableDepends}}.}
     \item{force}{a logical value that controls whether we evaluate the
-      expression to create or update a variable if the variable already
-      exists in \code{env} when we analyze the code (i.e., before we
-      evaluate any of the expressions).}
+      expressions if they variables appear to exist.}
     \item{first}{a logical value.
     This is intended  to allow running up to the first instance of the variable, not all of them.}
     \item{info}{the information about each expression.  This is computed

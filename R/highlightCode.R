@@ -45,10 +45,10 @@ function(addFunctionLinks = TRUE,  checkURLs = TRUE, h)
       if(any(!p)) {
         i = w[!p]
         ans[i]  = sprintf('<span id="sym%d" class="%s" onmouseover=\'showVariable("%s", symIdentifiers);\' onmouseout=\'hideVariable("%s", symIdentifiers);\'>%s</span>',
-                      seq(along.with = i), styles[i], tokens[i], tokens[i], tokens[i])
+                      seq(along = i), styles[i], tokens[i], tokens[i], tokens[i])
 
 
-        symbols <<- split(sprintf("sym%d", seq(along.with = i)), tokens[i])
+        symbols <<- split(sprintf("sym%d", seq(along = i)), tokens[i])
       }
 
 

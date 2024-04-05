@@ -9,8 +9,7 @@ disallowed = c("|" = "vectorized or",
     "[" = "square bracket",
     "(" = "parenthesis",
     "==" = "equal op",
-    "<-" = "left assign",
-    "%||%" = "nonnull or")
+    "<-" = "left assign")
 makeNodeLabs = function(vars) {
     mtch = match(vars, names(disallowed))
     vars[!is.na(mtch)] = disallowed[mtch[!is.na(mtch)]]
@@ -29,7 +28,7 @@ function(var, info, vars = character())
     # search through all the code blocks and see which
     # one consume this variable.
   w = sapply(info, function(x) var %in% x@inputs)
-
+ 
      # now go through all those
   ans = unique(unlist(c(lapply(info[w], getVariables))))
   if(length(vars)) {
@@ -64,7 +63,7 @@ function(doc, frags = readScript(doc), info = getInputs(frags), vars = getVariab
 makeScriptNodeNames =
 function(info)
 {
-  ids =sapply(seq(along.with = info),
+  ids =sapply(seq(along = info),
                 function(i) {
                    vars = getVariables(info[[i]])
                    if(length(vars))
@@ -90,7 +89,7 @@ function(doc, frags = readScript(doc), info = as(frags, "ScriptInfo"))
                  names(info)
             else
                  makeScriptNodeNames(info)
-
+  
   names(info) = nodeIds
   edges = lapply(info, function(x) {
                   list(edges =  getPropagateChanges(getVariables(x), info, index = TRUE))
@@ -98,7 +97,7 @@ function(doc, frags = readScript(doc), info = as(frags, "ScriptInfo"))
 
   new("graphNEL", nodes = nodeIds, edgeL = edges, edgemode = "directed")
 }
-
+                    
 
 #######################################
 
@@ -107,14 +106,14 @@ getTimelines =
   # We want to be able to determine when a variable starts
   # and when it ends, either when it can be removed or
   # when it is reassigned.
-  #
+  # 
   # We also may want to know at what time steps the variables are used
   # and when they are redefined.
   #
 function(doc, info = getInputs(doc), vars = getVariables(info))
 {
     # loop over each block/time step
-  ans = lapply(seq(along.with = info),
+  ans = lapply(seq(along = info),
                 function(i) {
                        # then each variable
                     rest = info[seq(i, length(info))]
@@ -180,11 +179,11 @@ setAs("DetailedVariableTimeline", "matrix",  #??? Was this really DetailedVariab
 
 plot.DetailedVariableTimeline =
 function(x, var.srt = 0, var.mar = round(max(4, .5*max(nchar(levels(x$var))))), var.cex = 1,
-           main = attr(x, "scriptName"), mar = c(5, var.mar, 4, 1) + .1, ...)
+           main = attr(x, "scriptName"), ...)
 {
   old = par(no.readonly = TRUE)
-  on.exit(par(old$mar))
-  par(mar)
+  on.exit(par(old))
+  par(mar = c(5, var.mar, 4, 1) + .1)
   numVars = length(levels(x$var))
   plot(1, type = "n", xlim = attr(x, "range"), ylim = c(1, numVars),
          yaxt = "n",  xlab = "Step", ylab = "", main = main, ...)
@@ -192,13 +191,13 @@ function(x, var.srt = 0, var.mar = round(max(4, .5*max(nchar(levels(x$var))))), 
   text(par("usr")[1] - 0.25, 1:numVars, srt = var.srt, adj = 1,
           labels = levels(x$var), xpd = TRUE, cex = var.cex)
 
-
+  
   x$varNum = as.integer(x$var)
 
   by(x, x$var, function(x) {
                   i = x$varNum[1]
                   start = c(min(which(x$defined)), if(any(x$used)) max(which(x$used)) else min(which(x$defined)))
-                  lines(c(1, start[1]), c(i, i), col = "lightgray", lty = 3)
+                  lines(c(1, start[1]), c(i, i), col = "lightgray", lty = 3)                  
                   lines(start, c(i, i), col = "lightgray")
                   if(any(x$used))
                     points(which(x$used), rep(i, sum(x$used)), pch = 21, col = "red")

@@ -127,7 +127,7 @@ function(expr)
     expr = expr[[3]]
   }
   
-  while(class(expr) != "{") {
+  while(!inherits(expr, "{")) {
     task = c(task, as.character(expr[[1]]))
     expr = expr[[2]]
   }
@@ -193,7 +193,7 @@ makeTaskNames =
 function(x)
 {
   if(length(x) > 1)
-     names(x) = trim(sprintf("%s %d", names(x)[1], seq(along.with = x)))
+     names(x) = trim(sprintf("%s %d", names(x)[1], seq(along = x)))
   x
 }
 

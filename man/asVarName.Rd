@@ -21,7 +21,7 @@ asVarName(x)
 This function always returns a character vector representing a single
 symbol from \code{x}, but which code varies depending on the exact form
 of \code{x}. When
-\itemize{
+\describe{
 \item{\code{x} is a single symbol}{the character representation of the symbol is returned}
 \item{\code{x} is a function call}{asVarName is recursively called on
   the sub-expression for the first argument}

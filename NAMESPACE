@@ -53,8 +53,7 @@ S3method(plot, DetailedVariableTimeline)
 export(getDependsThread)
 
 export(makeCallGraph)
-## deprecated in favor of CodeAnalysis
-##exportMethods(makeCallGraph)
+exportMethods(makeCallGraph)
 
 export(separateExpressionBlocks,
        splitRedefinitions)

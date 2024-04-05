@@ -14,8 +14,7 @@ getDetailedTimelines(doc, info = getInputs(doc, ...), vars =
 getVariables(info, functions = functions), functions=TRUE, ...)
 \method{plot}{DetailedVariableTimeline}(x, var.srt = 0,
                                          var.mar = round(max(4,
-.5*max(nchar(levels(x$var))))), var.cex = 1, main = attr(x, "scriptName"),
-  mar = c(5, var.mar, 4, 1) + .1, ...)
+.5*max(nchar(levels(x$var))))), var.cex = 1, main = attr(x, "scriptName"),...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -38,7 +37,6 @@ getVariables(info, functions = functions), functions=TRUE, ...)
    
     the vertical axis.}
   \item{main}{the title of the plot}
-  \item{mar}{a vector to use to set the \code{mar} graphics parameter}
   \item{\dots}{Passed to down to getInputs for the default \code{info}
   value in \code{getDetailedTimelines} and to underlying plotting
   functions for \code{plot.DetailedTimelines}.}
