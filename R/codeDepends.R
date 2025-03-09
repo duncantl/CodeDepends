@@ -339,6 +339,14 @@ function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaI
   e
 })
 
+setMethod("getInputs", "name",
+function(e, collector = inputCollector(), basedir = ".", reset = FALSE, formulaInputs = FALSE, ...)
+{
+    ans = new("ScriptNodeInfo")
+    ans@code = e
+    ans
+})
+
 
 
 setMethod("getInputs", "function",
