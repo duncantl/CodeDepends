@@ -153,8 +153,20 @@ inputCollector =
                                  removes = removes,
                                  nsevalVars = nsevalVars,
                                  functions = structure(rep(NA, length(funcs)), names = funcs),
-                                 sideEffects = unique(sideEffects),
-                                code = code)
+                                 sideEffects = unique(sideEffects)
+                               # , code = code
+                                )
+
+                      # just having
+                      #  ans@code = code
+                      # raises an error when code is the missing argument, i.e.,
+                      # an object of class name with value ""
+                      # The error is 
+                      #   argument "code" is missing, with no default
+                      # So we don't use standard evaluation to get code
+                      # but get it from the relevant environment.
+
+                      ans@code = parent.env(environment())$code
                       
                       if(resetState) 
                         reset()
