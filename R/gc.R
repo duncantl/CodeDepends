@@ -48,7 +48,7 @@ function(doc, frags = readScript(doc), info = getInputs(frags),
           k = call("rm")
           k[seq(2, length = nrow(x)) ] = lapply(as.character(x[, "var"]), as.name)
 
-          if(class(f) == "{")
+          if(inherits(f, "{"))
              f[ length(f) + 1 ] = k
           else {
             tmp = expression()

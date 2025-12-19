@@ -137,7 +137,7 @@ for all of these to be `FALSE`.
 `CodeDepends` can visualize code in various ways.
 
 ## Variable dependency graphs
-We can create the variable graph of dependencies between variables,
+We can create the variable graph of dependnecies between variables,
 via the `makeVariableGraph` function:
 
 ```{r variablegraph}

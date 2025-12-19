@@ -20,8 +20,8 @@ getVariables(x, inputs = FALSE, functions = TRUE, ...)
     variables or just return the output variables, i.e. those on the
     left hand side of of an assignment. Defaults to \code{FALSE}}
   \item{functions}{Indicates what types of functions should be
-    included. \code{NULL} Logical or NULL. Indicates what kind of functions
-    should be counted as variables: local (\code{TRUE}, the default) indicates none, \code{TRUE}
+    included. \code{NULL} Logical or NULL. Indicages what kind of functions
+    should be counted as variables: local (\code{TRUE}, the default)(default) indicates none, \code{TRUE}
     indicates user-defined or unknown provenance functions, and
     \code{FALSE} indicates all functions. Ignored if \code{inputs} is
     \code{FALSE}.}

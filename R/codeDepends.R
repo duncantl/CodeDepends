@@ -153,8 +153,20 @@ inputCollector =
                                  removes = removes,
                                  nsevalVars = nsevalVars,
                                  functions = structure(rep(NA, length(funcs)), names = funcs),
-                                 sideEffects = unique(sideEffects),
-                                code = code)
+                                 sideEffects = unique(sideEffects)
+                               # , code = code
+                                )
+
+                      # just having
+                      #  ans@code = code
+                      # raises an error when code is the missing argument, i.e.,
+                      # an object of class name with value ""
+                      # The error is 
+                      #   argument "code" is missing, with no default
+                      # So we don't use standard evaluation to get code
+                      # but get it from the relevant environment.
+
+                      ans@code = parent.env(environment())$code
                       
                       if(resetState) 
                         reset()
@@ -321,7 +333,7 @@ identifyLocalFunctions =
 function(nodes)
 {
   defs = character()
-  for(i in seq(along.with = nodes)) {
+  for(i in seq(along = nodes)) {
      tmp = nodes[[i]]
      if(length(tmp@functions) && any(w <- is.na(tmp@functions))) {
         tmp@functions[w] = names(tmp@functions[w]) %in% defs
@@ -347,8 +359,7 @@ setMethod("getInputs", "function",
     ## create dummy node which declares the formal arguments so they
     ## don't show up as globals later. the call itself "outputs" these
     ## "variables"
-    v = names(formals(e))                
-    vars = new("ScriptNodeInfo", outputs = if(length(v)) v else character())
+    vars = new("ScriptNodeInfo", outputs = names(formals(e)))
     exprs = as.list(body(e))
     ## do we really want to keep the "{" around? Currently a test fails
     ## if we remove it (length of output) but the test could be changed...

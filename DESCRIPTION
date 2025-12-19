@@ -1,6 +1,7 @@
 Package: CodeDepends
-Version: 0.6.6.1
-Title: Analysis of R Code for Reproducible Research and Code Comprehension
+Version: 0.6.7
+Title: Analysis of R Code for Reproducible Research and Code
+        Comprehension
 Description: Tools for analyzing R expressions
   or blocks of code and determining the dependencies between them.
   It focuses on R scripts, but can be used on the bodies of functions.
@@ -8,17 +9,20 @@ Description: Tools for analyzing R expressions
   view of code, determining dependencies between variables,  code improvement
   suggestions.
 Author: Duncan Temple Lang, Roger Peng, Deborah Nolan, Gabriel Becker
-Maintainer:  Gabriel Becker <becker.gabriel@gene.com> 
+Maintainer: Gabriel Becker <gabembecker@gmail.com>
 License: GPL
 URL: https://github.com/duncantl/CodeDepends
 BugReports: https://github.com/duncantl/CodeDepends/issues
 Depends: methods
 Imports: codetools, graph, XML, utils
-Suggests: Rgraphviz, RUnit, knitr,  highlight, RJSONIO, RCurl, Rcpp
+Suggests: Rgraphviz, RUnit, knitr, highlight, RJSONIO, RCurl, Rcpp
 VignetteBuilder: knitr
-Collate: classes.R librarySymbols.R functionHandlers.R codeDepends.R sectionDepends.R sweave.R xml.R 
-         jss.R frags.R codeTypes.R gc.R graph.R parallel.R 
-         deps.R separateBlocks.R callGraph.R isPlot.R isOutput.R 
-         refScript.R sideEffects.R 
-         highlightCode.R freeVariables.R
-         convenienceFuns.R
+Collate: classes.R librarySymbols.R functionHandlers.R codeDepends.R
+        sectionDepends.R sweave.R xml.R jss.R frags.R codeTypes.R gc.R
+        graph.R parallel.R deps.R separateBlocks.R callGraph.R isPlot.R
+        isOutput.R refScript.R sideEffects.R highlightCode.R
+        freeVariables.R convenienceFuns.R
+NeedsCompilation: no
+Packaged: 2018-07-17 20:24:43 UTC; beckerg4
+Repository: CRAN
+Date/Publication: 2018-07-17 21:10:03 UTC

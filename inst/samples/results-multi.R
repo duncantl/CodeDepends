@@ -12,7 +12,7 @@ if(length(outcome) == 0 || is.na(outcome)) {
 ## components [multiple pollutant]
 
 ## Get data
-specdata <- readRDS("SpecData-combined.rds")
+specdata <- .readRDS("SpecData-combined.rds")
 
 library(splines)
 library(tsModel)
